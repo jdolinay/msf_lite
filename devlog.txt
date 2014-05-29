@@ -1,0 +1,6 @@
+MSF lite
+
+
+Poznamka z AVR:
+Projekty examples staci .cproject a .project a slozka .settings jak mam ted - overeno v eclipse ze
+po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
