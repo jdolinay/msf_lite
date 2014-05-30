@@ -48,11 +48,14 @@
  */
 
 #include <stdint.h>
-#include "MKL25Z4.h"	/* jd: was "KL25Z4.h" but such file does not exist in the sample package */
+#include "MKL25Z4.h"	/* was "KL25Z4.h" but such file does not exist in the sample package */
 
 #define DISABLE_WDOG    1
 
-#define CLOCK_SETUP     1
+/*  see msf_config_mkl25z.h
+ #define CLOCK_SETUP     1
+ */
+
 /* Predefined clock setups
    0 ... Multipurpose Clock Generator (MCG) in FLL Engaged Internal (FEI) mode
          Reference clock source for MCG module is the slow internal clock source 32.768kHz

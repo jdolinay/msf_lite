@@ -1,6 +1,13 @@
 MSF lite
 
-
 Poznamka z AVR:
 Projekty examples staci .cproject a .project a slozka .settings jak mam ted - overeno v eclipse ze
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
+
+30.5.2014
+Pokracuj: blink dodelat s definicemi board pinu...
+TODO: dodefinovat piny v msf_kl25z.h a pak aktualizovat i do MSF verze!
+
+29.5.2014
+Pokracuj: doresit preklad blink za soucasne tvorby navodu v cw10_howto.txt
+Vytvoren example project blink (workspace moje v doc ale lokace projektu je v msf_lite\examples...),

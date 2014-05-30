@@ -19,3 +19,4 @@ platfrom 	- kod specificky pro urcitou platformu
 			
 vendor		- kod dodany vyrobcem MCU, napr. CMSIS kod, "core" knihovny vyrobce atd.
 	freescale\CMSIS
+template	- template file(s), e.g. msf_config.h

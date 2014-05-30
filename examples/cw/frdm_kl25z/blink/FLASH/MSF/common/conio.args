@@ -1,0 +1,24 @@
+-mcpu=cortex-m0
+-mthumb
+-mfloat-abi=soft
+-g3
+-gdwarf-2
+-gstrict-dwarf
+-I"D:/Git/msf_lite/examples/cw/frdm_kl25z/blink/Project_Headers"
+-I"D:/Git/msf_lite/board/frdm_kl25z"
+-I"D:/Git/msf_lite/common"
+-I"D:/Git/msf_lite/platform/kinetis"
+-I"D:/Git/msf_lite/platform/kinetis/mkl25z"
+-I"D:/Git/msf_lite/vendor/freescale/CMSIS"
+-I"D:/Git/msf_lite/vendor/freescale/CMSIS/Include"
+-I"D:/Git/msf_lite/vendor/freescale/CMSIS/MKL25Z4/Include"
+-I"D:/Git/msf_lite/examples/cw/frdm_kl25z/blink/Project_Settings/Startup_Code"
+-I"C:/Freescale/CW MCU v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include"
+-I"C:/Freescale/CW MCU v10.5/MCU/ARM_GCC_Support/ewl/EWL_Runtime/include"
+-O0
+-ffunction-sections
+-fdata-sections
+-Wall
+-c
+-fmessage-length=0
+-specs=ewl_c_noio.specs
