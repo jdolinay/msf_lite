@@ -54,6 +54,11 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>MSF/frdm_kl25z</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
 			<name>MSF/kinetis</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
@@ -142,6 +147,21 @@
 			<name>MSF/common/msf_print.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/common/msf_print.c</locationURI>
+		</link>
+		<link>
+			<name>MSF/frdm_kl25z/arduino.h</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/board/frdm_kl25z/arduino.h</locationURI>
+		</link>
+		<link>
+			<name>MSF/frdm_kl25z/frdm_kl25z.h</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/board/frdm_kl25z/frdm_kl25z.h</locationURI>
+		</link>
+		<link>
+			<name>MSF/frdm_kl25z/msf_config_mkl25z.h</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/board/frdm_kl25z/msf_config_mkl25z.h</locationURI>
 		</link>
 		<link>
 			<name>MSF/kinetis/adc_kl25.c</name>

@@ -127,12 +127,14 @@ static void gpio_direction(MCU_pin_t pin, GPIO_pin_direction dir)
  * Set the state of pull-up register for GPIO pin. 
  * The pin should be input! 
  * Does not check or change the pin direction. 
- * TODO: pins which do not support pull-up/down selection or enable/disable 
+ * Note: pins which do not support pull-up/down selection or enable/disable 
  * the resistor should not be written? (data sheets says they are read only).
- * These are: 
+ * Note: No pins on MKL25Z support pull up/down select; all are hard-wired!
+ * Special pins: 
  *  for PTA0 PS = 0 (read only)
  *  for PTA0 and PTA2 PE = 1 but is configurable?
- *  For now these pins are not defined in the GPIO pin enum in msf_<device>.h. 
+ *  PTB0, PTB1, PTD6, PTD7 - high current drive pins.
+ *   
 */
 #if MSF_USE_INLINE
     inline

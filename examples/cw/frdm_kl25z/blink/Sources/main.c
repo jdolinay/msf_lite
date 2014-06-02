@@ -5,7 +5,7 @@
  * B18 	- Red LED
  * B19 	- Green LED 
  * D1	- Blue LED (Arduino pin D13)
- * All LEDs are on if the pin is low and off if it is high.
+ * All LEDs are on, if the pin is low and off if it is high.
  *
  */
 

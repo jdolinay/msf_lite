@@ -16,6 +16,9 @@ The MSF lite projects in CW 10.5 for the FRDM-KL25Z board use the universal ARM-
 select all the files). Located in msf_lite\vendor\freescale\CMSIS.
  AND in Advanced select Link resources (do not copy the files to your workspace)
  AND check the "Create top folder" so that the CMSIS folder is also created in your project.
+
+2.1) In the same way add the MSF files (msf_lite\platform\kinetis) and board specific
+files (msf_lite\board\frdm_kl25z\) 
  
 
 3) Delete the file Project_Headers\MKL25Z4.H (the header for the MCU provided by CW); we will  use CMSIS header.
