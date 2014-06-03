@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cdtprojectproperties>
+<section name="org.eclipse.cdt.internal.ui.wizards.settingswizards.IncludePaths">
+<language name="Assembly Source File">
+
+</language>
+<language name="C Source File">
+<includepath>${ProjDirPath}/Project_Headers</includepath>
+<includepath>${ProjDirPath}\..\..\..\..\board\frdm_kl25z</includepath>
+<includepath>${ProjDirPath}\..\..\..\..\common</includepath>
+<includepath>${ProjDirPath}\..\..\..\..\platform\kinetis</includepath>
+<includepath>${ProjDirPath}\..\..\..\..\platform\kinetis\mkl25z</includepath>
+<includepath>${ProjDirPath}\..\..\..\..\vendor\freescale\CMSIS</includepath>
+<includepath>${ProjDirPath}\..\..\..\..\vendor\freescale\CMSIS\Include</includepath>
+<includepath>${ProjDirPath}\..\..\..\..\vendor\freescale\CMSIS\MKL25Z4\Include</includepath>
+<includepath>${ProjDirPath}/Project_Settings/Startup_Code</includepath>
+<includepath>${MCUToolsBaseDir}/ARM_GCC_Support/ewl/EWL_C/include</includepath>
+<includepath>${MCUToolsBaseDir}/ARM_GCC_Support/ewl/EWL_Runtime/include</includepath>
+
+</language>
+<language name="Assembly Source File">
+<includepath>${ProjDirPath}/Project_Headers</includepath>
+<includepath>${ProjDirPath}\..\..\..\..\board\frdm_kl25z</includepath>
+<includepath>${ProjDirPath}\..\..\..\..\common</includepath>
+<includepath>${ProjDirPath}\..\..\..\..\platform\kinetis</includepath>
+<includepath>${ProjDirPath}\..\..\..\..\platform\kinetis\mkl25z</includepath>
+<includepath>${ProjDirPath}\..\..\..\..\vendor\freescale\CMSIS</includepath>
+<includepath>${ProjDirPath}\..\..\..\..\vendor\freescale\CMSIS\Include</includepath>
+<includepath>${ProjDirPath}\..\..\..\..\vendor\freescale\CMSIS\MKL25Z4\Include</includepath>
+<includepath>${ProjDirPath}/Project_Settings/Startup_Code</includepath>
+<includepath>${MCUToolsBaseDir}/ARM_GCC_Support/ewl/EWL_C/include</includepath>
+<includepath>${MCUToolsBaseDir}/ARM_GCC_Support/ewl/EWL_Runtime/include</includepath>
+
+</language>
+<language name="Object File">
+
+</language>
+<language name="topreprocess">
+<includepath>${ProjDirPath}/Project_Headers</includepath>
+<includepath>${ProjDirPath}/Project_Settings/Startup_Code</includepath>
+<includepath>${MCUToolsBaseDir}/ARM_GCC_Support/ewl/EWL_C/include</includepath>
+<includepath>${MCUToolsBaseDir}/ARM_GCC_Support/ewl/EWL_Runtime/include</includepath>
+
+</language>
+</section>
+<section name="org.eclipse.cdt.internal.ui.wizards.settingswizards.Macros">
+<language name="Assembly Source File">
+
+</language>
+<language name="C Source File">
+
+</language>
+<language name="Assembly Source File">
+
+</language>
+<language name="Object File">
+
+</language>
+<language name="topreprocess">
+
+</language>
+</section>
+</cdtprojectproperties>

@@ -4,8 +4,13 @@ Poznamka z AVR:
 Projekty examples staci .cproject a .project a slozka .settings jak mam ted - overeno v eclipse ze
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 
+3.6.2014
+Pokracuj: analogRead + pridat do ADC driveru nastaveni reference.
+- ok projekt pro arduino s blikanim LED :)
+
 2.6.2014
-Pokracuj: doresit arduino.h a jeho preklad, pak example pro arduino (asi novy projekt) 
+_Pokracuj: doresit arduino.h a jeho preklad, pak example pro arduino (asi novy projekt) 
+_TODO: v postupu vytvoreni projektu vyuzit nove templates slozku s upravenymi soubory..
 
 30.5.2014
 Pokracuj: blink dodelat s definicemi board pinu - toto bude v aktualnim projektu = example na MSF...
@@ -15,8 +20,14 @@ TODO: piny v msf_kl25z.h aktualizovat i do MSF verze!
 Pokracuj: doresit preklad blink za soucasne tvorby navodu v cw10_howto.txt
 Vytvoren example project blink (workspace moje v doc ale lokace projektu je v msf_lite\examples...),
 
+REMEM: k "template" projektum v Eclipse= CW
+Existují viz http://help.eclipse.org/kepler/index.jsp?topic=%2Forg.eclipse.cdt.doc.isv%2Fguide%2FprojectTemplateEngine%2FHowtoregistertemplates.html
+od CDT 4.0, pøitom cw 10.5 má prý CDT 8.x, ale nevím...
+Registrace je složitá pøes vytváøení plugin projektu.
+Nevím jestli snadno jde když potøebuji "naklonovat" projekt CW wizarda ktery je dost složitý.
+TIP: jde exportovat project settings pres Export > C/C++ > Export project settings.
+END REMEM
 
 ///////////////////////////////////////////////////////
 Zmenene soubory, ktere synchronizovat do MSF:
-- gpio.h
-- msf_mkl25z.h
+(po synchronizaci zde zaznam smazat)
