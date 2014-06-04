@@ -4,8 +4,15 @@ Poznamka z AVR:
 Projekty examples staci .cproject a .project a slozka .settings jak mam ted - overeno v eclipse ze
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 
+4.6.2014
+Pokracuj: dodelani Serial + otestovani analog funkci, casovacich a serial.
+> Serial v arduino umi i paritu a datove bity :(
+TODO: v conio driveru nacteni stringu? msf_read_str() krome read_char (?) 
+TODO: testovat analog Reference()
+TODO: resim nejak v gpio pouziti analog input pinu jako digital = prepinam funkci pinu?
+
 3.6.2014
-Pokracuj: analogRead + pridat do ADC driveru nastaveni reference.
+_Pokracuj: analogRead + pridat do ADC driveru nastaveni reference.
 - ok projekt pro arduino s blikanim LED :)
 
 2.6.2014
@@ -14,10 +21,10 @@ _TODO: v postupu vytvoreni projektu vyuzit nove templates slozku s upravenymi so
 
 30.5.2014
 Pokracuj: blink dodelat s definicemi board pinu - toto bude v aktualnim projektu = example na MSF...
-TODO: piny v msf_kl25z.h aktualizovat i do MSF verze!
+_TODO: piny v msf_kl25z.h aktualizovat i do MSF verze!
 
 29.5.2014
-Pokracuj: doresit preklad blink za soucasne tvorby navodu v cw10_howto.txt
+_Pokracuj: doresit preklad blink za soucasne tvorby navodu v cw10_howto.txt
 Vytvoren example project blink (workspace moje v doc ale lokace projektu je v msf_lite\examples...),
 
 REMEM: k "template" projektum v Eclipse= CW

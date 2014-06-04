@@ -35,10 +35,12 @@ typedef void (*MSF_ADC_Event_t) (uint32_t event);
  Bit(s)  Meaning
  0:1	0=do not change settings; Single (1) or continuous (2) conversion mode
  2:3	0=do not change settings; Polled (1) or interrupt (2) mode
- 4:6	0=do not change settings;Resolution 16-bit (4), 12-bit (2), 10-bit (3), 8-bit (1)
+ 4:6	0=do not change settings; Resolution 16-bit (4), 12-bit (2), 10-bit (3), 8-bit (1)
  7		Reserved 
  8:10	0=do not change settings; Average samples (1)= no averaging, (2)=4 samples; (3)=8 samples; (4)=16 samples, (5)=32 samples
- 11:12	0=do not change settings;Select ADC A (1) or ADC B (2) channels .
+ 11:12	0=do not change settings; Select ADC A (1) or ADC B (2) channels .
+ 13		Reserved
+ 14:15	ADC reference: 0=do not change; (1)=default (VREFH, VREFL pins); (2)=Alternate pins (VALTH, VALTL).
   	
  */
 /* Defines for these positions*/
@@ -51,7 +53,9 @@ typedef void (*MSF_ADC_Event_t) (uint32_t event);
 #define		MSF_ADC_AVERAGE_Pos		(8)
 #define		MSF_ADC_AVERAGE_Mask	(0x700)
 #define		MSF_ADC_ABSEL_Pos		(11)
-#define		MAD_ADC_ABSEL_Mask		(0x1800)
+#define		MSF_ADC_ABSEL_Mask		(0x1800)
+#define		MSF_ADC_REFSEL_Pos		(14)
+#define		MSF_ADC_REFSEL_Mask		(0xC000)
 
 /* Definitions of he flags */
 #define     MSF_ADC_CONV_SINGLE      (1UL << MSF_ADC_CONV_Pos)  /**< single-shot conversion */
@@ -69,6 +73,8 @@ typedef void (*MSF_ADC_Event_t) (uint32_t event);
 #define     MSF_ADC_AVERAGE_32     	(5UL << MSF_ADC_AVERAGE_Pos)  /**< average 32 samples */
 #define     MSF_ADC_ABSEL_A     	(1UL << MSF_ADC_ABSEL_Pos)    /**< Select ADC A */
 #define     MSF_ADC_ABSEL_B     	(2UL << MSF_ADC_ABSEL_Pos)    /**< Select ADC B */
+#define     MSF_ADC_REFSEL_DEFAULT  (1UL << MSF_ADC_REFSEL_Pos)    /**< Select VREF */
+#define     MSF_ADC_REFSEL_ALT     	(2UL << MSF_ADC_REFSEL_Pos)    /**< Select VALT */
 
 
 /**

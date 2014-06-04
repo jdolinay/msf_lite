@@ -194,9 +194,9 @@ static uint32_t ADC_Control(uint32_t control, uint32_t arg, ADC_RESOURCES* adc)
 	
 	/* Select ADC A or ADC B channels . 
 	 * Some AIN pins are available only for A and some only for B. */
-	if ( (control & MAD_ADC_ABSEL_Mask) != 0)
+	if ( (control & MSF_ADC_ABSEL_Mask) != 0)
 	{
-		if ( (control & MAD_ADC_ABSEL_Mask) == MSF_ADC_ABSEL_A )
+		if ( (control & MSF_ADC_ABSEL_Mask) == MSF_ADC_ABSEL_A )
 		{
 			/* select ADC A */
 			adc->reg->CFG2 &= ~ADC_CFG2_MUXSEL_MASK;
@@ -208,9 +208,26 @@ static uint32_t ADC_Control(uint32_t control, uint32_t arg, ADC_RESOURCES* adc)
 		}
 	}	
 	
+	/* Select ADC reference 
+	 * KL25Z uses VREFH (external pin) as default reference
+	 * Alternate reference Valt is VDDA (analog power supply)*/
+	if ( (control & MSF_ADC_REFSEL_Mask) != 0)
+	{
+		if ( (control & MSF_ADC_REFSEL_Mask) == MSF_ADC_REFSEL_DEFAULT )
+		{
+			/* select VREFH + VREFL pins */
+			adc->reg->SC2 &= ~ADC_SC2_REFSEL_MASK;
+		}
+		else
+		{
+			/* select VALTH + VALTL pins */
+			adc->reg->SC2 |= ADC_SC2_REFSEL(1);
+		}
+	}	
 	
     return MSF_ERROR_OK;
 }
+
 /* Instance specific function pointed-to from the driver access struct */
 static uint32_t ADC0_Control(uint32_t control, uint32_t arg) 
 {

@@ -332,16 +332,6 @@ typedef enum
      
   }  Analog_pin_t;
   
-  /* Note about Arduino compatibility on the FRMD-KL25Z board:
-   * The Arduino pins A0 thru A5 are:
-   * A0 = SE8 (PTB0)
-   * A1 = SE9 (PTB1)
-   * A2 = SE12 (PTB2)
-   * A3 = SE13 (PTB3)
-   * A4 = SE11 (PTC2)
-   * A5 = SE15 (PTC1) 
-   * On the FRDM board the pin names refer to the MCU port + pin, e.g. Arduino "A0"
-   * is names "B0" on th eboard (Port B, pin 0 of the MCU) */
   
  /** Macro for obtaining ADC module channel number for given ANALOG pin code.
   * Need to clear the bits indicating availability of the channel in A and B converter. */
