@@ -5,6 +5,8 @@ Projekty examples staci .cproject a .project a slozka .settings jak mam ted - ov
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 
 5.6.2014
+Pokracuj: tx pro int mode a testovat!
+ + ABORT RX A TX DO CONTROL...
 TEST: UART driver nastaveni baud a int/polled mode.
 TODO: uart/serial musi mit buffer. UART driver ne, ten ma vyuzivat jen HW buffer, který je u KL = 1 B
  ale conio mozna jo.

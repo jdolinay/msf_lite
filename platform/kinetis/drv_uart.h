@@ -60,14 +60,23 @@ typedef void (*MSF_UART_Event_t) (uint32_t event, uint32_t arg);
 
 
 /** UART events (masks) 
+ * The driver will generate these events in interrupt mode.
  * The user defined function MSF_UART_Event_t will get the mask in event parameter */
-#define		MSF_UART_EVENT_TX_EMPTY		(1UL<<0)	/**< Tx buffer is empty; arg not used; transmitter may still transmit data! */
-#define		MSF_UART_EVENT_TX_COMPLETE	(1UL<<1)	/**< Tx transfer complete; line is idle, safe to turn off transmitter */
-#define		MSF_UART_EVENT_RX_FULL		(1UL<<2)	/**< Rx buffer is full; arg = the data received */
+/* Events like in CMSIS driver specification */
+#define		MSF_UART_EVENT_SEND_COMPLETE		(1UL << 0)	/**< Send completed; however USART may still transmit data. */
+#define 	MSF_UART_EVENT_RECEIVE_COMPLETE   	(1UL << 1) 	/**< Receive completed. Occurs when number of bytes given to Receive is received.  */
+#define 	ARM_UART_EVENT_TRANSFER_COMPLETE	(1UL << 2)	/**< Transmitter is idle; safe to turn it off */
+#define 	ARM_UART_EVENT_RX_OVERFLOW   		(1UL << 5)  /** Receive data overflow. Occurs if data are received before Receive is called */ 
+/* MSF unused version of events */
+//#define		MSF_UART_EVENT_TX_EMPTY		(1UL<<0)	/**< Tx buffer is empty; arg not used; transmitter may still transmit data! */
+//#define		MSF_UART_EVENT_TX_COMPLETE	(1UL<<1)	/**< Tx transfer complete; line is idle, safe to turn off transmitter */
+//#define		MSF_UART_EVENT_RX_FULL		(1UL<<2)	/**< Rx buffer is full; arg = the data received */
 
 /** UART driver status flags (configuration), stored in UART_INFO for each instance */
-#define		MSF_UART_STATUS_INTMODE		MSF_UART_INT_MODE		/**< interrupt mode (not polled) */
-#define		MSF_UART_STATUS_POLLEDMODE	MSF_UART_POLLED_MODE	/**< interrupt mode (not polled) */
+#define		MSF_UART_STATUS_INT_MODE		MSF_UART_INT_MODE		/**< interrupt mode (not polled) */
+#define		MSF_UART_STATUS_POLLED_MODE		MSF_UART_POLLED_MODE	/**< interrupt mode (not polled) */
+#define		MSF_UART_STATUS_TXNOW			(1UL<<16)			/**< now transmitting */
+#define		MSF_UART_STATUS_RXNOW			(1UL<<17)			/**< now receiving */
 
 /** UART_speed_t 
  @brief The data type for baud rate for UART (SCI). 

@@ -31,7 +31,10 @@ extern "C" {
 /* UART Run-time information*/
 typedef struct _UART_INFO {
   MSF_UART_Event_t cb_event;          // Event Callback
-  uint32_t      status;               // Status flags  
+  uint32_t  status;              // Status flags 
+  void*		buff;				// buffer for current operation (receive or transmit)
+  uint32_t  txrx_cnt;			// number of bytes already transmitted/received
+  uint32_t  txrx_total;			// total number of bytes to receive or transmit
 } UART_INFO;
 
 

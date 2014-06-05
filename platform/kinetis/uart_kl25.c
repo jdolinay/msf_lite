@@ -220,8 +220,11 @@ static uint32_t UART0_Control(uint32_t control, uint32_t arg)
   \param[in]   cnt number of bytes to send
   \param[in]   uart    Pointer to UART resources
   \return      error code (0 = OK)
-  \note        Common function called by instance-specific function.
-            Send bytes to serial line
+  \note        
+            Send array of bytes to serial line. Note that it blocks the caller
+            until the data are sent. If interrupt mode is enabled, the user callback
+            will be called for each character when Tx buffer becomes empty.
+            Common function called by instance-specific function.
 */
 uint32_t UART_Send(const void* data, uint32_t cnt, UART_RESOURCES* uart)
 {
@@ -249,25 +252,45 @@ static uint32_t UART0_Send(const void* data, uint32_t cnt)
   \param[in]   cnt number of bytes to receive
   \param[in]   uart    Pointer to UART resources
   \return      error code (0 = OK)
-  \note        Common function called by instance-specific function.
-            Blocks the caller until specified number of characters is received. 
+  \note        
+            Blocks the caller until specified number of characters is received.
+            You should NOT call this function in interrupt mode; in this mode the user callback
+            provided in Initialize() will be called for each received character with the
+            character as an input argument.
+             
+            Common function called by instance-specific function.
 */
 uint32_t UART_Receive(void* data, uint32_t cnt, UART_RESOURCES* uart)
 {
 	uint32_t i;
-	/* Clear overrun flag 
-	 It is possible Receive was not called for some time and we missed some 
-	 characters. When Overrun is set, we do not get the receiver data full flag? */
-	uart->reg->S1 |= UART0_S1_OR_MASK;
-	
-	for ( i=0; i<cnt; i++ )
-	{		
-		/* Wait until character has been received */
-		while (!(uart->reg->S1 & UART0_S1_RDRF_MASK))
-			;
-			     
-		/* store the 8-bit data from the receiver */
-		((uint8_t*)data)[i] = uart->reg->D;
+	if ( uart->info->status & MSF_UART_STATUS_POLLED_MODE )
+	{	/* blocking (polled) mode */
+		
+		/* Clear overrun flag 
+		 It is possible Receive was not called for some time and we missed some 
+		 characters. When Overrun is set, we do not get the receiver data full flag? */
+		uart->reg->S1 |= UART0_S1_OR_MASK;
+		
+		for ( i=0; i<cnt; i++ )
+		{		
+			/* Wait until character has been received */
+			while (!(uart->reg->S1 & UART0_S1_RDRF_MASK))
+				;
+					 
+			/* store the 8-bit data from the receiver */
+			((uint8_t*)data)[i] = uart->reg->D;
+		}
+	}
+	else
+	{	/* non-blocking (interrupt) mode */
+	 			
+		/* Disable any pending receive or transmit - this would be error to call us while in progress. */
+		uart->info->status &= (~MSF_UART_STATUS_RXNOW & ~MSF_UART_STATUS_TXNOW);	
+		/* Setup the internal data to start receiving */
+		uart->info->buff = data;
+		uart->info->txrx_total = cnt;
+		uart->info->txrx_cnt = 0;
+		uart->info->status |= MSF_UART_STATUS_RXNOW;	/* now receiving... */
 	}
 	
     return MSF_ERROR_OK;
@@ -350,6 +373,7 @@ static void uart0_intconfig(uint32_t enable, UART_RESOURCES* uart)
 		/* Configure UART0 */
 		/* Enable int when transmit data buffer empty; TDRE flag and Receiver buffer full (RDRF) */ 				
 		uart->reg->C2 |= UART0_C2_TIE_MASK | UART0_C2_RIE_MASK;	
+		uart->reg->C3 |= UART0_C3_ORIE_MASK;	/* Rx overflow interrupt enabled */
 		
 		/* Configure NVIC */
 		NVIC_ClearPendingIRQ(UART0_IRQn);	/* Clear possibly pending interrupt */
@@ -370,29 +394,58 @@ void UART_handleIRQ( UART_RESOURCES* uart)
 	uint32_t mask = 0;
 	uint32_t arg;
 	
+	/* sanity check - are we in interrupt mode? we should not be called if not. */
+	if ( (uart->info->status & MSF_UART_STATUS_INT_MODE) == 0 )
+		return;
+	
+	/* nothing to do if callback was not provided in Initialize() */
+	if ( uart->info->cb_event == null )
+		return;
+	
 	if ( uart->reg->S1 & UART0_S1_TDRE_MASK )
 	{
 		/* Tx buffer empty int. */
-		mask |= MSF_UART_EVENT_TX_EMPTY;
+		//mask |= MSF_UART_EVENT_TX_EMPTY;
 	}
 	
 	if ( uart->reg->S1 & UART0_S1_TC_MASK )
 	{
-		/* Transmit complete int. */
-		mask |= MSF_UART_EVENT_TX_COMPLETE;
+		/* Transmit complete int. 
+		 * just inform the user. */
+		uart->info->cb_event(MSF_UART_EVENT_TRANSFER_COMPLETE, 0);
 	}
 	
 	if ( uart->reg->S1 & UART0_S1_RDRF_MASK )
 	{
 		/* Rx buffer full int. */
-		mask |= MSF_UART_EVENT_RX_FULL;
-		arg = uart->reg->D;
+		if ( uart->info->status & MSF_UART_STATUS_RXNOW )
+		{
+			/* Save next byte */
+			uart->info->buff[uart->info->txrx_cnt++] = uart->reg->D;
+			/* Check if received all we wanted */
+			if ( uart->info->txrx_cnt >= uart->info->txrx_total )
+			{
+				/* stop receiving */
+				uart->info->status &= ~MSF_UART_STATUS_RXNOW;	
+				/* generate user event */
+				uart->info->cb_event(MSF_UART_EVENT_RECEIVE_COMPLETE, 0);
+			}
+		}
+		
+	}
+	
+	/* Rx overflow occurred? */
+	if ( uart->reg->S1 & UART0_S1_OR_MASK )
+	{		
+		uart->info->cb_event(ARM_UART_EVENT_RX_OVERFLOW, 0);
+		/* Clear the overflow flag */
+		uart->reg->S1 |= UART0_S1_OR_MASK;
 	}
 	
 	/* Call the user handler if needed */
-	if ( mask != 0 && uart->info->cb_event != null )
+	/*if ( mask != 0 && uart->info->cb_event != null )
 		uart->info->cb_event(mask, arg);
-	
+	*/
 }
 
 /* Interrupt handler for the UART0 */
