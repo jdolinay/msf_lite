@@ -57,7 +57,7 @@ typedef void (*MSF_ADC_Event_t) (uint32_t event);
 #define		MSF_ADC_REFSEL_Pos		(14)
 #define		MSF_ADC_REFSEL_Mask		(0xC000)
 
-/* Definitions of he flags */
+/* Definitions of the flags */
 #define     MSF_ADC_CONV_SINGLE      (1UL << MSF_ADC_CONV_Pos)  /**< single-shot conversion */
 #define     MSF_ADC_CONV_CONTINUOUS  (2UL << MSF_ADC_CONV_Pos)  /**< continuous conversions */
 #define     MSF_ADC_MODE_POLLED      (1UL << MSF_ADC_MODE_Pos)  /**< no interrupt on conversion complete  */

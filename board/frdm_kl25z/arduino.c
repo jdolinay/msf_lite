@@ -30,9 +30,57 @@ const uint32_t g_msf_analogpins_arduino[] =
 };
 
 
+/* the worked for Serial.begin()
+ * We allow baudrate as any number but only certain values are supported:
+ * Supported baudrate values: 
+ * 2400, 4800, 9600, 19200, 38400, 57600, 115200
+ * If invalid value is given, the baudrate will be set to 9600.
+ * */
+static void  SerialBegin( uint32_t baudrate)
+{     
+	UART_speed_t baud = BD9600;	/* default value */
+	
+	switch(baudrate) {
+	case 2400:
+		baud = BD2400;
+		break;
+	case 4800:
+		baud = BD4800;
+		break;
+	case 9600:
+		baud = BD9600;
+		break;
+	case 19200:
+		baud = BD19200;
+		break;
+	case 38400:
+		baud = BD38400;
+		break;
+	case 57600:
+		baud = BD57600;
+		break;
+	case 115200:
+		baud = BD115200;
+		break;
+	
+	}
+	
+	Driver_UART0.Initialize(baud, null);	
+	
+}
+
+/* Implements Serial.end 
+ * Disables the UART module. Does not touch the Rx, Tx pins - not needed.
+ * To use the Tx, Rx pins in GPIO mode simply set the direction and use it as needed. */
+static void  SerialEnd()
+{   
+	Driver_UART0.UnInitialize();	
+}
+
 /* Access structure for Serial "class" */
 MSF_SERIAL_ARDUINO Serial = {
   SerialBegin,
-  SerialPrint,
+  SerialEnd,
+  msf_print,
   /* TODO: */    
 };

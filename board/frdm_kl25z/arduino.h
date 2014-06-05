@@ -17,6 +17,7 @@
 
 #include "msf.h"
 #include "drv_adc.h"  /* ADC driver needed for analogReference() */
+#include "drv_uart.h"	/* UART driver needed for Serial.begin() */
 
 /* Arduino pin definitions 
  * Digital pin n is named PDn etc.
@@ -280,15 +281,18 @@ static inline void delayMicroseconds(uint32_t micros)
   *  
   *   Reading characters:
   *   char msf_read_char(void);	- read 1 character 
-  *   bool msf_char_available(void);  - return true if characte was received thru serial line
+  *   bool msf_char_available(void);  - return true if characte was received thru serial line.
+  *   
+  *   Note that the baudrate is 9600 by default. It can be changed only by calling the UART driver directly (Driver_UART0).
  * */
 /**
  Access structure which emulates the C++ Serial class in Arduino
  Functions implemented and instance created in arduino.c
 */
 typedef struct _MSF_SERIAL_ARDUINO {  
-  uint32_t      (*begin)   (uint32_t baudrate);  
-  uint32_t      (*print) (const char* str);                                    
+  void      (*begin)   (uint32_t baudrate);  
+  void      (*end) (void); 
+  void      (*print) (const char* str);                                    
 } const MSF_SERIAL_ARDUINO;
 
 

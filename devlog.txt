@@ -4,12 +4,24 @@ Poznamka z AVR:
 Projekty examples staci .cproject a .project a slozka .settings jak mam ted - overeno v eclipse ze
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 
+5.6.2014
+TEST: UART driver nastaveni baud a int/polled mode.
+TODO: uart/serial musi mit buffer. UART driver ne, ten ma vyuzivat jen HW buffer, který je u KL = 1 B
+ ale conio mozna jo.
+ 
+TODO: resit zmenu baudrate pro conio resp UART driver, viz msf_init nastavi napr. 
+9600 prez initialize a ja pak chci pro serial.begin zmenit.
++ chce to mit moznost v conio driveru nastavit.  
+
+
 4.6.2014
 Pokracuj: dodelani Serial + otestovani analog funkci, casovacich a serial.
 > Serial v arduino umi i paritu a datove bity :(
 TODO: v conio driveru nacteni stringu? msf_read_str() krome read_char (?) 
 TODO: testovat analog Reference()
-TODO: resim nejak v gpio pouziti analog input pinu jako digital = prepinam funkci pinu?
+_TODO: resim nejak v gpio pouziti analog input pinu jako digital = prepinam funkci pinu?
+ - co kdyz pin je pro UART; jak pak pouziju pro GPIO.
+ - Ano, gpio_direction si nastavuje mux na GPIO mode.
 
 3.6.2014
 _Pokracuj: analogRead + pridat do ADC driveru nastaveni reference.
@@ -27,6 +39,12 @@ _TODO: piny v msf_kl25z.h aktualizovat i do MSF verze!
 _Pokracuj: doresit preklad blink za soucasne tvorby navodu v cw10_howto.txt
 Vytvoren example project blink (workspace moje v doc ale lokace projektu je v msf_lite\examples...),
 
+REMEM: k Arduino wrapperu
+Zakladni filozofice je umoznit zacatecnikum pouzit zname arduino funkce, ale smerovat
+je stejne na nativni MSF C-API. Tedy nema smysl implementovat slozite funkcnosti z Arduina,
+jako je Serial.find(), radeji nasmerovat uzivatele na jejich nativni ekvivalent.
+END REMEM
+
 REMEM: k "template" projektum v Eclipse= CW
 Existují viz http://help.eclipse.org/kepler/index.jsp?topic=%2Forg.eclipse.cdt.doc.isv%2Fguide%2FprojectTemplateEngine%2FHowtoregistertemplates.html
 od CDT 4.0, pøitom cw 10.5 má prý CDT 8.x, ale nevím...
@@ -35,6 +53,15 @@ Nevím jestli snadno jde když potøebuji "naklonovat" projekt CW wizarda ktery je 
 TIP: jde exportovat project settings pres Export > C/C++ > Export project settings.
 END REMEM
 
+
+REMEM: filozofie Receive funkce v CMSIS driveru pro UART
+Uzivatel zavola Receive a preda buffer + kolik znaku chce nacist. Funkce hned
+vrati (je non-blocking) a na pozadi nacita s vyuzitim DMA nebo INT.
+Po prijeti pozadovaneho poctu znaku vola callback = generuje udalost ARM_USART_EVENT_RECEIVE_COMPLETE.
+Jde zjistit aktualni pocet nactenych pres ARM_USART_GetRxCount()
+END REMEM
+
 ///////////////////////////////////////////////////////
 Zmenene soubory, ktere synchronizovat do MSF:
 (po synchronizaci zde zaznam smazat)
+- msf_mkl25z.h

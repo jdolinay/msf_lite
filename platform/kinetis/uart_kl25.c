@@ -49,6 +49,9 @@ static UART_RESOURCES UART0_Resources = {
 
 #endif /* MSF_DRIVER_UART0 */
 
+/* Internal function */
+static void uart0_setbaudrate(uint32_t baudrate);
+static void uart0_intconfig(uint32_t enable, UART_RESOURCES* uart);
 
 /* The driver API functions */
 
@@ -65,12 +68,9 @@ static UART_RESOURCES UART0_Resources = {
 */
 static uint32_t  UART_Initialize( UART_speed_t baudrate, MSF_UART_Event_t event,  UART_RESOURCES* uart)
 {
-    /* init given UART */
-	uint32_t osr_val;
-	uint32_t sbr_val;
-	uint32_t reg_temp = 0;
-	
+    /* init given UART */	
 	uart->info->cb_event = event;	/* store pointer to user callback; not used for now */
+	uart->info->status = MSF_UART_STATUS_POLLED_MODE;
 		
 	/* Enable clock for PORTA needed for Tx, Rx pins */
 	SIM->SCGC5 |= SIM_SCGC5_PORTA_MASK;
@@ -85,35 +85,12 @@ static uint32_t  UART_Initialize( UART_speed_t baudrate, MSF_UART_Event_t event,
 	//SIM->SOPT2 |= SIM_SOPT2_UART0SRC(2); // select the OSCERCLK as UART0 clock source
 	SIM->SOPT2 |= SIM_SOPT2_UART0SRC(MSF_UART0_CLKSEL);
 	
-	osr_val = UART_GET_OSR(baudrate);
-	sbr_val = UART_GET_BR(baudrate);
-	
-	SIM->SCGC4 |= SIM_SCGC4_UART0_MASK;
-	
+	SIM->SCGC4 |= SIM_SCGC4_UART0_MASK;	/* Enable clock for UART */	
+		
 	// Disable UART0 before changing registers	
 	uart->reg->C2 &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK);
 	  
-	
-	// If the OSR is between 4x and 8x then both
-	// edge sampling MUST be turned on.  
-	if ((osr_val >3) && (osr_val < 9))
-		uart->reg->C5|= UART0_C5_BOTHEDGE_MASK;
-		
-	// Setup OSR value 
-	reg_temp = uart->reg->C4;
-	reg_temp &= ~UART0_C4_OSR_MASK;
-	reg_temp |= UART0_C4_OSR(osr_val-1);
-	
-	// Write reg_temp to C4 register
-	uart->reg->C4 = reg_temp;
-		
-	//reg_temp = (reg_temp & UART0_C4_OSR_MASK) + 1;
-		
-	/* Save current value of uartx_BDH except for the SBR field */
-	reg_temp = uart->reg->BDH & ~(UART0_BDH_SBR(0x1F));
-   
-	uart->reg->BDH = reg_temp |  UART0_BDH_SBR(((sbr_val & 0x1F00) >> 8));
-	uart->reg->BDL = (uint8_t)(sbr_val & UART0_BDL_SBR_MASK);
+	uart0_setbaudrate((uint32_t)baudrate, uart);
 		
 	/* Enable receiver and transmitter */
 	uart->reg->C2 |= (UART0_C2_TE_MASK | UART0_C2_RE_MASK );
@@ -139,11 +116,17 @@ static int32_t UART1_Initialize (UART_Event_t pEvent) {
   \param[in]   uart    Pointer to UART resources 
   \return      error code (0 = OK)
   \note        Common function called by instance-specific function.
+  	  	  Disables the UART.
 */
 static uint32_t  UART_Uninitialize( UART_RESOURCES* uart)
 {
-    /* TODO: reset internal state for this instance of the uart */
+    /* Reset internal state for this instance of the UART driver */
     uart->info->cb_event = null;
+    uart->info->status = 0;
+    
+    /* Disable the UART */
+    uart->reg->C2 &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK);
+    
     return MSF_ERROR_OK;
 }
 /* Instance specific function pointed-to from the driver access struct */
@@ -183,7 +166,47 @@ static uint32_t UART0_PowerControl(MSF_power_state state)
 */
 static uint32_t UART_Control(uint32_t control, uint32_t arg, UART_RESOURCES* uart)
 {
-     return MSF_ERROR_NOTSUPPORTED;
+	/* Changing baudrate? */
+	if ( (control & MSF_UART_BAUD_Mask) != 0 && arg != 0 )
+	{	/* arg must be is valid baudrate value from the enum UART_speed_t */
+		
+		/* Disable UART0 before changing registers */	
+		uart->reg->C2 &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK);
+		
+		uart0_setbaudrate((uint32_t)(UART_speed_t)baudrate, uart);	  
+		
+		/* Enable receiver and transmitter */
+		uart->reg->C2 |= (UART0_C2_TE_MASK | UART0_C2_RE_MASK );		
+	}
+	
+	/* Changing mode: interrupt vs polled */
+	if ( (control & MSF_UART_INTMODE_Mask) != 0 )
+	{
+		if ( (control & MSF_UART_INTMODE_Mask) == MSF_UART_INT_MODE )
+		{
+			/* interrupt mode */
+			if ( uart->info->cb_event == null )
+				return MSF_ERROR_ARGUMENT;	/* for interrupt mode the event must be specified in Initialize() */ 
+					
+			/* internal status to interrupt mode */
+			uart->info->status &= ~MSF_UART_STATUS_POLLED_MODE;
+			uart->info->status |= MSF_UART_STATUS_INT_MODE;
+			
+			uart0_intconfig(1);	/* enable interrupt */
+		}
+		else
+		{
+			uart0_intconfig(0);	/* disable interrupt */
+			
+			/* internal status to polled mode */
+			uart->info->status &= ~MSF_UART_STATUS_INT_MODE;
+			uart->info->status |= MSF_UART_STATUS_POLLED_MODE;
+			
+		}
+	}
+	
+	
+    return MSF_ERROR_OK;
 }
 /* Instance specific function pointed-to from the driver access struct */
 static uint32_t UART0_Control(uint32_t control, uint32_t arg) 
@@ -278,18 +301,110 @@ static uint32_t UART0_DataAvailable(void)
 
 /* Access structure for UART0 */
 #if (MSF_DRIVER_UART0)
-
-MSF_DRIVER_USART Driver_UART0 = {
-  UART0_Initialize,
-  UART0_Uninitialize,
-  UART0_PowerControl,
-  UART0_Control,  
-  UART0_Send,
-  UART0_Receive,  
-  UART0_DataAvailable,
-};
-
+	MSF_DRIVER_USART Driver_UART0 = {
+	  UART0_Initialize,
+	  UART0_Uninitialize,
+	  UART0_PowerControl,
+	  UART0_Control,  
+	  UART0_Send,
+	  UART0_Receive,  
+	  UART0_DataAvailable,
+	};
 #endif /* MSF_DRIVER_UART0 */
+
+/* Internal workers */
+static void uart0_setbaudrate(uint32_t baudrate, UART_RESOURCES* uart)
+{
+	uint32_t osr_val;
+	uint32_t sbr_val;
+	uint32_t reg_temp = 0;
+
+	osr_val = UART_GET_OSR(baudrate);
+	sbr_val = UART_GET_BR(baudrate);
+	// If the OSR is between 4x and 8x then both
+	// edge sampling MUST be turned on.  
+	if ((osr_val >3) && (osr_val < 9))
+		uart->reg->C5|= UART0_C5_BOTHEDGE_MASK;
+			
+	// Setup OSR value 
+	reg_temp = uart->reg->C4;
+	reg_temp &= ~UART0_C4_OSR_MASK;
+	reg_temp |= UART0_C4_OSR(osr_val-1);
+		
+	// Write reg_temp to C4 register
+	uart->reg->C4 = reg_temp;
+				
+	/* Save current value of uartx_BDH except for the SBR field */
+	reg_temp = uart->reg->BDH & ~(UART0_BDH_SBR(0x1F));
+	/* write new value */  
+	uart->reg->BDH = reg_temp |  UART0_BDH_SBR(((sbr_val & 0x1F00) >> 8));
+	uart->reg->BDL = (uint8_t)(sbr_val & UART0_BDL_SBR_MASK);
+}
+
+/* Configure interrupt for UART0 
+ * enable = 0 > disable interrupt; anything else >  enablke int*/
+static void uart0_intconfig(uint32_t enable, UART_RESOURCES* uart)
+{	
+	if ( enable )
+	{
+		/* Configure UART0 */
+		/* Enable int when transmit data buffer empty; TDRE flag and Receiver buffer full (RDRF) */ 				
+		uart->reg->C2 |= UART0_C2_TIE_MASK | UART0_C2_RIE_MASK;	
+		
+		/* Configure NVIC */
+		NVIC_ClearPendingIRQ(UART0_IRQn);	/* Clear possibly pending interrupt */
+		NVIC_EnableIRQ(UART0_IRQn);			/* and enable it */	
+		/* Set priority for the interrupt; 0 is highest, 3 is lowest */
+		NVIC_SetPriority(UART0_IRQn, MSF_UART_INT_PRIORITY);
+	}
+	else
+	{
+		/* Disable the interrupt in NVIC */
+		NVIC_DisableIRQ(UART0_IRQn);	
+	}
+}
+
+/* Common interrupt handler for all UARTs */
+void UART_handleIRQ( UART_RESOURCES* uart)
+{
+	uint32_t mask = 0;
+	uint32_t arg;
+	
+	if ( uart->reg->S1 & UART0_S1_TDRE_MASK )
+	{
+		/* Tx buffer empty int. */
+		mask |= MSF_UART_EVENT_TX_EMPTY;
+	}
+	
+	if ( uart->reg->S1 & UART0_S1_TC_MASK )
+	{
+		/* Transmit complete int. */
+		mask |= MSF_UART_EVENT_TX_COMPLETE;
+	}
+	
+	if ( uart->reg->S1 & UART0_S1_RDRF_MASK )
+	{
+		/* Rx buffer full int. */
+		mask |= MSF_UART_EVENT_RX_FULL;
+		arg = uart->reg->D;
+	}
+	
+	/* Call the user handler if needed */
+	if ( mask != 0 && uart->info->cb_event != null )
+		uart->info->cb_event(mask, arg);
+	
+}
+
+/* Interrupt handler for the UART0 */
+void UART0_IRQHandler()
+{
+	UART_handleIRQ( &UART0_Resources);
+	
+}
+
+
+
+
 
 
 /* ------- Simple functions (a C-like driver for the UART) --------------- */
@@ -331,5 +446,7 @@ MSF_DRIVER_USART Driver_UART0 = {
  }
 #endif
  
-
+ 
+ 
+ 
 /* ----------- end of file -------------- */
