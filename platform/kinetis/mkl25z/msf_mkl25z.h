@@ -137,8 +137,8 @@ typedef enum {
 /** macro which creates 32-bit value by combining OSR and BR values.
  * osr is the real OSR value; the register C4 stores osr-1 (value %11 (3) in OSR means real osr = 4) */
 #define		UART_MAKE_BDVAL(osr, br)	((br & 0x0000FFFF) | ((osr) << 16))
-#define		UART_GET_BR(baud_val)	(baud_val & 0x00001FFF)		/* the BR is actually only 13-bit long*/
-#define		UART_GET_OSR(baud_val)	((baud_val >> 16) & 0x0000001F)		/* OSR is only 5-bits */
+#define		UART_GET_BR(baud_val)		(baud_val & 0x00001FFF)				/* the BR is actually only 13-bit long*/
+#define		UART_GET_OSR(baud_val)		((baud_val >> 16) & 0x0000001F)		/* OSR is only 5-bits */
 
 #if F_CPU == 48000000
 /* CLOCK_SETUP = 1 in system_MKL25Z4.c (CMSIS); the UART0 must be clocked from OSCERCLK, because 

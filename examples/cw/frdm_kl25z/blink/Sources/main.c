@@ -1,6 +1,6 @@
 /*
- * MSF Lite library
  * Blink sample for FRDM-KL25Z board.
+ * MSF Lite library  
  * LED connections:
  * B18 	- Red LED
  * B19 	- Green LED 

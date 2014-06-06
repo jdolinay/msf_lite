@@ -1,0 +1,13 @@
+################################################################################
+# These macros are used by makefiles and argument files.
+# When a space is included in the path and quotes (") cannot be used,
+# a _ESCAPE version of the macro is added that escapes the space with backslash (\).
+################################################################################
+
+export COMMON=D:/Git/msf_lite/common
+export GNU_Make_Install_DirEnv=$(CWInstallLocationEnv)/gnu/bin
+export ProjDirPath=D:/Git/msf_lite/examples/cw/frdm_kl25z/uart
+export CWInstallLocationEnv=C:/Freescale/CW MCU v10.5
+export ARMSourceryDirEnv=$(CWInstallLocationEnv)/Cross_Tools/arm-none-eabi-gcc-4_7_3/bin
+export KINETIS=D:/Git/msf_lite/platform/kinetis
+export TEMPLATES=D:/Git/msf_lite/vendor/freescale/CMSIS/MKL25Z4/Source/Templates

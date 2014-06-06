@@ -4,16 +4,20 @@ Poznamka z AVR:
 Projekty examples staci .cproject a .project a slozka .settings jak mam ted - overeno v eclipse ze
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 
+6.6.2014
+Pokracuj: odladit uart example; nefunguje prijem znaku na pozadi podruhe, prvni prijem ok, pak se "zacyklil" v ISR.
+
 5.6.2014
 Pokracuj: tx pro int mode a testovat!
  + ABORT RX A TX DO CONTROL...
 TEST: UART driver nastaveni baud a int/polled mode.
-TODO: uart/serial musi mit buffer. UART driver ne, ten ma vyuzivat jen HW buffer, který je u KL = 1 B
- ale conio mozna jo.
+TODO: uart/serial musi mit buffer. UART driver dle CMSIS kazdy send/receive dela pres buffer =data od uzivatele.
+ - mozna do conio buffer?
  
 TODO: resit zmenu baudrate pro conio resp UART driver, viz msf_init nastavi napr. 
 9600 prez initialize a ja pak chci pro serial.begin zmenit.
-+ chce to mit moznost v conio driveru nastavit.  
++ chce to mit moznost v conio driveru nastavit.
+ > uart driver uz umi, netestovano.  
 
 
 4.6.2014

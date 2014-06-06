@@ -12,11 +12,13 @@ Setup using exported project settings and template files
  - If you plan to experiment with eclipse, add also Segger J-link connection
  - In I/O Support select: No I/O
 
-2) Add these folders and files to the project (as links!):
+2) Create a new folder in your project named MSF (in CW Projects window use New.... Folder in context menu)
+
+3) Add these folders and files to the MSF folder in your project (as links!):
 Use Import ... File System ... Select the imported folder (checkbox will 
 select all the files). 
  AND in Advanced select Link resources (do not copy the files to your workspace)
- AND check the "Create top folder" so that the CMSIS folder is also created in your project
+ AND check the "Create top-level folder" so that the CMSIS folder is also created in your project
  
 To add:
 - msf_lite\vendor\freescale\CMSIS
@@ -24,24 +26,37 @@ To add:
 - msf_lite\platform\kinetis
 - msf_lite\board\frdm_kl25z
 
-3) Delete the file Project_Headers\MKL25Z4.H (the header for the MCU provided by CW); 
+TIP: You can delete files you don't need; e.g. arduino.h and .c if oyu are not using Arduino layer, etc.
+
+4) Delete the file Project_Headers\MKL25Z4.H (the header for the MCU provided by CW); 
 we will  use CMSIS header.
 
-4) Copy the folders 
+5) In file manager copy the folders: 
 Project_Headers 
 Project_Settings\Startup_Code 
-from  msf_lite\templates\cw
+from:
+  msf_lite\templates\cw
 into your project replacing the existing files. But do not delete the files which are
-already in your projects folder and do not get overwritten.
+already in your projects folder and do not get overwritten!
 
-5) Import project settings from msf_lite\templates\cw\project_settings.xml
+6) Import project settings from msf_lite\templates\cw\project_settings.xml
 (Include paths).
 
-6) Your project should now build OK.
+7) Your project should now build OK.
 
 For Arduino- compatibility project:
-7) Copy main.c from msf_lite\templates\cw\arduino\sources to your project\sources
+8) Copy main.c from msf_lite\templates\cw\arduino\sources to your project\sources
 overwriting the original main.c file created by New project wizard.
+
+
+7) In the main file replace the #include "derivative.h" with:
+/* MSF configuration for this project */
+#include "msf_config.h"
+/* Include the core definitions - CMSIS <device>.h file etc.*/
+#include "coredef.h"
+#include "msf.h"
+
+
 
 
 ------------------

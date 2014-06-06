@@ -1,0 +1,25 @@
+"./MSF/CMSIS/MKL25Z4/Source/Templates/system_MKL25Z4.o"
+"./MSF/common/msf_print.o"
+"./MSF/common/conio.o"
+"./MSF/kinetis/uart_kl25.o"
+"./MSF/kinetis/msf_analog.o"
+"./MSF/kinetis/msf.o"
+"./MSF/kinetis/adc_kl25.o"
+"./Project_Settings/Startup_Code/kinetis_sysinit.o"
+"./Project_Settings/Startup_Code/__arm_start.o"
+"./Project_Settings/Startup_Code/__arm_end.o"
+"./Sources/sa_mtb.o"
+"./Sources/main.o"
+-mcpu=cortex-m0
+-mthumb
+-mfloat-abi=soft
+-g3
+-gdwarf-2
+-gstrict-dwarf
+-T"D:/Git/msf_lite/examples/cw/frdm_kl25z/uart/Project_Settings/Linker_Files/MKL25Z128_flash.ld"
+-Xlinker
+--gc-sections
+-L"C:/Freescale/CW MCU v10.5/MCU/ARM_GCC_Support/ewl/lib/armv6-m"
+-Wl,-Map,uart.map
+-n
+-specs=ewl_c_noio.specs

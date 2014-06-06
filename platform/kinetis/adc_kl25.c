@@ -71,11 +71,13 @@ static uint32_t  ADC_Initialize( MSF_ADC_Event_t event,  ADC_RESOURCES* adc)
     return MSF_ERROR_OK;
 }
 
+#if (MSF_DRIVER_ADC0)    
 /* Instance specific function pointed-to from the driver access struct */
 static uint32_t ADC0_Initialize (MSF_ADC_Event_t pEvent) 
 {
   return ADC_Initialize(pEvent, &ADC0_Resources);
 }
+#endif
 
 /* example: function for another instance of the UART
 static int32_t UART1_Initialize (UART_Event_t pEvent) {
@@ -98,11 +100,14 @@ static uint32_t  ADC_Uninitialize( ADC_RESOURCES* adc)
     adc->info->channel = 0;
     return MSF_ERROR_OK;
 }
+
+#if (MSF_DRIVER_ADC0)    
 /* Instance specific function pointed-to from the driver access struct */
 static uint32_t ADC0_Uninitialize (void) 
 {
   return ADC_Uninitialize(&ADC0_Resources);
 }
+#endif
 
 
 /**
@@ -119,11 +124,13 @@ static uint32_t ADC_PowerControl(MSF_power_state state, ADC_RESOURCES* adc)
     return MSF_ERROR_NOTSUPPORTED;
 } 
 
+#if (MSF_DRIVER_ADC0)    
 /* Instance specific function pointed-to from the driver access struct */
 static uint32_t ADC0_PowerControl(MSF_power_state state) 
 {
   return ADC_PowerControl(state, &ADC0_Resources);
 }
+#endif
 
 /**
   \brief       Control various options of the ADC
@@ -228,11 +235,13 @@ static uint32_t ADC_Control(uint32_t control, uint32_t arg, ADC_RESOURCES* adc)
     return MSF_ERROR_OK;
 }
 
+#if (MSF_DRIVER_ADC0)    
 /* Instance specific function pointed-to from the driver access struct */
 static uint32_t ADC0_Control(uint32_t control, uint32_t arg) 
 {
   return ADC_Control(control, arg, &ADC0_Resources);
 }
+#endif
 
 
 /**
@@ -265,11 +274,13 @@ static uint32_t ADC_Read(ADC_RESOURCES* adc)
 	return MSF_ERROR_MAXDWORD;	
 } 
 
+#if (MSF_DRIVER_ADC0)    
 /* Instance specific function pointed-to from the driver access struct */
 static uint32_t ADC0_Read(void) 
 {
   return ADC_Read(&ADC0_Resources);
 }
+#endif
 
 /**
   \fn          uint32_t  ADC_SetChannel(uint32_t channel, ADC_RESOURCES* adc)
@@ -298,11 +309,14 @@ static uint32_t  ADC_SetChannel( uint32_t channel, ADC_RESOURCES* adc)
 	
     return MSF_ERROR_ARGUMENT;
 }
+
+#if (MSF_DRIVER_ADC0)    
 /* Instance specific function pointed-to from the driver access struct */
 static uint32_t ADC0_SetChannel(uint32_t channel) 
 {
   return ADC_SetChannel(channel, &ADC0_Resources);
 }	
+#endif
 
 
 /* Access structure for ADC0 */

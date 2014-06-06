@@ -74,7 +74,7 @@ static void  SerialBegin( uint32_t baudrate)
  * To use the Tx, Rx pins in GPIO mode simply set the direction and use it as needed. */
 static void  SerialEnd()
 {   
-	Driver_UART0.UnInitialize();	
+	Driver_UART0.Uninitialize();	
 }
 
 /* Access structure for Serial "class" */

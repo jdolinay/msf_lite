@@ -18,6 +18,9 @@
 #include "msf.h"
 #include "drv_adc.h"  /* ADC driver */
 
+/* Define which driver (instance of the ADC) is used by us */
+#define	 MSF_ANALOG_DRIVER	Driver_ADC0
+
 /** Read analog value from given analog pin
 * @param apin analog pin
  * @note The analog pins are defined in msf_<device>.h. In future this definition
@@ -30,6 +33,7 @@
  * do not require any switching. 
  * See the Analog_pin_t enum in msf_<device>.h for the analog pin definitions   
  **/
+#if (MSF_USE_ANALOG)
  uint16_t msf_analog_read(Analog_pin_t apin)
  {
     /* future: use MSF_PIN2ADC() macro to obtain ADC module number (for MCUs 
@@ -38,10 +42,11 @@
 	 /* Simple version which does not check if the channel is actually available */
 #if 0
     /* Obtain ADC channel number from the Analog pin code*/
-	Driver_ADC0.SetChannel(MSF_PIN2CHANNEL(apin)); 
-    return Driver_ADC0.Read();
+	 MSF_ANALOG_DRIVER.SetChannel(MSF_PIN2CHANNEL(apin)); 
+    return MSF_ANALOG_DRIVER.Read();
 #endif    
     
+#if (MSF_DRIVER_ADC0)    
     /* Version which sets the proper channel mux in the ADC driver as needed */
     if ( ((uint32_t)apin & MSF_ADC_BOTH) != MSF_ADC_BOTH )
     {
@@ -49,12 +54,17 @@
     	 * we have to select the A or B channels first. As the driver does not 
     	 * support querying its current configuration, we always have to set A or B */
     	if ( MSF_ADC_ISA_CHANNEL(apin) )
-    		Driver_ADC0.Control(MSF_ADC_ABSEL_A, 0);
+    		MSF_ANALOG_DRIVER.Control(MSF_ADC_ABSEL_A, 0);
     	else
-    		Driver_ADC0.Control(MSF_ADC_ABSEL_B, 0);    	    
+    		MSF_ANALOG_DRIVER.Control(MSF_ADC_ABSEL_B, 0);    	    
     }
     
-    Driver_ADC0.SetChannel(MSF_PIN2CHANNEL(apin)); 	/* Select the channel */
-    return Driver_ADC0.Read();		/* Read the value from this channel */
- 
+    MSF_ANALOG_DRIVER.SetChannel(MSF_PIN2CHANNEL(apin)); 	/* Select the channel */
+    return MSF_ANALOG_DRIVER.Read();		/* Read the value from this channel */
+#else
+	#warning	Analog input driver Driver_ADC0 is not enabled in msf_config.h; msf_analog_read will not work.
+    return 0;
+#endif
  }
+ 
+#endif

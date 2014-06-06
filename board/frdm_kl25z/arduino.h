@@ -258,7 +258,7 @@ static inline void delay(uint32_t millis)
  * */
 static inline void delayMicroseconds(uint32_t micros)
 {
-	msf_delay_us(millis);
+	msf_delay_us(micros);
 }
 
 /***********************

@@ -54,7 +54,7 @@ typedef void (*MSF_UART_Event_t) (uint32_t event, uint32_t arg);
 #define		MSF_UART_INTMODE_Mask	(0x06)
 
 /* Definitions of the flags */
-#define     MSF_UART_BAUD_SET      (1UL << MSF_UART_BAUD_Pos)  /**< set the baudrate */
+#define     MSF_UART_BAUD_SET      (1UL << MSF_UART_BAUD_Pos)  /**< set the baudrate; rg = baudrate (one of the UART_speed_t values only!) */
 #define     MSF_UART_POLLED_MODE   (1UL << MSF_UART_INTMODE_Pos)  /**< wait for each char to be sent/received in busy loop */
 #define     MSF_UART_INT_MODE      (2UL << MSF_UART_INTMODE_Pos)  /**< use interrupts */
 
@@ -65,8 +65,8 @@ typedef void (*MSF_UART_Event_t) (uint32_t event, uint32_t arg);
 /* Events like in CMSIS driver specification */
 #define		MSF_UART_EVENT_SEND_COMPLETE		(1UL << 0)	/**< Send completed; however USART may still transmit data. */
 #define 	MSF_UART_EVENT_RECEIVE_COMPLETE   	(1UL << 1) 	/**< Receive completed. Occurs when number of bytes given to Receive is received.  */
-#define 	ARM_UART_EVENT_TRANSFER_COMPLETE	(1UL << 2)	/**< Transmitter is idle; safe to turn it off */
-#define 	ARM_UART_EVENT_RX_OVERFLOW   		(1UL << 5)  /** Receive data overflow. Occurs if data are received before Receive is called */ 
+#define 	MSF_UART_EVENT_TRANSFER_COMPLETE	(1UL << 2)	/**< Transmitter is idle; safe to turn it off */
+#define 	MSF_UART_EVENT_RX_OVERFLOW   		(1UL << 5)  /** Receive data overflow. Occurs if data are received before Receive is called */ 
 /* MSF unused version of events */
 //#define		MSF_UART_EVENT_TX_EMPTY		(1UL<<0)	/**< Tx buffer is empty; arg not used; transmitter may still transmit data! */
 //#define		MSF_UART_EVENT_TX_COMPLETE	(1UL<<1)	/**< Tx transfer complete; line is idle, safe to turn off transmitter */

@@ -50,7 +50,7 @@ static UART_RESOURCES UART0_Resources = {
 #endif /* MSF_DRIVER_UART0 */
 
 /* Internal function */
-static void uart0_setbaudrate(uint32_t baudrate);
+static void uart0_setbaudrate(uint32_t baudrate, UART_RESOURCES* uart);
 static void uart0_intconfig(uint32_t enable, UART_RESOURCES* uart);
 
 /* The driver API functions */
@@ -173,7 +173,7 @@ static uint32_t UART_Control(uint32_t control, uint32_t arg, UART_RESOURCES* uar
 		/* Disable UART0 before changing registers */	
 		uart->reg->C2 &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK);
 		
-		uart0_setbaudrate((uint32_t)(UART_speed_t)baudrate, uart);	  
+		uart0_setbaudrate((uint32_t)(UART_speed_t)arg, uart);	  
 		
 		/* Enable receiver and transmitter */
 		uart->reg->C2 |= (UART0_C2_TE_MASK | UART0_C2_RE_MASK );		
@@ -192,11 +192,11 @@ static uint32_t UART_Control(uint32_t control, uint32_t arg, UART_RESOURCES* uar
 			uart->info->status &= ~MSF_UART_STATUS_POLLED_MODE;
 			uart->info->status |= MSF_UART_STATUS_INT_MODE;
 			
-			uart0_intconfig(1);	/* enable interrupt */
+			uart0_intconfig(1, uart);	/* enable interrupt */
 		}
 		else
 		{
-			uart0_intconfig(0);	/* disable interrupt */
+			uart0_intconfig(0, uart);	/* disable interrupt */
 			
 			/* internal status to polled mode */
 			uart->info->status &= ~MSF_UART_STATUS_INT_MODE;
@@ -221,21 +221,51 @@ static uint32_t UART0_Control(uint32_t control, uint32_t arg)
   \param[in]   uart    Pointer to UART resources
   \return      error code (0 = OK)
   \note        
-            Send array of bytes to serial line. Note that it blocks the caller
-            until the data are sent. If interrupt mode is enabled, the user callback
-            will be called for each character when Tx buffer becomes empty.
-            Common function called by instance-specific function.
+        Send array of bytes to serial line. Note that it blocks the caller
+        until the data are sent in polled mode.
+        If interrupt mode is enabled, the function sends 1st byte and then returns to caller.        
+        The next bytes are sent "in the background" using interrupt handler. 
+        NOTE that the memory pointed to by "data" must be still available (do not use local variable in caller)!
+        The caller is notified by MSF_UART_EVENT_SEND_COMPLETE event when send is complete.
+            
+        Common function called by instance-specific function.
 */
 uint32_t UART_Send(const void* data, uint32_t cnt, UART_RESOURCES* uart)
 {
 	uint32_t i;
-	for ( i =0; i< cnt; i++ )	
+	if ( uart->info->status & MSF_UART_STATUS_POLLED_MODE )
+	{	/* blocking (polled) mode */
+		for ( i =0; i< cnt; i++ )	
+		{
+			/* Wait until space is available in the FIFO */
+			while(!(uart->reg->S1 & UART0_S1_TDRE_MASK))
+				 ;
+			 /* Send the character */
+			uart->reg->D = ((const uint8_t*)data)[i];		
+		}
+	}
+	else
 	{
+		/* non-blocking (interrupt) mode */
+		if ( cnt > 1 )	/* If there is only 1 byte, we just send it below... */
+		{
+			/* Disable any pending receive or transmit - this would be error to call us while in progress. */
+			uart->info->status &= (~MSF_UART_STATUS_RXNOW & ~MSF_UART_STATUS_TXNOW);	
+			/* Setup the internal data to start sending */
+			uart->info->buff = (void*)data;
+			uart->info->txrx_total = cnt;
+			uart->info->txrx_cnt = 1;	/* 1 because we send the 1st char here */
+			uart->info->status |= MSF_UART_STATUS_TXNOW;	/* now sending... */
+		}
+		
+		/* Send first character now; the next one will be sent by ISR */ 
 		/* Wait until space is available in the FIFO */
 		while(!(uart->reg->S1 & UART0_S1_TDRE_MASK))
 			 ;
-	 	 /* Send the character */
-		uart->reg->D = ((const uint8_t*)data)[i];		
+		 /* Send the character */
+		uart->reg->D = ((const uint8_t*)data)[0];
+		/* Enable interrupt for Tx buffer empty */
+		uart->reg->C2 |= UART0_C2_TIE_MASK; 		
 	}
 	
     return MSF_ERROR_OK;
@@ -253,12 +283,14 @@ static uint32_t UART0_Send(const void* data, uint32_t cnt)
   \param[in]   uart    Pointer to UART resources
   \return      error code (0 = OK)
   \note        
-            Blocks the caller until specified number of characters is received.
-            You should NOT call this function in interrupt mode; in this mode the user callback
-            provided in Initialize() will be called for each received character with the
-            character as an input argument.
-             
-            Common function called by instance-specific function.
+        Receive one or mode bytes from serial line. 
+        In polled mode (MSF_UART_POLLED_MODE) it blocks the caller until specified number 
+        of characters is received.
+        In interrupt mode it returns to caller immediately and receives in the background (in ISR).
+        NOTE that the memory pointed to by "data" must be still available (do not use local variable in caller)!
+        When the "cnt" number of bytes it received the caller is notified by MSF_UART_EVENT_RECEIVE_COMPLETE event.
+
+        Common function called by instance-specific function.
 */
 uint32_t UART_Receive(void* data, uint32_t cnt, UART_RESOURCES* uart)
 {
@@ -291,6 +323,7 @@ uint32_t UART_Receive(void* data, uint32_t cnt, UART_RESOURCES* uart)
 		uart->info->txrx_total = cnt;
 		uart->info->txrx_cnt = 0;
 		uart->info->status |= MSF_UART_STATUS_RXNOW;	/* now receiving... */
+		uart->reg->C2 |= UART0_C2_RIE_MASK; /* Enable interrupt for Rx buffer full */
 	}
 	
     return MSF_ERROR_OK;
@@ -372,7 +405,9 @@ static void uart0_intconfig(uint32_t enable, UART_RESOURCES* uart)
 	{
 		/* Configure UART0 */
 		/* Enable int when transmit data buffer empty; TDRE flag and Receiver buffer full (RDRF) */ 				
-		uart->reg->C2 |= UART0_C2_TIE_MASK | UART0_C2_RIE_MASK;	
+		/* uart->reg->C2 |= UART0_C2_TIE_MASK | UART0_C2_RIE_MASK; */
+		/* We cannot enable the interrupts for all time, only when really Tx-ing or Rx-ing, otherwise the
+		 * ISR is called all the time */
 		uart->reg->C3 |= UART0_C3_ORIE_MASK;	/* Rx overflow interrupt enabled */
 		
 		/* Configure NVIC */
@@ -390,9 +425,7 @@ static void uart0_intconfig(uint32_t enable, UART_RESOURCES* uart)
 
 /* Common interrupt handler for all UARTs */
 void UART_handleIRQ( UART_RESOURCES* uart)
-{
-	uint32_t mask = 0;
-	uint32_t arg;
+{	
 	
 	/* sanity check - are we in interrupt mode? we should not be called if not. */
 	if ( (uart->info->status & MSF_UART_STATUS_INT_MODE) == 0 )
@@ -402,50 +435,79 @@ void UART_handleIRQ( UART_RESOURCES* uart)
 	if ( uart->info->cb_event == null )
 		return;
 	
-	if ( uart->reg->S1 & UART0_S1_TDRE_MASK )
+	
+	/* If sending now and the Tx buffer is empty
+	 * Note that it is empty all the time except when sending! */
+	if ( (uart->info->status & MSF_UART_STATUS_TXNOW) && (uart->reg->S1 & UART0_S1_TDRE_MASK) )
 	{
 		/* Tx buffer empty int. */
-		//mask |= MSF_UART_EVENT_TX_EMPTY;
-	}
-	
-	if ( uart->reg->S1 & UART0_S1_TC_MASK )
-	{
-		/* Transmit complete int. 
-		 * just inform the user. */
-		uart->info->cb_event(MSF_UART_EVENT_TRANSFER_COMPLETE, 0);
-	}
-	
-	if ( uart->reg->S1 & UART0_S1_RDRF_MASK )
-	{
-		/* Rx buffer full int. */
-		if ( uart->info->status & MSF_UART_STATUS_RXNOW )
+		if ( uart->info->status & MSF_UART_STATUS_TXNOW )
 		{
-			/* Save next byte */
-			uart->info->buff[uart->info->txrx_cnt++] = uart->reg->D;
-			/* Check if received all we wanted */
+			/* Send next char */			
+			uart->reg->D = ((const uint8_t*)uart->info->buff)[uart->info->txrx_cnt++];
+			/* Check if sent all we wanted */
 			if ( uart->info->txrx_cnt >= uart->info->txrx_total )
 			{
-				/* stop receiving */
-				uart->info->status &= ~MSF_UART_STATUS_RXNOW;	
+				/* stop sending */
+				uart->info->status &= ~MSF_UART_STATUS_TXNOW;	
+				/* Disable this interrupt; the Send() will re-enable it */
+				uart->reg->C2 &= ~UART0_C2_TIE_MASK;
 				/* generate user event */
-				uart->info->cb_event(MSF_UART_EVENT_RECEIVE_COMPLETE, 0);
+				uart->info->cb_event(MSF_UART_EVENT_SEND_COMPLETE, 0);
+				/* Enable Transmit complete interrupt  - to generate event when line is idle */
+				uart->reg->C2 |= UART0_C2_TCIE_MASK;	
 			}
 		}
 		
 	}
 	
-	/* Rx overflow occurred? */
-	if ( uart->reg->S1 & UART0_S1_OR_MASK )
+	
+	/* If Tx complete int is enabled and the flag is set.
+	 * Note that the flag is set all the time if th eline is idle, so we use the int enable bit
+	 * to chech if we are interested in this event now */
+	if ( (uart->reg->C2 & UART0_C2_TCIE_MASK) && (uart->reg->S1 & UART0_S1_TC_MASK) )
+	{
+		/* Transmit complete int.  
+		  Just inform the user. */
+		/* disable the TC interrupt */
+		uart->reg->C2 &= ~UART0_C2_TCIE_MASK;	
+		
+		uart->info->cb_event(MSF_UART_EVENT_TRANSFER_COMPLETE, 0);
+	}
+
+	
+	/* Rx buffer full flag is set AND we are receiving now  */
+	if ( (uart->reg->S1 & UART0_S1_RDRF_MASK) && (uart->info->status & MSF_UART_STATUS_RXNOW) )
 	{		
-		uart->info->cb_event(ARM_UART_EVENT_RX_OVERFLOW, 0);
-		/* Clear the overflow flag */
-		uart->reg->S1 |= UART0_S1_OR_MASK;
+		if ( uart->info->status & MSF_UART_STATUS_RXNOW )
+		{
+			/* Save next byte */
+			((uint8_t*)uart->info->buff)[uart->info->txrx_cnt++] = uart->reg->D;
+			/* Check if received all we wanted */
+			if ( uart->info->txrx_cnt >= uart->info->txrx_total )
+			{
+				/* stop receiving */
+				uart->info->status &= ~MSF_UART_STATUS_RXNOW;
+				/* Disable this interrupt; the Send() will re-enable it */
+				uart->reg->C2 &= ~UART0_C2_RIE_MASK;
+				/* generate user event */
+				uart->info->cb_event(MSF_UART_EVENT_RECEIVE_COMPLETE, 0);
+			}
+		}
+		
+		
 	}
 	
-	/* Call the user handler if needed */
-	/*if ( mask != 0 && uart->info->cb_event != null )
-		uart->info->cb_event(mask, arg);
-	*/
+	/* Rx overflow occurred? */
+	if ( uart->reg->S1 & UART0_S1_OR_MASK )
+	{	
+		/* Clear the overflow flag */
+		uart->reg->S1 |= UART0_S1_OR_MASK;		
+		uart->info->cb_event(MSF_UART_EVENT_RX_OVERFLOW, 0);
+		
+	}
+	
+	
 }
 
 /* Interrupt handler for the UART0 */

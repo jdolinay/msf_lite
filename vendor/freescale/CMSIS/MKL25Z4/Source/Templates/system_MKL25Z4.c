@@ -52,6 +52,7 @@
 
 #define DISABLE_WDOG    1
 
+#include "msf_config.h"		/* defines the clock setup */
 /*  see msf_config_mkl25z.h
  #define CLOCK_SETUP     1
  */

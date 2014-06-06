@@ -29,10 +29,11 @@
 #define     CW_10    1
 
 
+/* TODO: moved to project-private file msf_config.h*/
 /*********************************************
 *    Define the standard I/O channel 
 ********************************************/
-#define   MSF_USE_STDIO     1   /* Using conio driver (UART) for std output */
+//#define   MSF_USE_STDIO     1   /* Using conio driver (UART) for std output */
 /* To disable initializing UART in msf_init use:
 #define   MSF_USE_STDIO     0 
 */
@@ -44,15 +45,16 @@
 *    harm is done by enabling the analog inputs even
 *    if not used 
 ********************************************/
-#define MSF_USE_ANALOG      1
+//#define MSF_USE_ANALOG      1
+
 
 /*********************************************
 *    Define which drivers should be created (used) 
 *    It may save some memory to define drivers which 
 *    your applicaiton will not use with 0.
 ********************************************/
-#define MSF_DRIVER_UART0    1   /* Use UART0 driver (create UART0 driver instance) */
-#define MSF_DRIVER_ADC0     1	/* Use ADC driver */
+//#define MSF_DRIVER_UART0    1   /* Use UART0 driver (create UART0 driver instance) */
+//#define MSF_DRIVER_ADC0     1	/* Use ADC driver */
 
 /*********************************************
 *    Define inline option for functions

@@ -27,7 +27,8 @@ Sources/main.o: ../Sources/main.c \
  D:/Git/msf_lite/platform/kinetis/mkl25z/msf_mkl25z.h \
  D:/Git/msf_lite/platform/kinetis/gpio.h \
  D:/Git/msf_lite/platform/kinetis/delay_util.h \
- D:/Git/msf_lite/platform/kinetis/drv_adc.h
+ D:/Git/msf_lite/platform/kinetis/drv_adc.h \
+ D:/Git/msf_lite/platform/kinetis/drv_uart.h
 
 C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/lib_ewl.prefix:
 
@@ -86,3 +87,5 @@ D:/Git/msf_lite/platform/kinetis/gpio.h:
 D:/Git/msf_lite/platform/kinetis/delay_util.h:
 
 D:/Git/msf_lite/platform/kinetis/drv_adc.h:
+
+D:/Git/msf_lite/platform/kinetis/drv_uart.h:
