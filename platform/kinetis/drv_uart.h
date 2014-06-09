@@ -94,6 +94,8 @@ typedef struct _MSF_DRIVER_USART {
   uint32_t      (*Control)      (uint32_t control, uint32_t arg);
   uint32_t      (*Send)         (const void* data, uint32_t cnt);
   uint32_t      (*Receive)      (void* data, uint32_t cnt);
+  uint32_t      (*GetRxCount)   (void);
+  uint32_t      (*GetTxCount)   (void);
   uint32_t      (*DataAvailable)    (void);            
   
 } const MSF_DRIVER_USART;

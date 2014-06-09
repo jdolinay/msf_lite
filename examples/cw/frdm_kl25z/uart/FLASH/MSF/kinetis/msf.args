@@ -21,4 +21,4 @@
 -Wall
 -c
 -fmessage-length=0
--specs=ewl_c_noio.specs
+-specs=ewl_c.specs

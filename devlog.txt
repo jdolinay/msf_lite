@@ -4,8 +4,22 @@ Poznamka z AVR:
 Projekty examples staci .cproject a .project a slozka .settings jak mam ted - overeno v eclipse ze
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 
+9.6.2014
+Pokracuj: conio s bufferem ? zvlast nebo jako rozsireni?
+ > spis rozsireni funkce a pridani bufferu?
+ . nebo vubec nedelat conio a primo do Serial?
+ 
+- UART driver funguje.
+
 6.6.2014
-Pokracuj: odladit uart example; nefunguje prijem znaku na pozadi podruhe, prvni prijem ok, pak se "zacyklil" v ISR.
+_Pokracuj: odladit uart example; nefunguje prijem znaku na pozadi podruhe, prvni prijem ok, pak se "zacyklil" v ISR.
+REMEM: pouziti uart v int modu je nepohodle pro normalni aplikaci, napr. nemuze 
+udelat 2x hned za sebou Send nebo Send a hned receive...
+REMEM: (pro MSF) driver jako uart s prijmem na pozadi je asi zbytecne narocny na pamet pro simple 8-bit pouziti,
+problem jak poskytovat jednoduchy pro napr. MCU s 4KB flash a full-featured pro MCU s 60 KB flash.
+mozna jednoduchy C jako jsem mel a nad tim CMSIS-like volajici jeho funkce kde to jde?
+ > nevyhne se 2x psat stejny kod resp. 2 ovladace pro totez :()
+> LEPSI asi "option" pro implementatory MSF zda zvoli "simple" driver API nebo FULL.
 
 5.6.2014
 Pokracuj: tx pro int mode a testovat!

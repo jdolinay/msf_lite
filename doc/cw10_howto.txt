@@ -56,6 +56,10 @@ overwriting the original main.c file created by New project wizard.
 #include "coredef.h"
 #include "msf.h"
 
+8) For using the msf_printnum etc. change in project Properties > C/C++ Build > 
+> Settings > Librarian: Model to "ewl" instead of "ewl_noio" and Print formats
+to "int" or "int_FP" (if you will use floating-point numbers)
+
 
 
 
