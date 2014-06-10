@@ -42,9 +42,10 @@ typedef void (*MSF_UART_Event_t) (uint32_t event, uint32_t arg);
  * 
  Bit(s)  Meaning
  0		Set baudrate; (0) = not set; (1) = set, arg = baudrate (one of the UART_speed_t values only!)	
- 1:2		Set polled or interrupt mode; 0 = not set; 1 = polled; 2 = interrupt
+ 1:2	Set polled or interrupt mode; 0 = not set; 1 = polled; 2 = interrupt
   		Note: If you plan using interrupt mode the callback (MSF_UART_Event_t) function must be provided in call
   		to Initialize. This function will be called when character is received, etc.
+ 3		Abort current transfer in interrupt mode
 */
 
 /* Defines for these positions*/
@@ -52,11 +53,14 @@ typedef void (*MSF_UART_Event_t) (uint32_t event, uint32_t arg);
 #define		MSF_UART_BAUD_Mask		(0x01)
 #define		MSF_UART_INTMODE_Pos	(1)
 #define		MSF_UART_INTMODE_Mask	(0x06)
+#define		MSF_UART_ABORTRXTX_Pos	(3)
+#define		MSF_UART_ABORTRXTX_Mask	(0x08)
 
 /* Definitions of the flags */
 #define     MSF_UART_BAUD_SET      (1UL << MSF_UART_BAUD_Pos)  /**< set the baudrate; rg = baudrate (one of the UART_speed_t values only!) */
 #define     MSF_UART_POLLED_MODE   (1UL << MSF_UART_INTMODE_Pos)  /**< wait for each char to be sent/received in busy loop */
 #define     MSF_UART_INT_MODE      (2UL << MSF_UART_INTMODE_Pos)  /**< use interrupts */
+#define     MSF_UART_ABORTRXTX     (1UL << MSF_UART_ABORTRXTX_Pos)  /**< abort current transfer */
 
 
 /** UART events (masks) 

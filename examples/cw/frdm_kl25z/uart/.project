@@ -69,6 +69,16 @@
 			<locationURI>PARENT-4-PROJECT_LOC/common/conio.h</locationURI>
 		</link>
 		<link>
+			<name>MSF/common/coniob.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/common/coniob.c</locationURI>
+		</link>
+		<link>
+			<name>MSF/common/coniob.h</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/common/coniob.h</locationURI>
+		</link>
+		<link>
 			<name>MSF/common/msf_print.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/common/msf_print.c</locationURI>

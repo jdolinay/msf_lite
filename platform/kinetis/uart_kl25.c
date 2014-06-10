@@ -167,7 +167,7 @@ static uint32_t UART0_PowerControl(MSF_power_state state)
 static uint32_t UART_Control(uint32_t control, uint32_t arg, UART_RESOURCES* uart)
 {
 	/* Changing baudrate? */
-	if ( (control & MSF_UART_BAUD_Mask) != 0 && arg != 0 )
+	if ( (control & MSF_UART_BAUD_Mask) && (arg != 0) )
 	{	/* arg must be is valid baudrate value from the enum UART_speed_t */
 		
 		/* Disable UART0 before changing registers */	
@@ -184,6 +184,8 @@ static uint32_t UART_Control(uint32_t control, uint32_t arg, UART_RESOURCES* uar
 	{
 		/* stop any transfer in progress */
 		uart->info->status &= ~(MSF_UART_STATUS_TXNOW | MSF_UART_STATUS_RXNOW);	
+		/* Disable Tx and Rx interrupts */
+		uart->reg->C2 &= ~(UART0_C2_TIE_MASK | UART0_C2_RIE_MASK); 	
 		
 		if ( (control & MSF_UART_INTMODE_Mask) == MSF_UART_INT_MODE )
 		{
@@ -205,6 +207,15 @@ static uint32_t UART_Control(uint32_t control, uint32_t arg, UART_RESOURCES* uar
 			uart->info->status &= ~MSF_UART_STATUS_INT_MODE;
 			uart->info->status |= MSF_UART_STATUS_POLLED_MODE;			
 		}
+	}
+	
+	/* Abort current Send or Receive command */
+	if ( control & MSF_UART_ABORTRXTX_Mask)
+	{
+		/* stop any transfer in progress */
+		uart->info->status &= ~(MSF_UART_STATUS_TXNOW | MSF_UART_STATUS_RXNOW);	
+		/* Disable Tx and Rx interrupts */
+		uart->reg->C2 &= ~(UART0_C2_TIE_MASK | UART0_C2_RIE_MASK); 	
 	}
 	
 	

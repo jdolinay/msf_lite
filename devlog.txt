@@ -4,10 +4,31 @@ Poznamka z AVR:
 Projekty examples staci .cproject a .project a slozka .settings jak mam ted - overeno v eclipse ze
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 
+10.6.2014
+pokracuj: conioB vysilani...
+TODO: upravit UART driver aby dokazal soucasne prijimat a vysilat, pro ConioB chci ab
+na pozadi stale prijimal a pritom abych mohl vysilat...
+- rozhodunuto udelat "buffered conio", protoze chci mit i pro programatorske pouziti, nejen 
+s "arduino" api...
+
+REMEM: K implementaci buffered conio s ring buffer (FIFO):
+Vidim 2 moznosti jak spojit buffers s UART_Driver v interrupt modu:
+1) volat UART.Receive(buf,1) a v callback udealt PUSH do FIFO
+2) volat UART.Receive(buf, velikost_FIFO) a nechat driver aby na poradi plnil
+buffer i kdyz o tom logika FIFO nic nevi. V conio_getch pak pomoci UART.GetRxCount
+zjistit kolik mam polozek ve FIFO a nastavit na ni hodnotu pred ctenim.
+END REMEM
+
 9.6.2014
 Pokracuj: conio s bufferem ? zvlast nebo jako rozsireni?
  > spis rozsireni funkce a pridani bufferu?
- . nebo vubec nedelat conio a primo do Serial?
+ > nebo vubec nedelat conio a primo do Serial? -asi ano
+TODO: resit zmenu baudrate pro conio resp UART driver, viz msf_init nastavi napr. 
+9600 prez initialize a ja pak chci pro serial.begin zmenit.
++ chce to mit moznost v conio driveru nastavit.
+ > uart driver uz umi, testovano.  
+
+
  
 - UART driver funguje.
 
@@ -22,22 +43,17 @@ mozna jednoduchy C jako jsem mel a nad tim CMSIS-like volajici jeho funkce kde t
 > LEPSI asi "option" pro implementatory MSF zda zvoli "simple" driver API nebo FULL.
 
 5.6.2014
-Pokracuj: tx pro int mode a testovat!
- + ABORT RX A TX DO CONTROL...
-TEST: UART driver nastaveni baud a int/polled mode.
+_Pokracuj: tx pro int mode a testovat! + ABORT RX A TX DO CONTROL...
+_TEST: UART driver nastaveni baud a int/polled mode.
 TODO: uart/serial musi mit buffer. UART driver dle CMSIS kazdy send/receive dela pres buffer =data od uzivatele.
  - mozna do conio buffer?
  
-TODO: resit zmenu baudrate pro conio resp UART driver, viz msf_init nastavi napr. 
-9600 prez initialize a ja pak chci pro serial.begin zmenit.
-+ chce to mit moznost v conio driveru nastavit.
- > uart driver uz umi, netestovano.  
-
 
 4.6.2014
 Pokracuj: dodelani Serial + otestovani analog funkci, casovacich a serial.
 > Serial v arduino umi i paritu a datove bity :(
-TODO: v conio driveru nacteni stringu? msf_read_str() krome read_char (?) 
+TODO: v conio driveru nacteni stringu? msf_read_str() krome read_char (?)
+ > mam viz conio_gets() 
 TODO: testovat analog Reference()
 _TODO: resim nejak v gpio pouziti analog input pinu jako digital = prepinam funkci pinu?
  - co kdyz pin je pro UART; jak pak pouziju pro GPIO.

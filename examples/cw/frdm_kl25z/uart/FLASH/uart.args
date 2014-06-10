@@ -1,5 +1,6 @@
 "./MSF/CMSIS/MKL25Z4/Source/Templates/system_MKL25Z4.o"
 "./MSF/common/msf_print.o"
+"./MSF/common/coniob.o"
 "./MSF/common/conio.o"
 "./MSF/kinetis/uart_kl25.o"
 "./MSF/kinetis/msf_analog.o"
