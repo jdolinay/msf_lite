@@ -3,10 +3,12 @@ MSF lite
 Poznamka z AVR:
 Projekty examples staci .cproject a .project a slozka .settings jak mam ted - overeno v eclipse ze
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
+------------------------------------------------
+
 
 10.6.2014
 pokracuj: conioB vysilani...
-TODO: upravit UART driver aby dokazal soucasne prijimat a vysilat, pro ConioB chci ab
+_TODO: upravit UART driver aby dokazal soucasne prijimat a vysilat, pro ConioB chci ab
 na pozadi stale prijimal a pritom abych mohl vysilat...
 - rozhodunuto udelat "buffered conio", protoze chci mit i pro programatorske pouziti, nejen 
 s "arduino" api...

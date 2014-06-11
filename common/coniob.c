@@ -105,7 +105,7 @@ void coniob_init(void)
 	coniob_nowSending = 0;
 	
 	/* We automatically start to receive data from serial line */
-	CONIOB_UART_DRIVER.Receive(coniob_rxQ.m_entry, coniob_rxQ_SIZE);
+	CONIOB_UART_DRIVER.Receive(CBUF_GetPushEntryPtr(coniob_rxQ), coniob_rxQ_SIZE);
 }
 
 /** Read one character from SCI.
@@ -151,14 +151,13 @@ void coniob_putch(char c)
     	CBUF_Push( coniob_txQ, c );  
     	cnt = 1;
 	}
-    
-    /* TODO: send to UART! */
-    /*problem: pokud uz posilame, nesmim volat Send ale jen "queue" pozadavek na poslani.... */
+        
+    /* Note, we must not call Send if sending is in progress. */
     wconiob_update_txfifo();
     if ( !coniob_nowSending )
-    {
-    	/* jen pokud nevysilame, musime vysilani spustit, dal se o to stara callback */
-    	CONIOB_UART_DRIVER.Send(// todo odkud? CBUF_GetLastEntryPtr(coniob_txQ), cnt);
+    {    	
+    	coniob_nowSending = 1;	
+    	CONIOB_UART_DRIVER.Send(CBUF_GetPopEntryPtr(coniob_txQ), cnt);
     }
 }
 
@@ -168,22 +167,31 @@ void coniob_putch(char c)
  **/
 void coniob_puts(const char* str)     
 {	
+	uint32_t cnt = 0;
     while(*str) 
     {	    	
     	if( *str == '\n')
     	{	 	
     	 	CBUF_Push( coniob_txQ, CR );
-    	  	CBUF_Push( coniob_txQ, LF );    	
+    	  	CBUF_Push( coniob_txQ, LF );
+    	  	cnt += 2;
     	} 
     	else 
     	{
-    	  	CBUF_Push( coniob_txQ, c );    					
+    	  	CBUF_Push( coniob_txQ, *str );
+    	  	cnt++;
     	}	  
     	
     	str++;
     }
-    
-    /* TODO: send to UART! */
+        
+    wconiob_update_txfifo();
+    if ( !coniob_nowSending )
+    {
+      	/* Only if we are not sending, start send */
+    	coniob_nowSending = 1;	
+      	CONIOB_UART_DRIVER.Send(CBUF_GetPopEntryPtr(coniob_txQ), cnt);
+    }
 }
 
 
@@ -231,24 +239,50 @@ uint8_t coniob_gets(char* str, uint8_t max_chars, char terminator)
  * */
 void coniob_UART_SignalEvent(uint32_t event, uint32_t arg)
 {
-	switch( event) {
+	uint32_t cnt, space;
+	uint8_t* pStart;
+	
+	switch( event) 
+	{
 	case MSF_UART_EVENT_SEND_COMPLETE:
+		coniob_nowSending = 0;
 		/* sending just completed; if there is something more to send, start sending again... */
 		wconiob_update_txfifo();
-		
+		coniob_lastTxCount = 0;	
+		/* if there are some data to send */
 		if ( !CBUF_IsEmpty(coniob_txQ))
 		{
-			//CONIOB_UART_DRIVER.Send(coniob_rxQ.m_entry, coniob_rxQ_SIZE);
+			pStart = CBUF_GetPopEntryPtr(coniob_txQ);
+			cnt = CBUF_Len(coniob_txQ);
+			
+			if ( &coniob_txQ.m_entry[pStart+cnt]  >  &coniob_txQ.m_entry[coniob_rxQ_SIZE-1] )
+			{	/* send all till the end of buffer and something more from the beginning */
+				cnt = &coniob_txQ.m_entry[coniob_rxQ_SIZE-1] - &coniob_txQ.m_entry[pStart];  
+				CONIOB_UART_DRIVER.Send(pStart, cnt);	
+				/* TODO: how to send the remaining part from the beginning of the buffer... */
+			}
+			else
+			{	/* normal send */
+				CONIOB_UART_DRIVER.Send(pStart, cnt);	
+			}
+			coniob_nowSending = 1;			
+			//CONIOB_UART_DRIVER.Send(CBUF_GetPopEntryPtr(coniob_txQ), CBUF_Len(coniob_txQ));			
 		}
 		break;
 		
 	case MSF_UART_EVENT_RECEIVE_COMPLETE:
-		/* we are all the time receiving; when receive completes, we start over again */
-		wconiob_update_rxfifo();	/* first update the fifo */
+		/* we are all the time receiving; when receive completes, we start over again 
+		 * We start from 0 index because the uart driver does not know about "overflowing"
+		 * from end to beginning; it needs flat buffer. */
+		/* TODO: but we cannot reset the FIFO, user did not read the data yet! */
+		//wconiob_update_rxfifo();	/* first update the fifo */
+		
 		CBUF_ResetPushIdx(coniob_rxQ);	/* pushing will start from the beginning of fifo again */
 		coniob_lastRxCount = 0;	/* now we start again from the beginning*/
 		CONIOB_UART_DRIVER.Receive(coniob_rxQ.m_entry, coniob_rxQ_SIZE);
 		break;
+		//CONIOB_UART_DRIVER.Receive(CBUF_GetPushEntryPtr(coniob_rxQ), coniob_rxQ_SIZE);
+		
 		
 	/*case MSF_UART_EVENT_TRANSFER_COMPLETE:
 		break;
@@ -286,15 +320,15 @@ void wconiob_update_rxfifo(void)
 	
 }	
 
-/* todo: */
+
 /* The UART driver sends data from the FIFO without the FIFO knowing about it.
- * This function will "pop" the data which are already sent but the FIFO does not
+ * This function will "pop" out the data which are already sent but the FIFO does not
  * know about it yet. */
 void wconiob_update_txfifo(void)
 {
 	uint32_t cnt;
 	cnt = CONIOB_UART_DRIVER.GetTxCount();	
-	if (cnt > coniob_lastTxCount )
+	if (cnt > 0 && cnt > coniob_lastTxCount )
 	{
 		CBUF_AdvancePopIdxN(coniob_txQ, (cnt - coniob_lastTxCount) );
 		coniob_lastTxCount = cnt;

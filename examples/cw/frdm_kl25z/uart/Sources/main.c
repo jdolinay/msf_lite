@@ -14,6 +14,7 @@
 
 #include "msf.h"
 #include "drv_uart.h"	/* UART driver */
+#include "coniob.h"		/* Buffered console I/O */
 
 #define	RED_LED		GPIO_B18
 #define	GREEN_LED	GPIO_B19
@@ -23,6 +24,7 @@
 void polled_uart_test(void);	
 void interrupt_uart_simple_test(void);
 void interrupt_uart_full_test(void);	
+void coniob_test(void);
 
 const char* str_115200 = "115200\n\r";
 const char* str_9600 = "9600\n\r";
@@ -41,7 +43,8 @@ int main(void)
 	 * */
 	//polled_uart_test();
 	//interrupt_uart_simple_test();
-	interrupt_uart_full_test();	
+	//interrupt_uart_full_test();
+	coniob_test();
 		
 	for(;;) {	   
 	   	counter++;
@@ -283,7 +286,21 @@ void interrupt_uart_full_test(void)
 		msf_delay_ms(100);		
 	}
 	
+}
+
+/* Test buffered console I/O */
+void coniob_test(void)
+{
+	coniob_init();
 	
-	
+	while( 1 ) 
+	{
+		coniob_puts("ahoj jak ");
+		msf_delay_ms(500);
+		coniob_puts("se mas. ");
+		msf_delay_ms(500);
+		coniob_puts("Dlouhy string string 123456789");
+		msf_delay_ms(2000);
+	}
 }
 

@@ -260,21 +260,22 @@ uint32_t UART_Send(const void* data, uint32_t cnt, UART_RESOURCES* uart)
 	else
 	{
 		/* non-blocking (interrupt) mode */
-		if ( cnt > 1 )	/* If there is only 1 byte, we just send it below... */
+		//if ( cnt > 1 )	/* If there is only 1 byte, we just send it below... */
 		{
-			/* Disable any pending receive or transmit - this would be error to call us while in progress. */			
-			uart->info->status &= ~(MSF_UART_STATUS_TXNOW | MSF_UART_STATUS_RXNOW);
-			/* Disable Tx and Rx interrupt. If user calls (by error) Send or Receive before previous 
-			 * operation is complete, the interrupt would never be disabled. */
-			uart->reg->C2 &= ~(UART0_C2_TIE_MASK | UART0_C2_RIE_MASK); 	
+			/* Disable any pending transmit - this would be error to call us while in progress. */			
+			uart->info->status &= ~MSF_UART_STATUS_TXNOW;
+			/* Disable Tx  interrupt. If user calls (by error) Send or Receive before previous 
+			 * operation is completed, the interrupt would never be disabled. */
+			uart->reg->C2 &= ~UART0_C2_TIE_MASK; 	
 			
 			/* Setup the internal data to start sending */
-			uart->info->buff = (void*)data;
-			uart->info->txrx_total = cnt;
-			uart->info->txrx_cnt = 1;	/* 1 because we send the 1st char here */
+			uart->info->txbuff = (void*)data;
+			uart->info->tx_total = cnt;
+			uart->info->tx_cnt = 0;		/* 1 because we send the 1st char here */
 			uart->info->status |= MSF_UART_STATUS_TXNOW;	/* now sending... */
+			uart->reg->C2 |= UART0_C2_TIE_MASK;
 		}
-		
+#if 0
 		/* Send first character now; the next one will be sent by ISR */ 
 		/* Wait until space is available in the FIFO */
 		while(!(uart->reg->S1 & UART0_S1_TDRE_MASK))
@@ -282,7 +283,9 @@ uint32_t UART_Send(const void* data, uint32_t cnt, UART_RESOURCES* uart)
 		 /* Send the character */
 		uart->reg->D = ((const uint8_t*)data)[0];
 		/* Enable interrupt for Tx buffer empty */
-		uart->reg->C2 |= UART0_C2_TIE_MASK; 		
+		if ( cnt > 1 )
+			uart->reg->C2 |= UART0_C2_TIE_MASK;
+#endif
 	}
 	
     return MSF_ERROR_OK;
@@ -333,16 +336,16 @@ uint32_t UART_Receive(void* data, uint32_t cnt, UART_RESOURCES* uart)
 	else
 	{	/* non-blocking (interrupt) mode */
 	 			
-		/* Disable any pending receive or transmit - this would be error to call us while in progress. */
-		uart->info->status &= (~MSF_UART_STATUS_RXNOW & ~MSF_UART_STATUS_TXNOW);	
-		/* Disable Tx and Rx interrupt. If user calls (by error) Send or Receive before previous 
+		/* Disable any pending receive - this would be error to call us while in progress. */
+		uart->info->status &= ~MSF_UART_STATUS_RXNOW;	
+		/* Disable Rx interrupt. If user calls (by error) Send or Receive before previous 
 		* operation is complete, the interrupt would never be disabled. */
-		uart->reg->C2 &= ~(UART0_C2_TIE_MASK | UART0_C2_RIE_MASK); 	
+		uart->reg->C2 &= ~UART0_C2_RIE_MASK; 	
 		
 		/* Setup the internal data to start receiving */
-		uart->info->buff = data;
-		uart->info->txrx_total = cnt;
-		uart->info->txrx_cnt = 0;
+		uart->info->rxbuff = data;
+		uart->info->rx_total = cnt;
+		uart->info->rx_cnt = 0;
 		uart->info->status |= MSF_UART_STATUS_RXNOW;	/* now receiving... */
 		uart->reg->C2 |= UART0_C2_RIE_MASK; /* Enable interrupt for Rx buffer full */
 	}
@@ -366,7 +369,7 @@ static uint32_t UART_GetRxCount(UART_RESOURCES* uart)
 {
 	if ( uart->info->status & MSF_UART_STATUS_POLLED_MODE )
 		return 0;
-	return uart->info->txrx_cnt;	
+	return uart->info->rx_cnt;	
 }
 
 static uint32_t UART0_GetRxCount(void)
@@ -385,7 +388,7 @@ static uint32_t UART_GetTxCount(UART_RESOURCES* uart)
 {
 	if ( uart->info->status & MSF_UART_STATUS_POLLED_MODE )
 		return 0;
-	return uart->info->txrx_cnt;
+	return uart->info->tx_cnt;
 }
 
 static uint32_t UART0_GetTxCount(void)
@@ -449,9 +452,9 @@ void UART_handleIRQ( UART_RESOURCES* uart)
 	if ( (uart->info->status & MSF_UART_STATUS_TXNOW) && (uart->reg->S1 & UART0_S1_TDRE_MASK) )
 	{
 		/* Send next char */			
-		uart->reg->D = ((const uint8_t*)uart->info->buff)[uart->info->txrx_cnt++];
+		uart->reg->D = ((const uint8_t*)uart->info->txbuff)[uart->info->tx_cnt++];
 		/* Check if sent all we wanted */
-		if ( uart->info->txrx_cnt >= uart->info->txrx_total )
+		if ( uart->info->tx_cnt >= uart->info->tx_total )
 		{
 			/* stop sending */
 			uart->info->status &= ~MSF_UART_STATUS_TXNOW;	
@@ -460,6 +463,8 @@ void UART_handleIRQ( UART_RESOURCES* uart)
 			/* generate user event */
 			if ( uart->info->cb_event )
 				uart->info->cb_event(MSF_UART_EVENT_SEND_COMPLETE, 0);
+			/* Reset the Tx count */
+			uart->info->tx_cnt = 0;
 			/* Enable Transmit complete interrupt  - to generate event when line is idle */
 			uart->reg->C2 |= UART0_C2_TCIE_MASK;	
 		}	
@@ -484,9 +489,9 @@ void UART_handleIRQ( UART_RESOURCES* uart)
 	if ( (uart->reg->S1 & UART0_S1_RDRF_MASK) && (uart->info->status & MSF_UART_STATUS_RXNOW) )
 	{		
 		/* Save next byte */
-		((uint8_t*)uart->info->buff)[uart->info->txrx_cnt++] = uart->reg->D;
+		((uint8_t*)uart->info->rxbuff)[uart->info->rx_cnt++] = uart->reg->D;
 		/* Check if received all we wanted */
-		if ( uart->info->txrx_cnt >= uart->info->txrx_total )
+		if ( uart->info->rx_cnt >= uart->info->rx_total )
 		{
 			/* stop receiving */
 			uart->info->status &= ~MSF_UART_STATUS_RXNOW;
@@ -495,6 +500,8 @@ void UART_handleIRQ( UART_RESOURCES* uart)
 			/* generate user event */
 			if ( uart->info->cb_event )
 				uart->info->cb_event(MSF_UART_EVENT_RECEIVE_COMPLETE, 0);
+			/* reset the Rx count */
+			uart->info->rx_cnt = 0;
 		}				
 		
 	}
