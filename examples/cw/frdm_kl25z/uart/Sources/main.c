@@ -173,8 +173,8 @@ volatile IntModeStates g_state = Idle;
  * such as sending completed, etc.
  * NOTE: this is called from ISR, so 
  * - do not spend much time here! 
- * - preferably do not send to UART from here!
  * - beware of loops, e.g. by sending text to UART in response to send complete event!
+ * - you can call UART.Send() from here also.
  * */
 void UART_SignalEvent(uint32_t event, uint32_t arg)
 {
@@ -296,10 +296,10 @@ void coniob_test(void)
 	while( 1 ) 
 	{
 		coniob_puts("ahoj jak ");
-		msf_delay_ms(500);
+		//msf_delay_ms(500);
 		coniob_puts("se mas. ");
-		msf_delay_ms(500);
-		coniob_puts("Dlouhy string string 123456789");
+		//msf_delay_ms(500);
+		coniob_puts("Dlouhy string string 123456789\n");
 		msf_delay_ms(2000);
 	}
 }

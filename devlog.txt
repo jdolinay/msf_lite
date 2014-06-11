@@ -5,6 +5,26 @@ Projekty examples staci .cproject a .project a slozka .settings jak mam ted - ov
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 ------------------------------------------------
 
+11.6.2014
+Stav ConioB:
+- opustena verze s odesilanim vicebajtovych bloku najednou, odesila se byjt po bajtu
+v obsluze udalosti od UART driveru. Vysvetleni viz komentar v git commit. Rozdelana
+verze na branch. Pokud bych chtel nekdy udelat, pak volit vlastni buffer a nevyuzivat
+makra pro ring buffer. 
+- funguje odeslani vice stringu tesne za sebou
+Pokracuj: otestovat prijem a  odesilani jednotlivych znaku v coniob...
+
+
+REMEM: K reziim pri odesilani pres UART:
+CPU pri 8 MHz = 8 clock / us
+Pro 9600: 1 znak za 104 us. = 832 clocks
+Pro 115200: 1 znak =  8.7 us =   69 clocks
+Pro CPU 48 MHz = 48 clock / us
+Pro 9600: 1 znak za 104 us. = 5000 clocks
+Pro 115200: 1 znak =  8.7 us =   417 clocks
+Zaver: pro velke F_CPU, napr. 48 MHz se vyplati na pozadi i kdyz vysilam po 
+1 znaku.
+END REMEM
 
 10.6.2014
 pokracuj: conioB vysilani...
