@@ -23,7 +23,7 @@
 
 
 #if MSF_USE_STDIO
-    #include "conio.h"  /* To initialize console in msf_init()*/
+    #include "coniob.h"  /* To initialize console in msf_init()*/
 #endif
 
 #if MSF_USE_ANALOG
@@ -42,14 +42,13 @@ volatile uint32_t   gmsf_systime;
 volatile uint32_t   gmsf_delaycnt;
 
 /** @brief Init the "system" timer which will be used by delay, millis etc. functions
- * @param TODO: some option if needed
+ * @param TODO: some options if needed
  * @return 0 if init was ok; error code otherwise. For now it always returns OK.
  * @note It uses CMSIS SysTick. The CMSIS implementation must be provided by
  * the silicone vendor. 
  *  
- * TODO: change params to 32 bit for 32-bit MCUs  
  **/
-uint8_t msf_init(uint8_t param)
+uint8_t msf_init(uint32_t param)
 {
     uint8_t err = MSF_ERROR_OK;
     
@@ -66,7 +65,7 @@ uint8_t msf_init(uint8_t param)
     
 	// initialize standard I/O if desired
 #if MSF_USE_STDIO
-	conio_init();	
+	coniob_init(MSF_STDIO_BAUDRATE);	
 #endif
 
 	// initialize ADC if desired

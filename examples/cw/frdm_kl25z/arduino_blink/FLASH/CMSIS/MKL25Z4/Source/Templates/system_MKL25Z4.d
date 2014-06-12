@@ -15,7 +15,10 @@ CMSIS/MKL25Z4/Source/Templates/system_MKL25Z4.o: \
  D:/Git/msf_lite/vendor/freescale/CMSIS/Include/core_cm0plus.h \
  D:/Git/msf_lite/vendor/freescale/CMSIS/Include/core_cmInstr.h \
  D:/Git/msf_lite/vendor/freescale/CMSIS/Include/core_cmFunc.h \
- D:/Git/msf_lite/vendor/freescale/CMSIS/MKL25Z4/Include/system_MKL25Z4.h
+ D:/Git/msf_lite/vendor/freescale/CMSIS/MKL25Z4/Include/system_MKL25Z4.h \
+ D:/Git/msf_lite/examples/cw/frdm_kl25z/arduino_blink/Project_Headers/msf_config.h \
+ D:/Git/msf_lite/board/frdm_kl25z/frdm_kl25z.h \
+ D:/Git/msf_lite/board/frdm_kl25z/msf_config_mkl25z.h
 
 C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/lib_ewl.prefix:
 
@@ -48,3 +51,9 @@ D:/Git/msf_lite/vendor/freescale/CMSIS/Include/core_cmInstr.h:
 D:/Git/msf_lite/vendor/freescale/CMSIS/Include/core_cmFunc.h:
 
 D:/Git/msf_lite/vendor/freescale/CMSIS/MKL25Z4/Include/system_MKL25Z4.h:
+
+D:/Git/msf_lite/examples/cw/frdm_kl25z/arduino_blink/Project_Headers/msf_config.h:
+
+D:/Git/msf_lite/board/frdm_kl25z/frdm_kl25z.h:
+
+D:/Git/msf_lite/board/frdm_kl25z/msf_config_mkl25z.h:

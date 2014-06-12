@@ -17,7 +17,8 @@
 
 #include "msf.h"
 #include "drv_adc.h"  /* ADC driver needed for analogReference() */
-#include "drv_uart.h"	/* UART driver needed for Serial.begin() */
+//#include "drv_uart.h"	/* UART driver needed for Serial.begin() */
+#include "coniob.h"		/* buffered serial line for Serial */
 
 /* Arduino pin definitions 
  * Digital pin n is named PDn etc.
@@ -90,6 +91,18 @@ extern const uint32_t g_msf_analogpins_arduino[];
 /** Arduino defines for analog reference */
 #define		DEFAULT		(0)		/* about 3V */
 #define		EXTERNAL	(1)		/* VREFH pin */
+
+/* Arduino formats for printing to serial line */
+#define		DEC			(0)
+#define		HEX			(1)
+#define		OCT			(2)
+/*#define		BIN			(3) */
+
+#define		ARDUINO_FORMAT_2_PRINTF(format)  ((format == DEC) ?  "%d" : \
+											 (format == HEX) ?  "%X" : \
+											 (format == OCT) ?  "%o" : \
+											 "")  
+
 
 /* Arduino pin number to pin-code conversion */
 /* Convert Ardiuno pin number into pin code used by MSF GPIO functions. 
@@ -261,13 +274,33 @@ static inline void delayMicroseconds(uint32_t micros)
 	msf_delay_us(micros);
 }
 
+/** Re-maps a number from one range to another. 
+ * Does not constrain values to within the range. 
+ * */
+static inline uint32_t map(uint32_t x, uint32_t in_min, uint32_t in_max, uint32_t out_min, uint32_t out_max)
+{	
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+/** Constrains a number to be within a range.
+ * @return val if the val is within the range, low if val < low, high if val > high
+ *  */
+static inline uint32_t constrain(uint32_t val, uint32_t low, uint32_t high) 
+{
+	return ((val<lo) ? low : (val>high) ? high : val);
+}
+
+
 /***********************
  *  Serial communication functions 
  *********************** */
 /** Note that we do not implement the whole functionality of the Serial class in Arduino.
  * This seems too complicated and would require using C++ language in the project.
-  * We just implement the basic functions for printing string to serial line;
-  * for more advanced purposed, please use the MSF native functions:
+  * For printing to serial line we just implement the basic functions.
+  * We support printing int and float with functions printInt and printFloat as we cannot have
+  * more functions with the same name (print) without C++.
+  * 
+  * For more advanced purposes, please use the MSF native functions:
   *  void msf_print(const char* str);    -  print string  
   *  void msf_printnum(uint32_t number) - print number (integer) 
   *  void msf_printhex(uint32_t number) - print number in hexadecimal notation
@@ -281,9 +314,9 @@ static inline void delayMicroseconds(uint32_t micros)
   *  
   *   Reading characters:
   *   char msf_read_char(void);	- read 1 character 
-  *   bool msf_char_available(void);  - return true if characte was received thru serial line.
+  *   bool msf_char_available(void);  - return true if a character was received thru serial line.
   *   
-  *   Note that the baudrate is 9600 by default. It can be changed only by calling the UART driver directly (Driver_UART0).
+  *   Note that the baudrate is 19200 by default. It can be changed in msf_config.h, see MSF_STDIO_BAUDRATE.
  * */
 /**
  Access structure which emulates the C++ Serial class in Arduino
@@ -292,11 +325,22 @@ static inline void delayMicroseconds(uint32_t micros)
 typedef struct _MSF_SERIAL_ARDUINO {  
   void      (*begin)   (uint32_t baudrate);  
   void      (*end) (void); 
-  void      (*print) (const char* str);                                    
+  void      (*print) (const char* str); 
+  void 		(*printInt)(int val, int format);
+  void 		(*printFloat)(float val, int decplaces);
+  void      (*println) (const char* str); 
+  int 		(*available)(void);
+  int 		(*read)(void);
+  int		(*readBytes)(char* buffer, int length);
+  int 		(*readBytesUntil)(char terminator, char* buffer, int length);
+  void		(*flush)(void);
+  int		(*peek)(void);
+  void 		(*write)(int val);
 } const MSF_SERIAL_ARDUINO;
 
 
-
+/* The instance of Serial defined in arduino.c */
+extern MSF_SERIAL_ARDUINO Serial;
 
 
 #endif /* MSFL_ARDUINO_H */

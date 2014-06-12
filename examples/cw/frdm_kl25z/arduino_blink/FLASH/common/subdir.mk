@@ -6,40 +6,40 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS_QUOTED += \
-"$(COMMON)/conio.c" \
+"$(COMMON)/coniob.c" \
 "$(COMMON)/msf_print.c" \
 
 C_SRCS += \
-$(COMMON)/conio.c \
+$(COMMON)/coniob.c \
 $(COMMON)/msf_print.c \
 
 OBJS += \
-./common/conio.o \
+./common/coniob.o \
 ./common/msf_print.o \
 
 C_DEPS += \
-./common/conio.d \
+./common/coniob.d \
 ./common/msf_print.d \
 
 OBJS_QUOTED += \
-"./common/conio.o" \
+"./common/coniob.o" \
 "./common/msf_print.o" \
 
 C_DEPS_QUOTED += \
-"./common/conio.d" \
+"./common/coniob.d" \
 "./common/msf_print.d" \
 
 OBJS_OS_FORMAT += \
-./common/conio.o \
+./common/coniob.o \
 ./common/msf_print.o \
 
 
 # Each subdirectory must supply rules for building sources it contributes
-common/conio.o: $(COMMON)/conio.c
+common/coniob.o: $(COMMON)/coniob.c
 	@echo 'Building file: $<'
 	@echo 'Executing target #6 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
-	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"common/conio.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"common/conio.o"
+	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"common/coniob.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"common/coniob.o"
 	@echo 'Finished building: $<'
 	@echo ' '
 

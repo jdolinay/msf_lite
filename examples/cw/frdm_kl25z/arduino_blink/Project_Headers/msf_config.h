@@ -30,6 +30,35 @@
    3 ... Default settings: internal clock source 32.768kHz and FLL mode
    	   	 Core clock = 20.9MHz, BusClock = ?
 */
+/*********************************************
+*    Define the standard I/O channel 
+********************************************/
+#define   MSF_USE_STDIO     1   /* Using conio driver (UART) for std output */
+/* To disable initialising UART in msf_init use:
+#define   MSF_USE_STDIO     0 
+*/
+/* Define the default baudrate used by console I/O (conio).
+ * This must be one of the values from the enum defined in msf_<device>.h. */
+#define	 MSF_STDIO_BAUDRATE		(BD19200)
+
+/*********************************************
+*    Define whether we want to use analog inputs
+*    If nonzero; ADC is initialised. This means 
+*    little more power consumption, otherwise no
+*    harm is done by enabling the analog inputs even
+*    if not used 
+********************************************/
+#define MSF_USE_ANALOG      1
+
+/*********************************************
+*    Define which drivers should be created (used) 
+*    It may save some memory to define drivers which 
+*    your applicaiton will not use with 0.
+********************************************/
+#define MSF_DRIVER_UART0    1   /* Use UART0 driver (create UART0 driver instance) */
+#define MSF_DRIVER_ADC0     1	/* Use ADC driver */
+
+
 
  /* Include the header file for our board */
 #include "frdm_kl25z.h" 

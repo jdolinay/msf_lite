@@ -52,7 +52,7 @@ extern "C" {
 /** Initialize the MSF. 
  It may do nothing on some platforms for API level 1 but, for example,
  kinetis needs enabling clock to GPIO ports. */
-uint8_t     msf_init(uint8_t param);
+uint8_t     msf_init(uint32_t param);
 /* @} */
 
 /** @defgroup group_msf_digitalIO Digital I/O 
@@ -120,6 +120,7 @@ actually available functions for your device (F_CU in fact) */
 /* Implemented in msf_print.c */
 /* The Conio driver decides to which UART the output goes */
 void msf_print(const char* str);    // print string  
+void msf_print_char(char c);	// print single character
 
 /* Easy to use functions */
 /* Print simple integer in decimal and hex */

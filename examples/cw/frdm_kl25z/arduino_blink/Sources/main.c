@@ -24,11 +24,17 @@ void setup(void)
 	msf_pin_write(PIN_B18, true);		// set pin high to turn LED off	
 	msf_pin_direction(PIN_B19, output);
 	msf_pin_write(PIN_B19, true);	
+	
+	// Serial line
+	Serial.begin(115200);
 }
 
 
 void loop(void)
 {
+	char c;
+	int decplaces = 2;
+	
 	// Arduino program
 	digitalWrite(13, LOW);
 	delay(500);
@@ -45,6 +51,23 @@ void loop(void)
 	delay(300);
 	msf_pin_write(PIN_B19, true);	// LED off
 	delay(300);
+	
+	Serial.println("hello");
+	if ( Serial.available() > 0)
+	{
+		c = Serial.read();
+		Serial.print("received: ");	
+		msf_print_char(c);
+		Serial.print("\n");		
+		if ( c == 'f')
+			Serial.printFloat(15.12345678912, decplaces);
+		else if ( c == 'd' )
+			Serial.printInt(254, DEC);
+		else if ( c == 'x' )
+			Serial.printInt(254, HEX);
+		else if ( c == 'o' )
+			Serial.printInt(17, OCT);
+	}
 }
 
 
@@ -56,7 +79,7 @@ void loop(void)
 /* -------------------------- Hic sunt leones  ---------------------------- */
 int main(void)
 {
-	/* Internal initialization */
+	/* Internal initialisation */
 	msf_init(0);
 	
 	setup();

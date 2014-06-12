@@ -34,10 +34,13 @@
 /*********************************************
 *    Define the standard I/O channel 
 ********************************************/
-#define   MSF_USE_STDIO     0   /* Using conio driver (UART) for std output */
+#define   MSF_USE_STDIO     1   /* Using conio driver (UART) for std output */
 /* To disable initialising UART in msf_init use:
 #define   MSF_USE_STDIO     0 
 */
+/* Define the default baudrate used by console I/O (conio).
+ * This must be one of the values from the enum defined in msf_<device>.h. */
+#define	 MSF_STDIO_BAUDRATE		(BD19200)
 
 /*********************************************
 *    Define whether we want to use analog inputs

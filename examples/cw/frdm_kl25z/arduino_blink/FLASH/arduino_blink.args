@@ -5,7 +5,7 @@
 "./Sources/sa_mtb.o"
 "./Sources/main.o"
 "./common/msf_print.o"
-"./common/conio.o"
+"./common/coniob.o"
 "./frdm_kl25z/arduino.o"
 "./kinetis/uart_kl25.o"
 "./kinetis/msf_analog.o"
@@ -23,4 +23,12 @@
 -L"C:/Freescale/CW MCU v10.5/MCU/ARM_GCC_Support/ewl/lib/armv6-m"
 -Wl,-Map,arduino_blink.map
 -n
--specs=ewl_c_noio.specs
+-specs=ewl_c.specs
+-Xlinker
+--undefined=__pformatterFP
+-Xlinker
+--defsym=__pformatter=__pformatterFP
+-Xlinker
+--undefined=__sformatter
+-Xlinker
+--defsym=__sformatter=__sformatter

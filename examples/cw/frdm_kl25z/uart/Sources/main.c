@@ -291,16 +291,51 @@ void interrupt_uart_full_test(void)
 /* Test buffered console I/O */
 void coniob_test(void)
 {
-	coniob_init();
+	uint32_t cnt, menu = 1;
+	char buff[8];
+	
+	//coniob_init(BD19200);
 	
 	while( 1 ) 
 	{
+		if ( menu )
+		{
+			coniob_puts("Enter commnad:\n");
+			menu = 0;
+		}
+		/* we expect always 3 chars as a command */
+		cnt = coniob_kbhit();
+		if (  cnt >= 3 )
+		{
+			coniob_gets(buff, cnt, 0);
+			if (strcmp(buff, "dir") == 0 )
+				coniob_puts("dir command received\n");
+			else if (strcmp(buff, "end") == 0 )
+			{
+				coniob_puts("end command received\n");
+				/// change baudrate 
+				//coniob_init(BD115200);
+			}
+			else
+			{
+				coniob_puts("unknown command received: ");
+				coniob_puts(buff);
+				coniob_putch('\n');
+			}
+			menu = 1;
+			
+		}
+		
+		msf_delay_ms(500);
+		
+		/*
 		coniob_puts("ahoj jak ");
 		//msf_delay_ms(500);
 		coniob_puts("se mas. ");
 		//msf_delay_ms(500);
 		coniob_puts("Dlouhy string string 123456789\n");
 		msf_delay_ms(2000);
+		*/
 	}
 }
 

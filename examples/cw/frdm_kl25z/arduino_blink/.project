@@ -54,14 +54,14 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>common/conio.c</name>
+			<name>common/coniob.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/common/conio.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/common/coniob.c</locationURI>
 		</link>
 		<link>
-			<name>common/conio.h</name>
+			<name>common/coniob.h</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/common/conio.h</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/common/coniob.h</locationURI>
 		</link>
 		<link>
 			<name>common/msf_print.c</name>

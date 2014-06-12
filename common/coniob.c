@@ -39,23 +39,8 @@
            
 #include "msf.h"
 
+#include "coniob.h"
 
-/* Platform-specific UART driver */
-#include "drv_uart.h"	
-
-/* Define which driver (instance of the UART) is used by us */
-#define	 CONIOB_UART_DRIVER	Driver_UART0
-
-/* Define the size of the buffer in bytes.
- * NOTE:  The size must be a power of two
-*   and it needs to fit in the get/put indicies. i.e. if you use an
-*   8 bit index, then the maximum supported size would be 128. (see cbuf.h) 
- * TODO: move to header file */
-#define	 CONIOB_TXBUFFER_SIZE		(64)
-#define	 CONIOB_RXBUFFER_SIZE		(32)
-
-#define LF 0x0A						// Line Feed ASCII code
-#define CR 0x0D						// Carriage Return ASCII code
 
 /*---------- Internal variables ---------------- */
 /* The name of the size for the buffer must match this patters */
@@ -89,13 +74,9 @@ void wconiob_update_txfifo(void);
 
 /** Initialize the console I/O driver
  **/
-void coniob_init(void)               
+void coniob_init(UART_speed_t baudrate)               
 {
-    // TODO: howto specify speed?
-    // probably in msf_config user can select or we provide default in msf_defcfg.h
-    //uart_init(BD4800);
-    //uart_init(BD9600);
-	CONIOB_UART_DRIVER.Initialize(BD9600, coniob_UART_SignalEvent);
+    CONIOB_UART_DRIVER.Initialize(baudrate, coniob_UART_SignalEvent);
 	/* go to interrupt driven mode */
 	CONIOB_UART_DRIVER.Control(MSF_UART_INT_MODE, 0);
     /* Note: if you get compiler error that the speed constant is not defined, check if
@@ -128,7 +109,7 @@ char coniob_getch(void)
  * @return 0 if there are no data (call to getch would block the caller;
  *  or the number of characters available in input buffer. 
  **/
-uint8_t coniob_kbhit(void)
+uint32_t coniob_kbhit(void)
 {
 	return CBUF_Len(coniob_rxQ);
 }
@@ -212,11 +193,11 @@ void coniob_puts(const char* str)
  * @param str [out] buffer provided by the user to receive the string
  * @param max_chars [in] maximum character (not including terminating 0) to 
  *  receive.
- * @param terminator [in] character which means the end of the string. 
+ * @param terminator [in] character which means the end of the string. Can be 0 if not needed.
  * @return number of characters actually written to the string str; not including 
  * the ending 0.      
  **/
-uint8_t coniob_gets(char* str, uint8_t max_chars, char terminator)
+uint32_t coniob_gets(char* str, uint32_t max_chars, char terminator)
 {
     char c;
     uint8_t i;
@@ -229,7 +210,30 @@ uint8_t coniob_gets(char* str, uint8_t max_chars, char terminator)
     }
     str[i] = 0; 
     return i;
-}		 
+}
+
+char coniob_peek(void)
+{
+	if ( CBUF_IsEmpty(coniob_rxQ) )
+		return 0;
+	return CBUF_Get(coniob_rxQ, 0);
+}
+
+#if 0	/* not working properly */
+/** Empty the receive buffer.
+ *  Note that if data keep on coming from the serial line, some data may appear in the
+ *  buffer even before this function returns. 
+ *  It is useful in processing commands in 
+ *  command-line-interface if we start processing e.g. when 3 chars are received, but 
+ *  the user might have typed some extra chars in the time before we process the 
+ *  command and wait for another command - so there would some chars left in the
+ *  Rx buffer.   
+ * */
+void coniob_flush(void)
+{
+	CBUF_Init(coniob_rxQ);	
+}
+#endif
 
 /** @}*/
 
@@ -262,7 +266,7 @@ void coniob_UART_SignalEvent(uint32_t event, uint32_t arg)
 		
 	case MSF_UART_EVENT_RECEIVE_COMPLETE:
 		/* just put the new char to FIFO and start new receive */
-		CBUF_AdvancePushIdx(coniob_rxQ);	/* the new char is not available in FIFO (UART driver 
+		CBUF_AdvancePushIdx(coniob_rxQ);	/* the new char is now available in FIFO (UART driver 
 			copied it there already, we just now update the FIFO index) */
 		/* Get next char */
 		CONIOB_UART_DRIVER.Receive(CBUF_GetPushEntryPtr(coniob_rxQ), 1);

@@ -5,6 +5,16 @@ Projekty examples staci .cproject a .project a slozka .settings jak mam ted - ov
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 ------------------------------------------------
 
+12.6.2014
+Pokracuj: analogWrite, jinak uz arduino layer asi komplet ok.
+ >je analogwrite v arduino pres HW kde to jde nebo vsude SW.
+- Serial funguje, otestovan v arduino_blink
+
+TODO: testovat msf_print funkce po uprave na coniob.
+TODO: do uart driveru dat nastaveni start/stop bitu jak potøeba pro arduino.
+- v Serial nema cenu pouzivat msf funkce, jen primo coniob, protoze pak vznika mix,
+kdy neco jde pres msf, neco pres conio a neco primo na driver (ne vse je v conio API).
+
 11.6.2014
 Stav ConioB:
 - opustena verze s odesilanim vicebajtovych bloku najednou, odesila se byjt po bajtu
@@ -12,7 +22,18 @@ v obsluze udalosti od UART driveru. Vysvetleni viz komentar v git commit. Rozdel
 verze na branch. Pokud bych chtel nekdy udelat, pak volit vlastni buffer a nevyuzivat
 makra pro ring buffer. 
 - funguje odeslani vice stringu tesne za sebou
-Pokracuj: otestovat prijem a  odesilani jednotlivych znaku v coniob...
+_Pokracuj: otestovat prijem a  odesilani jednotlivych znaku v coniob...
+
+TODO: (low) -V sesite MCU mam vyvojaky jak udelat s vlastnim bufferem misto FIFO,
+zda se ne moc tezke a fungujici.
+
+REMEM: Prinos projektu "Arduino na FRDM" vidim v tom:
+- ze je to dalsi HW podobny jako Teensy s vykonnym MCU, ktery by sel programovat
+jako Arduino. I kdyz neplanuju pridani do arduino IDE a tedy cilem jsou spis 
+zkusenejsi uzivatele, je to uzitecne.
+- sw knihovna bude navrzena vrstvene, koncepcne a snadno portable. (MSF) mohla by
+nahradit Arduino knihovny pro zkusenejsi uzivatele :)
+END REMEM
 
 
 REMEM: K reziim pri odesilani pres UART:
@@ -27,7 +48,7 @@ Zaver: pro velke F_CPU, napr. 48 MHz se vyplati na pozadi i kdyz vysilam po
 END REMEM
 
 10.6.2014
-pokracuj: conioB vysilani...
+_pokracuj: conioB vysilani...
 _TODO: upravit UART driver aby dokazal soucasne prijimat a vysilat, pro ConioB chci ab
 na pozadi stale prijimal a pritom abych mohl vysilat...
 - rozhodunuto udelat "buffered conio", protoze chci mit i pro programatorske pouziti, nejen 
@@ -42,16 +63,13 @@ zjistit kolik mam polozek ve FIFO a nastavit na ni hodnotu pred ctenim.
 END REMEM
 
 9.6.2014
-Pokracuj: conio s bufferem ? zvlast nebo jako rozsireni?
- > spis rozsireni funkce a pridani bufferu?
- > nebo vubec nedelat conio a primo do Serial? -asi ano
-TODO: resit zmenu baudrate pro conio resp UART driver, viz msf_init nastavi napr. 
+_Pokracuj: conio s bufferem ? zvlast nebo jako rozsireni?
+ > spis rozsireni funkce a pridani bufferu? - ne, chci i pro jine ucely coniob. 
+
+_TODO: resit zmenu baudrate pro conio resp UART driver, viz msf_init nastavi napr. 
 9600 prez initialize a ja pak chci pro serial.begin zmenit.
-+ chce to mit moznost v conio driveru nastavit.
+ + chce to mit moznost v conio driveru nastavit.
  > uart driver uz umi, testovano.  
-
-
- 
 - UART driver funguje.
 
 6.6.2014
@@ -67,14 +85,14 @@ mozna jednoduchy C jako jsem mel a nad tim CMSIS-like volajici jeho funkce kde t
 5.6.2014
 _Pokracuj: tx pro int mode a testovat! + ABORT RX A TX DO CONTROL...
 _TEST: UART driver nastaveni baud a int/polled mode.
-TODO: uart/serial musi mit buffer. UART driver dle CMSIS kazdy send/receive dela pres buffer =data od uzivatele.
+_TODO: uart/serial musi mit buffer. UART driver dle CMSIS kazdy send/receive dela pres buffer =data od uzivatele.
  - mozna do conio buffer?
  
 
 4.6.2014
-Pokracuj: dodelani Serial + otestovani analog funkci, casovacich a serial.
+TODO: dodelani Serial + otestovani analog funkci, casovacich a serial.
 > Serial v arduino umi i paritu a datove bity :(
-TODO: v conio driveru nacteni stringu? msf_read_str() krome read_char (?)
+_TODO: v conio driveru nacteni stringu? msf_read_str() krome read_char (?)
  > mam viz conio_gets() 
 TODO: testovat analog Reference()
 _TODO: resim nejak v gpio pouziti analog input pinu jako digital = prepinam funkci pinu?
