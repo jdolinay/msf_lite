@@ -45,7 +45,13 @@ typedef void (*MSF_UART_Event_t) (uint32_t event, uint32_t arg);
  1:2	Set polled or interrupt mode; 0 = not set; 1 = polled; 2 = interrupt
   		Note: If you plan using interrupt mode the callback (MSF_UART_Event_t) function must be provided in call
   		to Initialize. This function will be called when character is received, etc.
- 3		Abort current transfer in interrupt mode
+ 3		Abort current send in interrupt mode
+ 4 		Abort current receive in interrupt mode
+ 5:6	Set parity; (0) = no change; (1) = none; (2) = even; (3) = odd
+ 7		Reserved
+ 8:9	Set 1 or 2 stop bits; (0) = no change; (1) = 1 stop bit; (2) = 2 stop bits;
+ 10:12  Number of data bits; (0) = no change; (1) = 8 bits; (2) = 9 bits
+ 
 */
 
 /* Defines for these positions*/
@@ -53,14 +59,32 @@ typedef void (*MSF_UART_Event_t) (uint32_t event, uint32_t arg);
 #define		MSF_UART_BAUD_Mask		(0x01)
 #define		MSF_UART_INTMODE_Pos	(1)
 #define		MSF_UART_INTMODE_Mask	(0x06)
-#define		MSF_UART_ABORTRXTX_Pos	(3)
-#define		MSF_UART_ABORTRXTX_Mask	(0x08)
+#define		MSF_UART_ABORTTX_Pos	(3)
+#define		MSF_UART_ABORTTX_Mask	(0x08)
+#define		MSF_UART_ABORTRX_Pos	(4)
+#define		MSF_UART_ABORTRX_Mask	(0x10)
+#define		MSF_UART_PARITY_Pos		(5)
+#define		MSF_UART_PARITY_Mask	(0x60)
+#define		MSF_UART_STOPBIT_Pos	(8)
+#define		MSF_UART_STOPBIT_Mask	(0x100)
+#define		MSF_UART_DATA_BITS_Pos	(10)
+#define		MSF_UART_DATA_BITS_Mask	(0x1C00)
 
-/* Definitions of the flags */
-#define     MSF_UART_BAUD_SET      (1UL << MSF_UART_BAUD_Pos)  /**< set the baudrate; rg = baudrate (one of the UART_speed_t values only!) */
-#define     MSF_UART_POLLED_MODE   (1UL << MSF_UART_INTMODE_Pos)  /**< wait for each char to be sent/received in busy loop */
-#define     MSF_UART_INT_MODE      (2UL << MSF_UART_INTMODE_Pos)  /**< use interrupts */
-#define     MSF_UART_ABORTRXTX     (1UL << MSF_UART_ABORTRXTX_Pos)  /**< abort current transfer */
+
+/* Definitions of the flags for Control() */
+#define     MSF_UART_BAUD_SET    	(1UL << MSF_UART_BAUD_Pos)  /**< set the baudrate; rg = baudrate (one of the UART_speed_t values only!) */
+#define     MSF_UART_POLLED_MODE 	(1UL << MSF_UART_INTMODE_Pos)  /**< wait for each char to be sent/received in busy loop */
+#define     MSF_UART_INT_MODE      	(2UL << MSF_UART_INTMODE_Pos)  /**< use interrupts */
+#define     MSF_UART_ABORTTX     	(1UL << MSF_UART_ABORTTX_Pos)  /**< abort current transmit */
+#define     MSF_UART_ABORTRX     	(1UL << MSF_UART_ABORTRX_Pos)  /**< abort current receive */
+#define 	MSF_UART_PARITY_NONE    (1UL << MSF_UART_PARITY_Pos)	/**< no parity checking (default) */
+#define 	MSF_UART_PARITY_EVEN    (2UL << MSF_UART_PARITY_Pos)	/**< even parity */	
+#define 	MSF_UART_PARITY_ODD    	(3UL << MSF_UART_PARITY_Pos)	/**< odd parity */	
+#define		MSF_UART_STOP_BITS_1	(1UL << MSF_UART_STOPBIT_Pos)	/**< 1 stop bit (default) */
+#define		MSF_UART_STOP_BITS_2	(2UL << MSF_UART_STOPBIT_Pos)	/**< 2 stop bits */
+#define 	MSF_UART_DATA_BITS_8    (1UL << MSF_UART_DATA_BITS_Pos)	/**< 8 data bits (default) */
+#define 	MSF_UART_DATA_BITS_9    (2UL << MSF_UART_DATA_BITS_Pos) /**< 9 data bits. NOTE: not supported by the driver except for parity + 8 data bits. */
+
 
 
 /** UART events (masks) 

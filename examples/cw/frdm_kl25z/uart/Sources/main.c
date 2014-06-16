@@ -41,10 +41,10 @@ int main(void)
 	/* Now test the uart driver 
 	 * Please un-comment one of the functions.
 	 * */
-	//polled_uart_test();
+	polled_uart_test();
 	//interrupt_uart_simple_test();
 	//interrupt_uart_full_test();
-	coniob_test();
+	//coniob_test();
 		
 	for(;;) {	   
 	   	counter++;
@@ -53,14 +53,23 @@ int main(void)
 	return 0;
 }
 
-/* Test the UART driver in simple polled mode */
+/* Test the UART driver in simple polled mode.
+ * Prints text to serial line. Send any char from terminal to display prompt for
+ * changing baud rate. */
 void polled_uart_test(void)	
 {
 	int i;
-	uint32_t baud;
+	uint32_t baud = BD9600;
 	char buff[4];
 	const char* str;
-	Driver_UART0.Initialize(BD9600, null);
+	Driver_UART0.Initialize(baud, null);
+	/* Test mode with parity and 2 stop bits 
+	 * IMPORTANT: the terminal must be set for 7 data bits if the UART driver is 
+	 * set to 8-bit mode and parity as the 8th bit will be parity. 
+	 * Or set the driver to 9-bit mode and use 8-data bits in terminal. */
+	//Driver_UART0.Control(MSF_UART_PARITY_NONE | MSF_UART_STOP_BITS_2, 0);
+	Driver_UART0.Control(MSF_UART_PARITY_EVEN | MSF_UART_DATA_BITS_9, 0);
+	//Driver_UART0.Control(MSF_UART_PARITY_ODD, 0);
 	str = str_9600;
 	
 	while (1) 
@@ -109,7 +118,7 @@ char g_buffer[32] = "String to send";
 /* Test the UART driver in interrupt mode. */
 /* Simple test: Test sending in background.
 	  Place breakpoint into the if(Driver_UART0.GetTxCount() >= n) below.  
-	  When it is hi, check the value of g_cnt. 
+	  When it is hit, check the value of g_cnt. 
 	  It should count to e.g. 6000 during sending a string
 	  with baudrate 9600. If you use baudrate 115200, it should count to e.g. 500.
 	  In any case it counts, which means the program is not blocked in Driver_UART0.Send() 
@@ -207,6 +216,7 @@ void UART_SignalEvent(uint32_t event, uint32_t arg)
 }
 
 /* Full test of interrupt-driven mode of the UART driver.
+ * Sends back texts received through serial line. Receives 5 chars in a row.
  * As it is hard to synchronise the sends and receives to provide command line interface, 
  * LEDs are used to show some states. 
  * 
@@ -244,7 +254,7 @@ void interrupt_uart_full_test(void)
 			break;
 		
 		case Report:
-			/* Echo what was received */
+			/* Send what was received */
 			g_buffer[5] = 0;	// 
 			Driver_UART0.Send(g_buffer, strlen(g_buffer));
 			g_state = Sending;
@@ -288,7 +298,9 @@ void interrupt_uart_full_test(void)
 	
 }
 
-/* Test buffered console I/O */
+/* Test buffered console I/O 
+ * Waits for some commands with at least 3 chars. When received, prints which command
+ * it received. */
 void coniob_test(void)
 {
 	uint32_t cnt, menu = 1;

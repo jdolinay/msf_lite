@@ -5,6 +5,21 @@ Projekty examples staci .cproject a .project a slozka .settings jak mam ted - ov
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 ------------------------------------------------
 
+16.6.2014
+- Nastavovani parity odladeno ok, ale testovani je slozite, musi byt v terminalu 7-data bits 
+(UART generuje paritni jako 8. bit). Pro 8 datovych bitu by musel byt uart v modu 
+9-bit.
+- pridana podpora pro 9-datovy bit do uart driveru aby mohla byt parita + 8 datovych.
+nepodporuji ale posilani/prijem 9 datovych bitu.
+- V terminalu se neda poradne testovat, zobrazuje ok s jakoukoliv paritou i bez ni a
+ stop bity taky asi ignoruje..
+
+13.6.2014
+_Pokracuj: nefunguje ted UART driver, po zmenach v init a control pro paritu
+ viz pridano nulovani registru, to je ale asi nutne viz init v msf_init na interupt
+ a pak prepnuti na polled bude mit povolene interupty.
+Pokracuj: navrh api pro pwm driver az pak analogWrite.
+
 12.6.2014
 Pokracuj: analogWrite, jinak uz arduino layer asi komplet ok.
  >je analogwrite v arduino pres HW kde to jde nebo vsude SW.
@@ -12,6 +27,8 @@ Pokracuj: analogWrite, jinak uz arduino layer asi komplet ok.
 
 TODO: testovat msf_print funkce po uprave na coniob.
 TODO: do uart driveru dat nastaveni start/stop bitu jak potøeba pro arduino.
+ > nastaveni datovych bitu a stop bitu done.
+ > nastaveni 8,9,10 dat bitu nebudu delat, je komplikovany pak prijem i vysilani (=vice nez byte dat najednou.)
 - v Serial nema cenu pouzivat msf funkce, jen primo coniob, protoze pak vznika mix,
 kdy neco jde pres msf, neco pres conio a neco primo na driver (ne vse je v conio API).
 

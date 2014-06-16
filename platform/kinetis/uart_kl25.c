@@ -62,9 +62,11 @@ static void uart0_intconfig(uint32_t enable, UART_RESOURCES* uart);
   \param[in]   cb_event  Pointer to UART_Event function or null
   \param[in]   uart       Pointer to UART resources
   \return      error code (0 = OK)
-  \note         Common function called by instance-specific function.
-  	  Initializes UART for 8N1 operation, interrupts disabled, and
+  \note			            	  
+  	  Initializes UART for 8N1 operation, no parity, interrupts disabled, and
   	  no hardware flow-control.
+  	  
+  	  Common function called by instance-specific function.
 */
 static uint32_t  UART_Initialize( UART_speed_t baudrate, MSF_UART_Event_t event,  UART_RESOURCES* uart)
 {
@@ -87,11 +89,16 @@ static uint32_t  UART_Initialize( UART_speed_t baudrate, MSF_UART_Event_t event,
 	
 	SIM->SCGC4 |= SIM_SCGC4_UART0_MASK;	/* Enable clock for UART */	
 		
-	// Disable UART0 before changing registers	
-	uart->reg->C2 &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK);
-	  
-	uart0_setbaudrate((uint32_t)baudrate, uart);
-		
+	/* Disable UART0 before changing registers */	
+	/* uart->reg->C2 &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK); */
+	uart->reg->C2 = 0;	/* default values */	  
+	uart->reg->C1 = 0;	/* default values */	
+	uart->reg->C3 = 0;	/* default values */
+	uart->reg->BDH = 0;	/* default value including 1 stop bit */
+	
+	/* changes C4 and C5 to default values + sets baudrate preserving the other bits in BDH*/
+	uart0_setbaudrate((uint32_t)baudrate, uart);		
+			
 	/* Enable receiver and transmitter */
 	uart->reg->C2 |= (UART0_C2_TE_MASK | UART0_C2_RE_MASK );
     return MSF_ERROR_OK;
@@ -161,11 +168,17 @@ static uint32_t UART0_PowerControl(MSF_power_state state)
   \param[in]   arg Optional argument for the command
   \param[in]   uart    Pointer to UART resources
   \return      error code (0 = OK)
-  \note        Common function called by instance-specific function.
-            Currently does nothing.
+  \note        Call to Control always stops any pending receive and transmit in interrupt mode.
+  	  Common function called by instance-specific function.      
 */
 static uint32_t UART_Control(uint32_t control, uint32_t arg, UART_RESOURCES* uart)
 {
+	/* stop any transfer in progress */
+	uart->info->status &= ~(MSF_UART_STATUS_TXNOW | MSF_UART_STATUS_RXNOW);	
+	
+	/* Disable Tx and Rx interrupts */
+	uart->reg->C2 &= ~(UART0_C2_TIE_MASK | UART0_C2_RIE_MASK); 	
+			
 	/* Changing baudrate? */
 	if ( (control & MSF_UART_BAUD_Mask) && (arg != 0) )
 	{	/* arg must be is valid baudrate value from the enum UART_speed_t */
@@ -181,12 +194,7 @@ static uint32_t UART_Control(uint32_t control, uint32_t arg, UART_RESOURCES* uar
 	
 	/* Changing mode: interrupt vs polled */
 	if ( (control & MSF_UART_INTMODE_Mask) != 0 )
-	{
-		/* stop any transfer in progress */
-		uart->info->status &= ~(MSF_UART_STATUS_TXNOW | MSF_UART_STATUS_RXNOW);	
-		/* Disable Tx and Rx interrupts */
-		uart->reg->C2 &= ~(UART0_C2_TIE_MASK | UART0_C2_RIE_MASK); 	
-		
+	{		
 		if ( (control & MSF_UART_INTMODE_Mask) == MSF_UART_INT_MODE )
 		{
 			/* interrupt mode */
@@ -210,13 +218,75 @@ static uint32_t UART_Control(uint32_t control, uint32_t arg, UART_RESOURCES* uar
 	}
 	
 	/* Abort current Send or Receive command */
-	if ( control & MSF_UART_ABORTRXTX_Mask)
+	if ( control & MSF_UART_ABORTTX_Mask)
 	{
-		/* stop any transfer in progress */
-		uart->info->status &= ~(MSF_UART_STATUS_TXNOW | MSF_UART_STATUS_RXNOW);	
-		/* Disable Tx and Rx interrupts */
-		uart->reg->C2 &= ~(UART0_C2_TIE_MASK | UART0_C2_RIE_MASK); 	
+		/* stop any transmit in progress */
+		uart->info->status &= ~MSF_UART_STATUS_TXNOW;	 	
+		/* Disable Tx Interrupt */
+		uart->reg->C2 &= ~UART0_C2_TIE_MASK; 	
 	}
+	if ( control & MSF_UART_ABORTRX_Mask)
+	{
+		/* stop any receive in progress */
+		uart->info->status &= ~MSF_UART_STATUS_RXNOW;	
+		/* Disable Tx and Rx interrupts */
+		uart->reg->C2 &= ~UART0_C2_RIE_MASK; 	
+	}
+	
+	/* Change parity */
+	if ( control & MSF_UART_PARITY_Mask )
+	{	
+		/* Disable UART0 before changing registers */	
+		uart->reg->C2 &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK);
+			
+		if ( (control & MSF_UART_PARITY_Mask) == MSF_UART_PARITY_NONE )
+		{
+			/* no parity */
+			uart->reg->C1 &= ~(UART0_C1_PT_MASK | UART0_C1_PE_MASK);			
+		}
+		else if ( (control & MSF_UART_PARITY_Mask) == MSF_UART_PARITY_EVEN )
+		{
+			/* even parity */
+			uart->reg->C1 |= UART0_C1_PE_MASK;	/* PE = 1 > parity check enabled */
+			uart->reg->C1 &= ~UART0_C1_PT_MASK;	/* PT = 0 */
+		}
+		else
+		{	/* odd parity */
+			uart->reg->C1 |= (UART0_C1_PE_MASK | UART0_C1_PT_MASK);	/* PE = 1 > parity check enabled */
+		}
+			
+		/* Enable receiver and transmitter */
+		uart->reg->C2 |= (UART0_C2_TE_MASK | UART0_C2_RE_MASK );		
+	}
+	
+	/* Change number of stop bits */
+	if ( control & MSF_UART_STOPBIT_Mask )
+	{
+		if ( (control & MSF_UART_STOPBIT_Mask) == MSF_UART_STOP_BITS_2 )
+		{
+			uart->reg->BDH |= UART0_BDH_SBNS_MASK;	/* 2 stop bits */
+		}
+		else
+		{
+			uart->reg->BDH &= ~UART0_BDH_SBNS_MASK; /* 1 stop bit */
+		}
+	}
+	
+	/* Change number of data bits 
+	 * NOTE that we do not support sending 9 bits; the 9-bit option can only be used
+	 * to send 8 data bits and parity bit if parity is enabled. */
+	if ( control & MSF_UART_DATA_BITS_Mask )
+	{
+		if ( (control & MSF_UART_DATA_BITS_Mask) == MSF_UART_DATA_BITS_9 )
+		{
+			uart->reg->C1 |= UART0_C1_M_MASK;	/* 9 data bits */
+		}
+		else
+		{
+			uart->reg->C1 &= ~UART0_C1_M_MASK; /* 8 data bits */
+		}
+	}
+		
 	
 	
     return MSF_ERROR_OK;
@@ -537,19 +607,27 @@ static void uart0_setbaudrate(uint32_t baudrate, UART_RESOURCES* uart)
 
 	osr_val = UART_GET_OSR(baudrate);
 	sbr_val = UART_GET_BR(baudrate);
+	/*uart->reg->C5 = 0;*/
 	// If the OSR is between 4x and 8x then both
 	// edge sampling MUST be turned on.  
 	if ((osr_val >3) && (osr_val < 9))
-		uart->reg->C5|= UART0_C5_BOTHEDGE_MASK;
+		uart->reg->C5 |= UART0_C5_BOTHEDGE_MASK;
+	else
+		uart->reg->C5 &= ~UART0_C5_BOTHEDGE_MASK;
 			
 	// Setup OSR value 
 	reg_temp = uart->reg->C4;
 	reg_temp &= ~UART0_C4_OSR_MASK;
-	reg_temp |= UART0_C4_OSR(osr_val-1);
-		
+	reg_temp |= UART0_C4_OSR(osr_val-1);		
 	// Write reg_temp to C4 register
 	uart->reg->C4 = reg_temp;
-				
+	
+	/* just set C4 to defaults and write our OSR value */
+	/*	uart->reg->C4 = 0;	
+		uart->reg->C4 |= UART0_C4_OSR(osr_val-1);	
+	This does not work; maybe cannot write 0s to OSR field? */
+	
+	
 	/* Save current value of uartx_BDH except for the SBR field */
 	reg_temp = uart->reg->BDH & ~(UART0_BDH_SBR(0x1F));
 	/* write new value */  
@@ -578,6 +656,8 @@ static void uart0_intconfig(uint32_t enable, UART_RESOURCES* uart)
 	}
 	else
 	{
+		uart->reg->C3 &= ~UART0_C3_ORIE_MASK;	/* Rx overflow interrupt enabled */
+		
 		/* Disable the interrupt in NVIC */
 		NVIC_DisableIRQ(UART0_IRQn);	
 	}
