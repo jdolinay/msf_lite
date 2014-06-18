@@ -142,7 +142,7 @@ typedef enum {
 
 #if F_CPU == 48000000
 /* CLOCK_SETUP = 1 in system_MKL25Z4.c (CMSIS); the UART0 must be clocked from OSCERCLK, because 
-  PLLFLLCLK is disabled; the UART0 clock is 8 MHz (external crystal)*/ 
+  PLLFLLCLK is disabled; the UART0 clock is 8 MHz (external crystal) */ 
 typedef enum  
  {
         BD_INVALID = 0,
@@ -157,10 +157,13 @@ typedef enum
  
 /** The value of the UART0SRC bitfield in SIM_SOPT2 */
 #define	MSF_UART0_CLKSEL	(2) /* OSCERCLK as UART0 clock source */
+/** The value of the TPMSRC bit field in SIM_SOPT2  - internal clock for timers TPMn*/ 
+#define	MSF_TPM_CLKSEL		MSF_UART0_CLKSEL	/* use the same value as UART0 */
  
 #elif F_CPU == 20900000		/* default for frdm-kl25z */
 /* CLOCK_SETUP = 3 
- * The default clock if no clock init is performed. We can clock UART from PLLFLLCLK which is 20.9 MHz*/ 
+ * The default clock if no clock init is performed. We can clock UART from PLLFLLCLK which is 20.9 MHz
+ * Note that we assume PLLFLLSEL = 0 (MCGFLLCLK clock)! */ 
  typedef enum  
  {
         BD_INVALID = 0,
@@ -175,6 +178,8 @@ typedef enum
 
  /** The value of the UART0SRC bitfield in SIM_SOPT2 */
  #define	MSF_UART0_CLKSEL	(1)	/* PLLFLLCLK as UART0 clock source */
+ /** The value of the TPMSRC bit field in SIM_SOPT2  - internal clock for timers TPMn*/ 
+ #define	MSF_TPM_CLKSEL		MSF_UART0_CLKSEL	/* use the same value as UART0 */
 
 #elif F_CPU == 8000000		
  /* CLOCK_SETUP = 2 in system_MKL25Z4.c (CMSIS); the UART0 must be clocked from OSCERCLK, because 
@@ -194,11 +199,14 @@ typedef enum
 
  /** The value of the UART0SRC bitfield in SIM_SOPT2 */
  #define	MSF_UART0_CLKSEL	(2)	/* OSCERCLK as UART0 clock source */
+ /** The value of the TPMSRC bit field in SIM_SOPT2  - internal clock for timers TPMn*/ 
+ #define	MSF_TPM_CLKSEL		MSF_UART0_CLKSEL	/* use the same value as UART0 */
 
 /* Core clock = 41.94MHz */
 #elif F_CPU == 41943040		
  /* CLOCK_SETUP = 0 in system_MKL25Z4.c (CMSIS); 
-  * UART0 clock = F_CPU, is clocked from PLLFLLCLK */  
+  * UART0 clock = F_CPU, is clocked from PLLFLLCLK 
+  * Note that we assume PLLFLLSEL = 0 (MCGFLLCLK clock)! */  
  typedef enum  
  {	 
 	 BD_INVALID = 0,
@@ -213,7 +221,9 @@ typedef enum
  } UART_baudrate_type;
  
  /** The value of the UART0SRC bitfield in SIM_SOPT2 */
-  #define	MSF_UART0_CLKSEL	(1)	/* PLLFLLCLK as UART0 clock source */
+ #define	MSF_UART0_CLKSEL	(1)	/* PLLFLLCLK as UART0 clock source */
+ /** The value of the TPMSRC bit field in SIM_SOPT2  - internal clock for timers TPMn*/ 
+ #define	MSF_TPM_CLKSEL		MSF_UART0_CLKSEL	/* use the same value as UART0 */
  
 #else
 	#error The CPU clock defined by F_CPU is not supported.
@@ -238,15 +248,15 @@ typedef enum
 
 #if F_CPU == 41943040
 	#undef MSF_SYSTICK_VALINUS
-	#define MSF_SYSTICK_VALINUS		(42)	/* much better rounding of the value*/
+	#define MSF_SYSTICK_VALINUS		(42)	/* much better than value computed by F_CPU/x with integers */
 #elif F_CPU == 20900000
 	#undef MSF_SYSTICK_VALINUS
-	#define MSF_SYSTICK_VALINUS		(21)	/* much better rounding of the value*/
+	#define MSF_SYSTICK_VALINUS		(21)	
 #endif 
  
  
 /** how many clocks there are in one microsecond 
- * NOTE that we need this as compile-time contant to make the error in msf_delay_us
+ * NOTE that we need this as compile-time constant to make the error in msf_delay_us
  * as small as possible */
 #if F_CPU == 20900000
 	#define	MSF_CLOCKS_PER_US		(21)
@@ -258,8 +268,7 @@ typedef enum
 	#define	MSF_CLOCKS_PER_US		(48)
 	#define WMSF_DELAYUS_OVERHEAD  (2)
 #endif 
-// nasobitel pro us hodnotu pro smycku ktera trva 3 clocks 
-//#define	WMSF_DELAYUS_FACTOR	(3) 
+
 /* -------------- End Main "system" timer definitions  --------------- */
 
 
@@ -349,7 +358,7 @@ typedef enum
 */  
 /** Prescaler bit field value for given F_CPU
  * This is the value which goes into register, not the prescaler value itself
- * Must be within max and min ADC clock range. We set it for <= 4 MHz */
+ * ADC clock must be within max and min ADC clock range. We set it for <= 4 MHz */
 #if F_CPU == 48000000   /*  bus 24 MHz */
     #define WMSF_ADC_PRESCALER      (3)     /* presc = 8; ADC clock 3 MHz */        
 #elif F_CPU == 20900000     /* bus 20.9 MHz */
@@ -366,7 +375,7 @@ typedef enum
   2 = alternate clock
   3 = asynchronous clock (ADACK)
   IMPORTANT: if you change this option you need to change the  WMSF_ADC_PRESCALER
-  values above so that the ADC clock is within operatin range!
+  values above so that the ADC clock is within the operating range!
   */
 #define		WMSF_ADC_CLOCK	(0)
  
@@ -376,9 +385,6 @@ typedef enum
 #define     WMSF_ADCA_COMPLETE(reg)       ( (reg->SC1[0] & ADC_SC1_COCO_MASK) != 0)
 #define     WMSF_ADCB_COMPLETE(reg)       ( (reg->SC1[1] & ADC_SC1_COCO_MASK) != 0)
        
- 
- 
-
 /* -------------- End ADC definitions  --------------- */
 
 

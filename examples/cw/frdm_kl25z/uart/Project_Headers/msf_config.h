@@ -58,6 +58,7 @@
 ********************************************/
 #define MSF_DRIVER_UART0    1   /* Use UART0 driver (create UART0 driver instance) */
 #define MSF_DRIVER_ADC0     0	/* Use ADC driver */
+#define	MSF_DRIVER_TPM0		1	/* Use TMP0 driver */
 
 
 

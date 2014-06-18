@@ -5,6 +5,15 @@ Projekty examples staci .cproject a .project a slozka .settings jak mam ted - ov
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 ------------------------------------------------
 
+18.6.2014
+Pokracuj: otestovat tpm v tof modu a mozna pwm- co uz mam.... pak dalsi mody...
+- zaklad tpm driveru hotov.
+
+REMEM: overlay struktura pro TPMn obsahuje "reserved" bloky", protoze adresy registru 
+nejsou vsechny hned za sebou. To ale neznamena plystvani pameti, protoze nas "objekt"
+napr. TPM0 je jen ukazatel na zacatek bloku "pameti" kde jsou mapovany registry TPM0
+a nezabira zadnou RAM. 
+
 16.6.2014
 - Nastavovani parity odladeno ok, ale testovani je slozite, musi byt v terminalu 7-data bits 
 (UART generuje paritni jako 8. bit). Pro 8 datovych bitu by musel byt uart v modu 
@@ -26,7 +35,7 @@ Pokracuj: analogWrite, jinak uz arduino layer asi komplet ok.
 - Serial funguje, otestovan v arduino_blink
 
 TODO: testovat msf_print funkce po uprave na coniob.
-TODO: do uart driveru dat nastaveni start/stop bitu jak potøeba pro arduino.
+_TODO: do uart driveru dat nastaveni start/stop bitu jak potøeba pro arduino.
  > nastaveni datovych bitu a stop bitu done.
  > nastaveni 8,9,10 dat bitu nebudu delat, je komplikovany pak prijem i vysilani (=vice nez byte dat najednou.)
 - v Serial nema cenu pouzivat msf funkce, jen primo coniob, protoze pak vznika mix,

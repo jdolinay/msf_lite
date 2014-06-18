@@ -32,7 +32,7 @@ typedef void (*MSF_UART_Event_t) (uint32_t event, uint32_t arg);
 
 
 /* The priority of the UART interrupt; lower number means higher priority.
- * For KL25Z valid value is 0 thru 3 */
+ * For KL25Z valid value is 0 thru 3; 3 is lowest */
 #define		MSF_UART_INT_PRIORITY	(2)
 
 /** Flags (operations and parameters) for the Control function */

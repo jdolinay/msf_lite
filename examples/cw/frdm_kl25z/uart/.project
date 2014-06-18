@@ -119,6 +119,11 @@
 			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/drv_adc.h</locationURI>
 		</link>
 		<link>
+			<name>MSF/kinetis/drv_tpm.h</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/drv_tpm.h</locationURI>
+		</link>
+		<link>
 			<name>MSF/kinetis/drv_uart.h</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/drv_uart.h</locationURI>
@@ -157,6 +162,16 @@
 			<name>MSF/kinetis/msf_stdbool.h</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/msf_stdbool.h</locationURI>
+		</link>
+		<link>
+			<name>MSF/kinetis/tpm_kl25.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/tpm_kl25.c</locationURI>
+		</link>
+		<link>
+			<name>MSF/kinetis/tpm_kl25.h</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/tpm_kl25.h</locationURI>
 		</link>
 		<link>
 			<name>MSF/kinetis/uart_kl25.c</name>
