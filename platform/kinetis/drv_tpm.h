@@ -30,7 +30,7 @@ extern "C" {
 
 /** Pointer to call back function for reporting events from the driver to
  * client application. Set in Initialize function */
-typedef void (*MSF_TPM_Event_t) (uint32_t event);
+typedef void (*MSF_TPM_Event_t) (uint32_t event, uint32_t arg);
 
 /* The priority of the TPM interrupts; lower number means higher priority.
  * For KL25Z valid value is 0 thru 3 */
@@ -42,6 +42,7 @@ typedef void (*MSF_TPM_Event_t) (uint32_t event);
  0:1	clock source: 0=do not change settings; 1=disable counter, 2=internal clock, 3=external clock
  2		prescaler: 0=no change; 1=set according to arg value (arg=0-7 meaning prescaler 1-128 in powers of 2)
  3:4	signal TOF event: 0=no change; 1 =do not signal TOF; 2=signal TOF (timer overflow)
+ 5		set modulo (TOP) value: 0=no change; 1=set acording to arg
    
  
   	
@@ -53,14 +54,17 @@ typedef void (*MSF_TPM_Event_t) (uint32_t event);
 #define		MSF_TPM_PRESCALER_Mask	(0x04)
 #define		MSF_TPM_TOF_Pos			(3)
 #define		MSF_TPM_TOF_Mask		(0x18)
+#define		MSF_TPM_MOD_Pos			(5)
+#define		MSF_TPM_MOD_Mask		(0x20)
 
-/* Definitions of the flags */
+/* Definitions of the flags for Control */
 #define     MSF_TPM_CLOCK_NONE  	(1UL << MSF_TPM_CLOCK_MODE_Pos)  /**< disable counter */
 #define     MSF_TPM_CLOCK_INTERNAL  (2UL << MSF_TPM_CLOCK_MODE_Pos)  /**< use internal clock (see SIM->SOPT2) */
 #define     MSF_TPM_CLOCK_EXTERNAL  (3UL << MSF_TPM_CLOCK_MODE_Pos)  /**< use external clock LPTPM_EXTCLK */
 #define     MSF_TPM_PRESCALER_SET  	(1UL << MSF_TPM_PRESCALER_Pos)  /**< set prescaler; arg=one of the constants MSF_TPM_PRESCALER_1,... */
 #define		MSF_TPM_TOF_NO_SIGNAL	(1UL << MSF_TPM_TOF_Pos)  		/**< do not signal timer overflow event to user */
 #define		MSF_TPM_TOF_SIGNAL		(2UL << MSF_TPM_TOF_Pos)  		/**< signal timer overflow event to user */
+#define		MSF_TPM_TOP_VALUE		(1UL << MSF_TPM_MOD_Pos)  		/**< set top value for counter (MOD register); arg = the value (16-bit) */
 
 /** Helper values for Arg parameter in Control() */
 #define		MSF_TPM_PRESCALER_1		(0)
@@ -132,11 +136,13 @@ typedef enum _MSF_DRIVER_CHANNEL_MODES {
 \brief Access structure of the TPM Driver.
 */
 typedef struct _MSF_DRIVER_TPM {  
-  uint32_t      (*Initialize)   (MSF_ADC_Event_t cb_event);  
+  uint32_t      (*Initialize)   (MSF_TPM_Event_t cb_event);  
   uint32_t      (*Uninitialize) (void);                       
   uint32_t      (*PowerControl) (MSF_power_state state); 
   uint32_t      (*Control)      (uint32_t control, uint32_t arg);
-  uint32_t		(*SetChannelMode)(uint32_t channel, TMP_channel_mode_t mode, uint32_t args);			  
+  uint32_t		(*SetChannelMode)(uint32_t channel, TMP_channel_mode_t mode, uint32_t args);
+  uint32_t		(*WriteChannel)(uint32_t channel, uint16_t value);
+  uint32_t		(*ReadChannel)(uint32_t channel);
               
 } const MSF_DRIVER_TPM;
 

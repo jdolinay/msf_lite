@@ -26,7 +26,7 @@ extern "C" {
 
 /* TPM Run-time information*/
 typedef struct _TPM_INFO {
-  MSF_ADC_Event_t cb_event;          // Event Callback
+  MSF_TPM_Event_t cb_event;          // Event Callback
   uint32_t      status;               // Status flags - not used yet.
        
 } TPM_INFO;
@@ -61,9 +61,9 @@ typedef struct {
 
 /** Obtain the NVIC interrupt number for given instance of the TPMn driver. 
  * tpm_adr is the address of the register overlay structure for the TPMn module. */
-#define	MSF_TPM_GETNVIC_IRQn(tpm_adr)	(tpm_adr == TPM0) ? TPM0_IRQn : \
-										(tpm_adr == TPM1) ? TPM1_IRQn : \
-										(tpm_adr == TPM2) ? TPM2_IRQn : -1
+#define	MSF_TPM_GETNVIC_IRQn(tpm_adr)	((TPM_Type*)tpm_adr == TPM0) ? TPM0_IRQn : \
+										((TPM_Type*)tpm_adr == TPM1) ? TPM1_IRQn : \
+										((TPM_Type*)tpm_adr == TPM2) ? TPM2_IRQn : -1
 
 #ifdef __cplusplus
 }

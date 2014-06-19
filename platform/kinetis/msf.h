@@ -35,7 +35,7 @@ extern "C" {
 #define     MSF_ERROR_ARGUMENT      (6)     /**< invalid input argument for a function */
 #define     MSF_ERROR_NOINIT        (7)     /**< device was not properly initialized */
 
-#define     MSF_ERROR_MAXDWORD      (0xffffffff)    /**< special error indication used by ADC_Read */
+#define     MSF_ERROR_MAXDWORD      (0xffffffff)    /**< special error indication used by ADC_Read and TPM_ReadChannel */
 
 /** @} */
 

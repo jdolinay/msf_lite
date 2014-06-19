@@ -157,8 +157,7 @@ typedef enum
  
 /** The value of the UART0SRC bitfield in SIM_SOPT2 */
 #define	MSF_UART0_CLKSEL	(2) /* OSCERCLK as UART0 clock source */
-/** The value of the TPMSRC bit field in SIM_SOPT2  - internal clock for timers TPMn*/ 
-#define	MSF_TPM_CLKSEL		MSF_UART0_CLKSEL	/* use the same value as UART0 */
+
  
 #elif F_CPU == 20900000		/* default for frdm-kl25z */
 /* CLOCK_SETUP = 3 
@@ -178,9 +177,7 @@ typedef enum
 
  /** The value of the UART0SRC bitfield in SIM_SOPT2 */
  #define	MSF_UART0_CLKSEL	(1)	/* PLLFLLCLK as UART0 clock source */
- /** The value of the TPMSRC bit field in SIM_SOPT2  - internal clock for timers TPMn*/ 
- #define	MSF_TPM_CLKSEL		MSF_UART0_CLKSEL	/* use the same value as UART0 */
-
+ 
 #elif F_CPU == 8000000		
  /* CLOCK_SETUP = 2 in system_MKL25Z4.c (CMSIS); the UART0 must be clocked from OSCERCLK, because 
    PLLFLLCLK is disabled; the UART0 clock is 8 MHz (external crystal)*/  
@@ -199,9 +196,7 @@ typedef enum
 
  /** The value of the UART0SRC bitfield in SIM_SOPT2 */
  #define	MSF_UART0_CLKSEL	(2)	/* OSCERCLK as UART0 clock source */
- /** The value of the TPMSRC bit field in SIM_SOPT2  - internal clock for timers TPMn*/ 
- #define	MSF_TPM_CLKSEL		MSF_UART0_CLKSEL	/* use the same value as UART0 */
-
+ 
 /* Core clock = 41.94MHz */
 #elif F_CPU == 41943040		
  /* CLOCK_SETUP = 0 in system_MKL25Z4.c (CMSIS); 
@@ -222,8 +217,6 @@ typedef enum
  
  /** The value of the UART0SRC bitfield in SIM_SOPT2 */
  #define	MSF_UART0_CLKSEL	(1)	/* PLLFLLCLK as UART0 clock source */
- /** The value of the TPMSRC bit field in SIM_SOPT2  - internal clock for timers TPMn*/ 
- #define	MSF_TPM_CLKSEL		MSF_UART0_CLKSEL	/* use the same value as UART0 */
  
 #else
 	#error The CPU clock defined by F_CPU is not supported.
@@ -387,6 +380,21 @@ typedef enum
        
 /* -------------- End ADC definitions  --------------- */
 
+  
+/* -------------- TPM timer definitions  --------------- */  
+  
+/** Source of the internal clock for timer TPMn 
+ * The value of the TPMSRC bit field in SIM_SOPT2  - internal clock for timers TPMn
+ * The clock for F_CPU is:
+ * F_CPU		TPM clock
+ * 48 MHz 	- 8 MHz
+ * 20.9 MHz - 20.9 MHz 
+ * 8 MHz 	- 8 MHz
+ * 41.9 MHz -  41943040 Hz 
+ * */ 
+#define	MSF_TPM_CLKSEL		MSF_UART0_CLKSEL	/* use the same value as UART0 */
+
+/* -------------- End TPM timer definitions  --------------- */
 
 #ifdef __cplusplus
 }

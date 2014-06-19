@@ -30,7 +30,7 @@ OBJS_OS_FORMAT += \
 # Each subdirectory must supply rules for building sources it contributes
 MSF/CMSIS/MKL25Z4/Source/Templates/system_MKL25Z4.o: $(TEMPLATES)/system_MKL25Z4.c
 	@echo 'Building file: $<'
-	@echo 'Executing target #13 $<'
+	@echo 'Executing target #14 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
 	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"MSF/CMSIS/MKL25Z4/Source/Templates/system_MKL25Z4.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"MSF/CMSIS/MKL25Z4/Source/Templates/system_MKL25Z4.o"
 	@echo 'Finished building: $<'

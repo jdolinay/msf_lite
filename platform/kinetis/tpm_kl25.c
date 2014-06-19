@@ -28,12 +28,14 @@ static TPM_INFO TPM0_Info;
  * IMPORTANT: there must always be 6 pins defined for each TMP module, even if the pin/channel is not used!
  * use {GPIO_INVALID_PIN, 0} for such pins/channels. */
 static TPM_PINS TPM0_Pins = {
-		{GPIO_PTA3, 3},		/* pin for channel 0 */
-		{GPIO_PTA4, 3},		/* pin for channel 1 */
-		{GPIO_PTA5, 3},		/* pin for channel 2 */
-		{GPIO_PTE30, 3},	/* pin for channel 3 */
-		{GPIO_PTE31, 3},	/* pin for channel 4 */
-		{GPIO_PTA0, 3},		/* pin for channel 5 */
+		{	/* the array within the structure */
+		{GPIO_A3, 3},		/* pin for channel 0 */
+		{GPIO_A4, 3},		/* pin for channel 1 */
+		{GPIO_A5, 3},		/* pin for channel 2 */
+		{GPIO_E30, 3},	/* pin for channel 3 */
+		{GPIO_E31, 3},	/* pin for channel 4 */
+		{GPIO_A0, 3},		/* pin for channel 5 */
+		}
 };
 /* TPM0 Resources */
 static TPM_RESOURCES TPM0_Resources = {
@@ -42,6 +44,9 @@ static TPM_RESOURCES TPM0_Resources = {
   &TPM0_Pins,
 };
 #endif /* MSF_DRIVER_TPM0 */
+
+/* prototypes */
+static uint32_t TPM_Control(uint32_t control, uint32_t arg, TPM_RESOURCES* tpm);
 
 /* internal functions */
 static void wtpm_enable_pin(uint32_t channel, TPM_RESOURCES* tpm);
@@ -55,8 +60,9 @@ static void wtpm_enable_pin(uint32_t channel, TPM_RESOURCES* tpm);
   \param[in]   cb_event  Pointer to TPM_Event function or null
   \param[in]   adc       Pointer to TPM resources
   \return      error code (0 = OK)
-  \note         Common function called by instance-specific function.
-  	  Initializes TPM timer TODO...
+  \note         
+  	  Initialises TPM timer: timer clocked from internal clock source (see MSF_TPM_CLKSEL
+  	  in msf_<device>.h for the values for given F_CPU); prescaler = 1, tof not signalled.
 */
 static uint32_t  TPM_Initialize( MSF_TPM_Event_t event,  TPM_RESOURCES* tpm)
 {
@@ -68,15 +74,19 @@ static uint32_t  TPM_Initialize( MSF_TPM_Event_t event,  TPM_RESOURCES* tpm)
 	
 	/* Set the clock for timers TPMx (shared by all instances) */
 	SIM->SOPT2 |= SIM_SOPT2_TPMSRC(MSF_TPM_CLKSEL);
-	/* note that the caller needs to enable the clock for the specific TPMn module
+	/* note that the caller needs to enable the clock for the specific TPMn module before calling this!
+	 * if the clock for TPMn is disabled, attempt to write its register will cause an exception!
 	 * in SIM->SCGC6 */	
 	
 	tpm->reg->SC = 0;	/* default values, counter disabled */
-	tpm->reg->MOD = 0;
+	tpm->reg->MOD = 0x0000ffff;
 	/* channel configuration registers - there are always 6 even if TPM1 and TPM2 have only 2 channels */
 	for ( i=0; i<6; i++ )
-		tpm->reg->CONTROLS[i]->CnSC = 0;
+		tpm->reg->CONTROLS[i].CnSC = 0;
 	tpm->reg->CONF = 0;
+	
+	/* Now set internal clock (prescaler = 0) */
+	TPM_Control(MSF_TPM_CLOCK_INTERNAL, 0, tpm);
 
     return MSF_ERROR_OK;
 }
@@ -85,10 +95,8 @@ static uint32_t  TPM_Initialize( MSF_TPM_Event_t event,  TPM_RESOURCES* tpm)
 /* Instance specific function pointed-to from the driver access struct */
 static uint32_t TPM0_Initialize (MSF_TPM_Event_t pEvent) 
 {
-	uint32_t status =TPM_Initialize(pEvent, &TPM0_Resources); 
-	SIM->SCGC6 |= SIM_SCGC6_TPM0_MASK;	/* Enable clock for TPM0 */
-	return status;
-
+	SIM->SCGC6 |= SIM_SCGC6_TPM0_MASK;	/* Enable clock for TPM0 BEFORE calling TPM_Initialize! */
+	return TPM_Initialize(pEvent, &TPM0_Resources); 		
 }
 #endif
 
@@ -96,10 +104,8 @@ static uint32_t TPM0_Initialize (MSF_TPM_Event_t pEvent)
 /* Instance specific function pointed-to from the driver access struct */
 static uint32_t TPM1_Initialize (MSF_TPM_Event_t pEvent) 
 {
-	uint32_t status =TPM_Initialize(pEvent, &TPM1_Resources); 
-	SIM->SCGC6 |= SIM_SCGC6_TPM1_MASK;	/* Enable clock for TPM1 */
-	return status;
-
+	SIM->SCGC6 |= SIM_SCGC6_TPM1_MASK;	/* Enable clock for TPM1 BEFORE calling TPM_Initialize! */
+	return TPM_Initialize(pEvent, &TPM1_Resources); 	
 }
 #endif
 
@@ -121,7 +127,7 @@ static uint32_t  TPM_Uninitialize( TPM_RESOURCES* tpm)
 
 #if (MSF_DRIVER_TPM0)    
 /* Instance specific function pointed-to from the driver access struct */
-static uint32_t TMP0_Uninitialize (void) 
+static uint32_t TPM0_Uninitialize (void) 
 {
   return TPM_Uninitialize(&TPM0_Resources);
 }
@@ -137,7 +143,7 @@ static uint32_t TMP0_Uninitialize (void)
                 Currently does nothing!
                 Note that the ADC automatically enters low power mode after conversion, see datasheet.
 */
-static uint32_t TPM_PowerControl(MSF_power_state state, ADC_RESOURCES* tpm)
+static uint32_t TPM_PowerControl(MSF_power_state state, TPM_RESOURCES* tpm)
 {
     return MSF_ERROR_NOTSUPPORTED;
 } 
@@ -146,7 +152,7 @@ static uint32_t TPM_PowerControl(MSF_power_state state, ADC_RESOURCES* tpm)
 /* Instance specific function pointed-to from the driver access struct */
 static uint32_t TPM0_PowerControl(MSF_power_state state) 
 {
-  return TPM_PowerControl(state, &ADC0_Resources);
+  return TPM_PowerControl(state, &TPM0_Resources);
 }
 #endif    /* MSF_DRIVER_TPM0 */
 
@@ -163,14 +169,16 @@ static uint32_t TPM_Control(uint32_t control, uint32_t arg, TPM_RESOURCES* tpm)
 {	
 	uint32_t val, i;
 	
+	tpm->reg->CNT = 0;	/* reset counter */
 	
 	/* Changing clock option: disabled/internal/external */
 	if ( control & MSF_TPM_CLOCK_MODE_Mask )
 	{
 		val = ((control & MSF_TPM_CLOCK_MODE_Mask) >> MSF_TPM_CLOCK_MODE_Pos);
 		tpm->reg->SC &= ~TPM_SC_CMOD_MASK;
-		tpm->reg->SC |= TPM_SC_CMOD(val);
-		tpm->reg->CNT = 0;	/* reset counter */
+		/* wait until the counter is really disabled (change is "acknowledged in the timer clock domain" :) )*/
+		while (tpm->reg->SC & TPM_SC_CMOD_MASK ) ;
+		tpm->reg->SC |= TPM_SC_CMOD(val-1);				
 	}
 	
 	/* changing prescaler settings; arg is the value */
@@ -178,26 +186,30 @@ static uint32_t TPM_Control(uint32_t control, uint32_t arg, TPM_RESOURCES* tpm)
 	{		
 		/* disable the counter before changing values */
 		val = (tpm->reg->SC & TPM_SC_CMOD_MASK);	/* save current clock mode */
-		tpm->reg->SC &= ~TPM_SC_CMOD_MASK; 
-		
+		tpm->reg->SC &= ~TPM_SC_CMOD_MASK;
+		/* wait until the counter is really disabled (change is "acknowledged in the timer clock domain" :) )*/
+		while (tpm->reg->SC & TPM_SC_CMOD_MASK ) ;
+					
 		tpm->reg->SC &= ~TPM_SC_PS_MASK;
 		tpm->reg->SC |= TPM_SC_PS(arg);
-		tpm->reg->CNT = 0;	/* reset counter */
+		/*tpm->reg->CNT = 0;*/	/* reset counter */
 		
 		/* restore counter clock mode */
-		tpm->reg->SC |= TPM_SC_CMOD(val);	
+		tpm->reg->SC |= val;	
 	}
 	
 	/* changing TOF interrupt (event) settings */
 	if ( control & MSF_TPM_TOF_Mask )
 	{
-		i = MSF_TPM_GETNVIC_IRQn(tmp);
+		i = MSF_TPM_GETNVIC_IRQn(tpm->reg);
 		if ( i > 0 )
 		{
 			/* disable the counter before changing values */
 			val = (tpm->reg->SC & TPM_SC_CMOD_MASK);	/* save current clock mode */
 			tpm->reg->SC &= ~TPM_SC_CMOD_MASK;
-			tpm->reg->CNT = 0;	/* reset counter */
+			/* wait until the counter is really disabled (change is "acknowledged in the timer clock domain" :) )*/
+			while (tpm->reg->SC & TPM_SC_CMOD_MASK ) ;
+			
 			
 			/* clear possibly pending TOF interrupt */
 			tpm->reg->SC |= TPM_SC_TOF_MASK;
@@ -208,7 +220,7 @@ static uint32_t TPM_Control(uint32_t control, uint32_t arg, TPM_RESOURCES* tpm)
 				NVIC_ClearPendingIRQ(i);	/* Clear possibly pending interrupt */
 				NVIC_EnableIRQ(i);			/* and enable it */	
 				/* Set priority for the interrupt; 0 is highest, 3 is lowest */
-				NVIC_SetPriority(i, MSF_TPM0_INT_PRIORITY);
+				NVIC_SetPriority(i, MSF_TPM_INT_PRIORITY);
 				
 				tpm->reg->SC |= TPM_SC_TOIE_MASK;
 				tpm->info->status |=  MSF_TPM_STATUS_SIGNAL_TOF;	/* remember we report TOF now */
@@ -222,12 +234,26 @@ static uint32_t TPM_Control(uint32_t control, uint32_t arg, TPM_RESOURCES* tpm)
 			}
 			
 			/* restore counter clock mode */
-			tpm->reg->SC |= TPM_SC_CMOD(val);
+			tpm->reg->SC |= val;
 		}
 	}
 	
-	/* disable the counter before changing values */
-	/* tpm->reg->SC &= ~TPM_SC_CMOD_MASK; */
+	/* Changing the modulo value? */
+	if ( control & MSF_TPM_MOD_Mask )
+	{
+		/* disable the counter before changing values */
+		val = (tpm->reg->SC & TPM_SC_CMOD_MASK);	/* save current clock mode */
+		tpm->reg->SC &= ~TPM_SC_CMOD_MASK;
+		/* wait until the counter is really disabled (change is "acknowledged in the timer clock domain" :) )*/
+		while (tpm->reg->SC & TPM_SC_CMOD_MASK ) ;
+				
+		tpm->reg->CNT = 0;	/* recommended in datasheet */
+		tpm->reg->MOD = (arg & 0x0000ffff);		
+				
+		/* restore counter clock mode */
+		tpm->reg->SC |= val;	
+	}
+	
 	
     return MSF_ERROR_OK;
 }
@@ -253,6 +279,7 @@ static uint32_t TPM0_Control(uint32_t control, uint32_t arg)
 */
 static uint32_t TPM_SetChannelMode(uint32_t channel, TMP_channel_mode_t mode, uint32_t args, TPM_RESOURCES* tpm)
 {
+	uint32_t val;
 	/* We do not check if the channel is valid for given instance of TPM (TPM1 and 2 only have 2 channels),
 	 * but just check if it is valid in general for TPM, which has max 6 channels. */
 	if ( channel > 5 )
@@ -261,6 +288,9 @@ static uint32_t TPM_SetChannelMode(uint32_t channel, TMP_channel_mode_t mode, ui
 	/* disable the counter before changing values */
 	val = (tpm->reg->SC & TPM_SC_CMOD_MASK);	/* save current clock mode */
 	tpm->reg->SC &= ~TPM_SC_CMOD_MASK;
+	/* wait until the counter is really disabled (change is "acknowledged in the timer clock domain" :) )*/
+	while (tpm->reg->SC & TPM_SC_CMOD_MASK ) ;
+	
 	tpm->reg->CNT = 0;	/* reset counter */
 	
 	/* Set mode to up counting - this is valid for all modes except center-aligned PWM,
@@ -270,7 +300,7 @@ static uint32_t TPM_SetChannelMode(uint32_t channel, TMP_channel_mode_t mode, ui
 	switch(mode)
 	{
 	case Disabled:	/* The channel is disabled */
-		tpm->reg->CONTROLS[channel]->CnSC = 0;
+		tpm->reg->CONTROLS[channel].CnSC = 0;
 		break;
 		
 	case SWcompare:	/* TODO: what is this mode? */
@@ -279,14 +309,14 @@ static uint32_t TPM_SetChannelMode(uint32_t channel, TMP_channel_mode_t mode, ui
 		
 	case PWM_edge_hightrue:	/* PWM; set output at the start of the period */
 		wtpm_enable_pin(channel, tpm);			
-		tpm->reg->CONTROLS[channel]->CnSC = 0;
-		tpm->reg->CONTROLS[channel]->CnSC |= (TPM_CnSC_MSB_MASK | TPM_CnSC_ELSB_MASK);	/* edge aligned PWM... */
+		tpm->reg->CONTROLS[channel].CnSC = 0;
+		tpm->reg->CONTROLS[channel].CnSC |= (TPM_CnSC_MSB_MASK | TPM_CnSC_ELSB_MASK);	/* edge aligned PWM... */
 		break;
 		
 	case PWM_edge_lowtrue:	/* PWM; clear output at the start of the period */		
 		wtpm_enable_pin(channel, tpm);				
-		tpm->reg->CONTROLS[channel]->CnSC = 0;
-		tpm->reg->CONTROLS[channel]->CnSC |= (TPM_CnSC_MSB_MASK | TPM_CnSC_ELSA_MASK);	/* edge aligned PWM... */
+		tpm->reg->CONTROLS[channel].CnSC = 0;
+		tpm->reg->CONTROLS[channel].CnSC |= (TPM_CnSC_MSB_MASK | TPM_CnSC_ELSA_MASK);	/* edge aligned PWM... */
 		break;
 		
 	case PWM_center_hightrue:
@@ -303,22 +333,22 @@ static uint32_t TPM_SetChannelMode(uint32_t channel, TMP_channel_mode_t mode, ui
 	
 	
 	/* Enable/disable the event for this channel */
-	tpm->reg->CONTROLS[channel]->CnSC |= TPM_CnSC_CHF_MASK;	/* clear possible pending interrupt */
+	tpm->reg->CONTROLS[channel].CnSC |= TPM_CnSC_CHF_MASK;	/* clear possible pending interrupt */
 	if ( args & MSF_TPM_PARAM_CHANNEL_EVENT)
 	{
 		/* enable the event */
 		tpm->info->status |=  MSF_TPM_STATUS_SIGNAL_CHN(channel);	/* remember we report TOF now */		
-		tpm->reg->CONTROLS[channel]->CnSC |= TPM_CnSC_CHIE_MASK;	/* enable channel interrupt */
+		tpm->reg->CONTROLS[channel].CnSC |= TPM_CnSC_CHIE_MASK;	/* enable channel interrupt */
 	}
 	else
 	{
 		/* disable the event */
-		tpm->reg->CONTROLS[channel]->CnSC &= ~TPM_CnSC_CHIE_MASK;	/* disable channel interrupt */
+		tpm->reg->CONTROLS[channel].CnSC &= ~TPM_CnSC_CHIE_MASK;	/* disable channel interrupt */
 		tpm->info->status &=  ~MSF_TPM_STATUS_SIGNAL_CHN(channel);	/* remember we do not report TOF now */
 	}
 		
 	/* restore counter clock mode */
-	tpm->reg->SC |= TPM_SC_CMOD(val);
+	tpm->reg->SC |= val;
 	
 	return MSF_ERROR_OK;
 }
@@ -330,6 +360,51 @@ static uint32_t TPM0_SetChannelMode(uint32_t channel, TMP_channel_mode_t mode, u
   return TPM_SetChannelMode(channel, mode, args, &TPM0_Resources);
 }
 #endif   /* MSF_DRIVER_TPM0 */
+
+/**
+  \brief       Write value to the channel register (e.g. duty in pwm mode)
+  \param[in]   channel The number of the channel to set (0-5) but depends on TPMn module!
+  \param[in]   value The value to write. Only 16-bit value is supported by TPM timers.
+  \return      error code (0 = OK)
+  \note                      
+*/
+static uint32_t TPM_WriteChannel(uint32_t channel, uint16_t value, TPM_RESOURCES* tpm) 
+{
+	if ( channel > 5 )
+		return MSF_ERROR_ARGUMENT;
+	tpm->reg->CONTROLS[channel].CnV = value;
+	return MSF_ERROR_OK;
+}
+
+#if (MSF_DRIVER_TPM0)   
+static uint32_t TPM0_WriteChannel(uint32_t channel, uint16_t value) 
+{
+	return TPM_WriteChannel(channel, value,  &TPM0_Resources); 
+}
+#endif   /* MSF_DRIVER_TPM0 */
+
+/**
+  \brief       Read value from the channel register (e.g. in input capture mode the timestamp)
+  \param[in]   channel The number of the channel to set (0-5) but depends on TPMn module!
+  \param[in]   value The value to write
+  \return      The 16-bit value from the CnV register or error code 0xffffffff.
+  \note                      
+*/
+static uint32_t TPM_ReadChannel(uint32_t channel, TPM_RESOURCES* tpm) 
+{
+	if ( channel > 5 )
+		return MSF_ERROR_MAXDWORD;
+	return tpm->reg->CONTROLS[channel].CnV;	
+}
+
+#if (MSF_DRIVER_TPM0)   
+static uint32_t TPM0_ReadChannel(uint32_t channel) 
+{
+	return TPM_ReadChannel(channel, &TPM0_Resources); 
+}
+#endif   /* MSF_DRIVER_TPM0 */
+
+
 
 /** Interrupt handler for all TMPn instances */
 void TPM_IRQHandler(TPM_RESOURCES* tpm)
@@ -348,9 +423,9 @@ void TPM_IRQHandler(TPM_RESOURCES* tpm)
 	{
 		for ( i=0; i<6; i++)
 		{
-			if (tpm->reg->CONTROLS[i]->CnSC & TPM_CnSC_CHF_MASK)
+			if (tpm->reg->CONTROLS[i].CnSC & TPM_CnSC_CHF_MASK)
 			{
-				tpm->reg->CONTROLS[i]->CnSC |= TPM_CnSC_CHF_MASK;	/* clear the interrupt flag */
+				tpm->reg->CONTROLS[i].CnSC |= TPM_CnSC_CHF_MASK;	/* clear the interrupt flag */
 				tpm->info->cb_event(MSF_TPM_EVENT_CHN(i), 0);				
 			}
 		}
@@ -371,12 +446,14 @@ void FTM0_IRQHandler(void)
 #if (MSF_DRIVER_TPM0)
 /* Only if the user-configuration in msf_config_<device>.h specifies that
  * it needs this driver we will create the instance */
-MSF_DRIVER_ADC Driver_ADC0 = {
+MSF_DRIVER_TPM Driver_TPM0 = {
   TPM0_Initialize,
   TPM0_Uninitialize,
   TPM0_PowerControl,
   TPM0_Control,  
   TPM0_SetChannelMode,
+  TPM0_WriteChannel,
+  TPM0_ReadChannel,
   
 };
 #endif	/* MSF_DRIVER_TPM0 */

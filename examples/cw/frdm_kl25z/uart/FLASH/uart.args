@@ -3,6 +3,7 @@
 "./MSF/common/coniob.o"
 "./MSF/common/conio.o"
 "./MSF/kinetis/uart_kl25.o"
+"./MSF/kinetis/tpm_kl25.o"
 "./MSF/kinetis/msf_analog.o"
 "./MSF/kinetis/msf.o"
 "./MSF/kinetis/adc_kl25.o"

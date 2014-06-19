@@ -44,7 +44,7 @@ OBJS_OS_FORMAT += \
 # Each subdirectory must supply rules for building sources it contributes
 MSF/common/conio.o: $(COMMON)/conio.c
 	@echo 'Building file: $<'
-	@echo 'Executing target #10 $<'
+	@echo 'Executing target #11 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
 	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"MSF/common/conio.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"MSF/common/conio.o"
 	@echo 'Finished building: $<'
@@ -52,7 +52,7 @@ MSF/common/conio.o: $(COMMON)/conio.c
 
 MSF/common/coniob.o: $(COMMON)/coniob.c
 	@echo 'Building file: $<'
-	@echo 'Executing target #11 $<'
+	@echo 'Executing target #12 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
 	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"MSF/common/coniob.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"MSF/common/coniob.o"
 	@echo 'Finished building: $<'
@@ -60,7 +60,7 @@ MSF/common/coniob.o: $(COMMON)/coniob.c
 
 MSF/common/msf_print.o: $(COMMON)/msf_print.c
 	@echo 'Building file: $<'
-	@echo 'Executing target #12 $<'
+	@echo 'Executing target #13 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
 	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"MSF/common/msf_print.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"MSF/common/msf_print.o"
 	@echo 'Finished building: $<'

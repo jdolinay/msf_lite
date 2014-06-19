@@ -1,6 +1,11 @@
 /*
  * Example for MSF Lite UART driver 
  * 6/2014 Jan Dolinay
+ * LED connections:
+ * B18 	- Red LED
+ * B19 	- Green LED 
+ * D1	- Blue LED (Arduino pin D13)
+ * All LEDs are on, if the pin is low and off if it is high.
  *
  */
 
@@ -16,6 +21,8 @@
 #include "drv_uart.h"	/* UART driver */
 #include "coniob.h"		/* Buffered console I/O */
 
+#include "drv_tpm.h"	/* TPM driver */
+
 #define	RED_LED		GPIO_B18
 #define	GREEN_LED	GPIO_B19
 #define	BLUE_LED	GPIO_D1
@@ -29,7 +36,8 @@ void coniob_test(void);
 const char* str_115200 = "115200\n\r";
 const char* str_9600 = "9600\n\r";
 
-
+// event handler for timer TPM0
+void TPM0_SignalEvent(uint32_t event, uint32_t arg);
 
 int main(void)
 {
@@ -37,6 +45,34 @@ int main(void)
 	
 	/* Always initialise the MSF library*/
 	msf_init(0);
+	
+	msf_pin_direction(RED_LED, output);
+	msf_pin_write(RED_LED, true);
+	msf_pin_direction(GREEN_LED, output);
+	msf_pin_write(GREEN_LED, true);
+		
+	
+	// ======= timer test
+	// TODO: move to new project
+	Driver_TPM0.Initialize(TPM0_SignalEvent);	// init timer, internal clock
+	
+	// Enable TOF signal and set prescaler
+	// With clock option 1 (48 MHz) the timer clock is 8 MHz.
+	// with prescaler = 128 we get counter freq = 62500 Hz and about 1 overflow in 1 second.
+	Driver_TPM0.Control(MSF_TPM_TOF_SIGNAL | MSF_TPM_PRESCALER_SET, MSF_TPM_PRESCALER_128);
+	// wait
+	msf_delay_ms(10000);
+	// change modulo = change freq of blinking.
+	// F_of_interrupt = F_of_counter / (MOD+1)
+	// F = 62500 / (12500) = 5  (5times toggle per second)
+	Driver_TPM0.Control(MSF_TPM_TOP_VALUE, 12499);
+	
+	while(1) 
+	{
+		//msf_pin_toggle(GREEN_LED);
+		//msf_delay_ms(500);
+	}
+	// =========
 	
 	/* Now test the uart driver 
 	 * Please un-comment one of the functions.
@@ -52,6 +88,27 @@ int main(void)
 	
 	return 0;
 }
+
+/* --------------------- timer code ---------------- */
+void TPM0_SignalEvent(uint32_t event, uint32_t arg)
+{
+	//static uint32_t cnt = 0;
+	switch ( event )
+	{
+	case MSF_TPM_EVENT_TOF:
+		//if ( cnt++ > 100 )
+		//{
+		//	cnt = 0;
+			msf_pin_toggle(RED_LED);
+		//}
+		break;
+	
+	case MSF_TPM_EVENT_CH0:
+		break;
+	}
+	
+}
+/* --------------------- end timer code ---------------- */
 
 /* Test the UART driver in simple polled mode.
  * Prints text to serial line. Send any char from terminal to display prompt for
