@@ -5,6 +5,21 @@ Projekty examples staci .cproject a .project a slozka .settings jak mam ted - ov
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 ------------------------------------------------
 
+20.6.2014
+Pokracuj: otestovat instance driveru...
+TODO: udelat instance pro TPM1 a TPM2 at overim vice instanci driveru :)
+ > ty maji vystup na pin red a green led...
+ 
+_TODO: piny pro timer driver asi do nìjakého config.h, ve zdrojáku jen symbol jména
+napø. TPM0_CH1_PIN + i cislo alt funkce? neob to osetrit automaticky v nejakem H "pod tim".
+ > auto nema smysl, stejne se musi divat na pinout kdyz vybira pin = napise uzivatel.
+
+REMEM: konfigurace pinu pro TPM viz msf_config.h v projektu uart.
+Pro ADC je nejaka konfigurace v msf_config_<device>.h ale to je nastaveni
+default hodnot pro Init, napr. rozliseni a kolik vzorku prumerovat, toto
+neni potreba bezne menit.
+END REMEM 
+
 19.6.2014
 Pokracuj: test PWM apod...
 - funguje normalni tof mode a nastaveni MOD;

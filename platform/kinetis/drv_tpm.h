@@ -64,7 +64,7 @@ typedef void (*MSF_TPM_Event_t) (uint32_t event, uint32_t arg);
 #define     MSF_TPM_PRESCALER_SET  	(1UL << MSF_TPM_PRESCALER_Pos)  /**< set prescaler; arg=one of the constants MSF_TPM_PRESCALER_1,... */
 #define		MSF_TPM_TOF_NO_SIGNAL	(1UL << MSF_TPM_TOF_Pos)  		/**< do not signal timer overflow event to user */
 #define		MSF_TPM_TOF_SIGNAL		(2UL << MSF_TPM_TOF_Pos)  		/**< signal timer overflow event to user */
-#define		MSF_TPM_TOP_VALUE		(1UL << MSF_TPM_MOD_Pos)  		/**< set top value for counter (MOD register); arg = the value (16-bit) */
+#define		MSF_TPM_MOD_VALUE		(1UL << MSF_TPM_MOD_Pos)  		/**< set TOP value for counter (MOD register); arg = the value (16-bit) */
 
 /** Helper values for Arg parameter in Control() */
 #define		MSF_TPM_PRESCALER_1		(0)
@@ -82,7 +82,7 @@ typedef void (*MSF_TPM_Event_t) (uint32_t event, uint32_t arg);
  * The user defined function MSF_TPM_Event_t will get the mask in event parameter */
 #define		MSF_TPM_EVENT_TOF		(1UL << 0)	/**< Timer overflow (TOF) interrupt.  */
 #define		MSF_TPM_EVENT_CHN(n)	(1UL << (n+1))	/**< Timer channel N event.  */
-/* For user convenience...*/
+/* For user convenience - to find out which event it was in the event handler */
 #define		MSF_TPM_EVENT_CH0		MSF_TPM_EVENT_CHN(0) /**< Timer channel 0 event.  */
 #define		MSF_TPM_EVENT_CH1		MSF_TPM_EVENT_CHN(1) /**< Timer channel 1 event.  */
 #define		MSF_TPM_EVENT_CH2		MSF_TPM_EVENT_CHN(2) /**< Timer channel 2 event.  */

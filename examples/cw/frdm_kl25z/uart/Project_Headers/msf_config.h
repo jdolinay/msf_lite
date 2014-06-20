@@ -58,8 +58,48 @@
 ********************************************/
 #define MSF_DRIVER_UART0    1   /* Use UART0 driver (create UART0 driver instance) */
 #define MSF_DRIVER_ADC0     0	/* Use ADC driver */
-#define	MSF_DRIVER_TPM0		1	/* Use TMP0 driver */
+#define	MSF_DRIVER_TPM0		1	/* Use TPM0 driver */
+#define	MSF_DRIVER_TPM1		0	/* Use TPM1 driver */
+#define	MSF_DRIVER_TPM2		0	/* Use TPM2 driver */
 
+
+/*********************************************
+* Pin configuration for the timer TPMn drivers.
+* Here you can select which pin is used for each channel from
+* the available pins for this channel.
+* You will need to look into the datasheet into the Pinout chapter
+* (in Signal Multiplexing and Signal Descriptions) to find out which
+* pins are available for each channel.
+* Define the name of the pin as defined in msf_<device>.h for you MCU
+* and the number of the ALTx function as found in the pinout table in 
+* the datasheet.
+**********************************************/
+
+/* Timer TPM0 pins (6 channels are available) */
+#define		MSF_TPM0_CH0_PIN	(GPIO_A3)
+#define		MSF_TPM0_CH0_ALT	(3)
+#define		MSF_TPM0_CH1_PIN	(GPIO_D1)
+#define		MSF_TPM0_CH1_ALT	(4)
+#define		MSF_TPM0_CH2_PIN	(GPIO_A5)
+#define		MSF_TPM0_CH2_ALT	(3)
+#define		MSF_TPM0_CH3_PIN	(GPIO_E30)
+#define		MSF_TPM0_CH3_ALT	(3)
+#define		MSF_TPM0_CH4_PIN	(GPIO_E31)
+#define		MSF_TPM0_CH4_ALT	(3)
+#define		MSF_TPM0_CH5_PIN	(GPIO_A0)
+#define		MSF_TPM0_CH5_ALT	(3)
+
+/* Timer TPM1 pins (only 2 channels on KL25) */
+#define		MSF_TPM1_CH0_PIN	(GPIO_E20)	/* or PTA12/3; PTB0/3*/
+#define		MSF_TPM1_CH0_ALT	(3)
+#define		MSF_TPM1_CH1_PIN	(GPIO_E21)	/* or PTA13/3; PTB1/3*/
+#define		MSF_TPM1_CH1_ALT	(3)
+
+/* Timer TPM2 pins (only 2 channels on KL25) */
+#define		MSF_TPM2_CH0_PIN	(GPIO_E22)
+#define		MSF_TPM2_CH0_ALT	(3)
+#define		MSF_TPM2_CH1_PIN	(GPIO_E23)
+#define		MSF_TPM2_CH1_ALT	(3)
 
 
  /* Include the header file for our board */
