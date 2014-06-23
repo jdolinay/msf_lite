@@ -56,6 +56,7 @@ int main(void)
 {
 	/* Internal initialization */
 	msf_init(0);
+	arduino_init(); 
 	
 	setup();
 	
