@@ -6,8 +6,8 @@ po importu jako existing project into workspace ( bez kopirovani do workspace) j
 ------------------------------------------------
 
 20.6.2014
-Pokracuj: otestovat instance driveru...
-TODO: udelat instance pro TPM1 a TPM2 at overim vice instanci driveru :)
+_Pokracuj: otestovat instance driveru...
+_TODO: udelat instance pro TPM1 a TPM2 at overim vice instanci driveru :)
  > ty maji vystup na pin red a green led...
  
 _TODO: piny pro timer driver asi do nìjakého config.h, ve zdrojáku jen symbol jména

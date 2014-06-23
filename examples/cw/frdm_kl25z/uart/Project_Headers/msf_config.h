@@ -59,8 +59,8 @@
 #define MSF_DRIVER_UART0    1   /* Use UART0 driver (create UART0 driver instance) */
 #define MSF_DRIVER_ADC0     0	/* Use ADC driver */
 #define	MSF_DRIVER_TPM0		1	/* Use TPM0 driver */
-#define	MSF_DRIVER_TPM1		0	/* Use TPM1 driver */
-#define	MSF_DRIVER_TPM2		0	/* Use TPM2 driver */
+#define	MSF_DRIVER_TPM1		1	/* Use TPM1 driver */
+#define	MSF_DRIVER_TPM2		1	/* Use TPM2 driver */
 
 
 /*********************************************
@@ -96,9 +96,9 @@
 #define		MSF_TPM1_CH1_ALT	(3)
 
 /* Timer TPM2 pins (only 2 channels on KL25) */
-#define		MSF_TPM2_CH0_PIN	(GPIO_E22)
+#define		MSF_TPM2_CH0_PIN	(GPIO_B18)	/* or PTA1/3; PTB2/3; PTE22/3*/
 #define		MSF_TPM2_CH0_ALT	(3)
-#define		MSF_TPM2_CH1_PIN	(GPIO_E23)
+#define		MSF_TPM2_CH1_PIN	(GPIO_B19)  /* or PTA2/3; PTB2/3; PTE22/3*/
 #define		MSF_TPM2_CH1_ALT	(3)
 
 

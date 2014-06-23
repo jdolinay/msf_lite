@@ -53,9 +53,10 @@ typedef struct _TPM_PINS {
 
 /* The data for one instance of the driver - the "resource" */
 typedef struct {
-        TPM_Type  	*reg;  	/* TPM peripheral register interface, CMSIS */        
-        TPM_INFO	*info;   /* Run-Time information */
-        TPM_PINS	*pins;	/* Pins used for our channels*/
+        TPM_Type  	*reg;  		/* TPM peripheral register interface, CMSIS */        
+        TPM_INFO	*info;   	/* Run-Time information */
+        TPM_PINS	*pins;		/* Pins used for our channels*/
+        uint8_t		nchannels;	/* number of channels available in this module */
 } const TPM_RESOURCES;
 
 

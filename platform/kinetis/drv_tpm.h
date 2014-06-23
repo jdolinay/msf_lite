@@ -157,6 +157,14 @@ typedef struct _MSF_DRIVER_TPM {
 	extern MSF_DRIVER_TPM Driver_TPM0;
 #endif	/* MSF_DRIVER_TPM0 */
 
+#if (MSF_DRIVER_TPM1)
+	extern MSF_DRIVER_TPM Driver_TPM1;
+#endif	/* MSF_DRIVER_TPM1 */
+	
+#if (MSF_DRIVER_TPM2)
+	extern MSF_DRIVER_TPM Driver_TPM2;
+#endif	/* MSF_DRIVER_TPM2 */
+
 #ifdef __cplusplus
 }
 #endif

@@ -5,6 +5,8 @@
  * @date     17. June 2014
  *
  * @note     Drivers: Driver_TPM0, Driver_TPM1, Driver_TPM2 
+ *  see TPM_SetChannelMode comment for calculating the freq, duty etc. for various
+ *  timer modes.
  *
  ******************************************************************************/
 /* MSF includes */
@@ -32,11 +34,11 @@ static TPM_INFO TPM0_Info;
 static TPM_PINS TPM0_Pins = {
 		{	/* the array within the structure */
 		{MSF_TPM0_CH0_PIN, MSF_TPM0_CH0_ALT},	/* pin for channel 0 */
-		{MSF_TPM0_CH1_PIN, MSF_TPM0_CH1_ALT},		/* pin for channel 1 */
-		{MSF_TPM0_CH2_PIN, MSF_TPM0_CH2_ALT},		/* pin for channel 2 */
-		{MSF_TPM0_CH3_PIN, MSF_TPM0_CH3_ALT},		/* pin for channel 3 */
+		{MSF_TPM0_CH1_PIN, MSF_TPM0_CH1_ALT},	/* pin for channel 1 */
+		{MSF_TPM0_CH2_PIN, MSF_TPM0_CH2_ALT},	/* pin for channel 2 */
+		{MSF_TPM0_CH3_PIN, MSF_TPM0_CH3_ALT},	/* pin for channel 3 */
 		{MSF_TPM0_CH4_PIN, MSF_TPM0_CH4_ALT},	/* pin for channel 4 */
-		{MSF_TPM0_CH5_PIN, MSF_TPM0_CH5_ALT},		/* pin for channel 5 */
+		{MSF_TPM0_CH5_PIN, MSF_TPM0_CH5_ALT},	/* pin for channel 5 */
 		}
 };
 /* TPM0 Resources */
@@ -44,6 +46,7 @@ static TPM_RESOURCES TPM0_Resources = {
   TPM0,    /* ADC type object defined in CMSIS <device.h>*/
   &TPM0_Info,
   &TPM0_Pins,
+  6,	/* number of channels */
 };
 #endif /* MSF_DRIVER_TPM0 */
 
@@ -58,11 +61,11 @@ static TPM_INFO TPM1_Info;
  *  */
 static TPM_PINS TPM1_Pins = {
 		{	/* the array within the structure */
-		{MSF_TPM1_CH0_PIN, MSF_TPM0_CH0_ALT},	/* pin for channel 0 */
-		{MSF_TPM1_CH1_PIN, MSF_TPM0_CH1_ALT},		/* pin for channel 1 */
+		{MSF_TPM1_CH0_PIN, MSF_TPM1_CH0_ALT},	/* pin for channel 0 */
+		{MSF_TPM1_CH1_PIN, MSF_TPM1_CH1_ALT},	/* pin for channel 1 */
 		{GPIO_INVALID_PIN, 0},		/* pin for channel 2 */
 		{GPIO_INVALID_PIN, 0},		/* pin for channel 3 */
-		{GPIO_INVALID_PIN, 0},	/* pin for channel 4 */
+		{GPIO_INVALID_PIN, 0},		/* pin for channel 4 */
 		{GPIO_INVALID_PIN, 0},		/* pin for channel 5 */
 		}
 };
@@ -71,6 +74,7 @@ static TPM_RESOURCES TPM1_Resources = {
   TPM1,    /* ADC type object defined in CMSIS <device.h>*/
   &TPM1_Info,
   &TPM1_Pins,
+  2,
 };
 #endif /* MSF_DRIVER_TPM1 */
 
@@ -84,11 +88,11 @@ static TPM_INFO TPM2_Info;
  *  */
 static TPM_PINS TPM2_Pins = {
 		{	/* the array within the structure */
-		{MSF_TPM2_CH0_PIN, MSF_TPM0_CH0_ALT},	/* pin for channel 0 */
-		{MSF_TPM2_CH1_PIN, MSF_TPM0_CH1_ALT},		/* pin for channel 1 */
+		{MSF_TPM2_CH0_PIN, MSF_TPM2_CH0_ALT},	/* pin for channel 0 */
+		{MSF_TPM2_CH1_PIN, MSF_TPM2_CH1_ALT},	/* pin for channel 1 */
 		{GPIO_INVALID_PIN, 0},		/* pin for channel 2 */
 		{GPIO_INVALID_PIN, 0},		/* pin for channel 3 */
-		{GPIO_INVALID_PIN, 0},	/* pin for channel 4 */
+		{GPIO_INVALID_PIN, 0},		/* pin for channel 4 */
 		{GPIO_INVALID_PIN, 0},		/* pin for channel 5 */
 		}
 };
@@ -97,6 +101,7 @@ static TPM_RESOURCES TPM2_Resources = {
   TPM2,    /* ADC type object defined in CMSIS <device.h>*/
   &TPM2_Info,
   &TPM2_Pins,
+  2,
 };
 #endif /* MSF_DRIVER_TPM1 */
 
@@ -137,8 +142,10 @@ static uint32_t  TPM_Initialize( MSF_TPM_Event_t event,  TPM_RESOURCES* tpm)
 	
 	tpm->reg->SC = 0;	/* default values, counter disabled */
 	tpm->reg->MOD = 0x0000ffff;
-	/* channel configuration registers - there are always 6 even if TPM1 and TPM2 have only 2 channels */
-	for ( i=0; i<6; i++ )
+	/* channel configuration registers - there are 6 in the <device>.h declaration of TPM_Type but we cannot
+	 * access those not available, e.g. if TPM1 only has 2 channels, we can only write to CONSTROLS[0] and [1]
+	 * Note: TPM1 and TPM2 have only 2 channels */
+	for ( i=0; i<tpm->nchannels; i++ )
 		tpm->reg->CONTROLS[i].CnSC = 0;
 	tpm->reg->CONF = 0;
 	
@@ -185,12 +192,14 @@ static uint32_t TPM2_Initialize (MSF_TPM_Event_t pEvent)
 */
 static uint32_t  TPM_Uninitialize( TPM_RESOURCES* tpm)
 {
+	uint32_t irq;
     /* Reset internal state for this instance of the TPM driver */
     tpm->info->cb_event = null;    
     /* if interrupt is enabled in NVIC, disable it */
     if ( (tpm->info->status & (MSF_TPM_STATUS_ANY_CHANNEL | MSF_TPM_STATUS_SIGNAL_TOF)) != 0 )
     {
-    		wtpm_enable_int(i, 0);
+    	irq = MSF_TPM_GETNVIC_IRQn(tpm->reg);
+    	wtpm_enable_int(irq, 0);
     }
     
     tpm->info->status = 0;
@@ -417,9 +426,8 @@ static uint32_t TPM_SetChannelMode(uint32_t channel, TMP_channel_mode_t mode, ui
 {
 	uint32_t val, i;
 	 	
-	/* We do not check if the channel is valid for given instance of TPM (TPM1 and 2 only have 2 channels),
-	 * but just check if it is valid in general for TPM, which has max 6 channels. */
-	if ( channel > 5 )
+	/* Check if the channel is valid for given instance of TPM (TPM1 and 2 only have 2 channels) */	 
+	if ( channel >= tpm->nchannels )
 		return MSF_ERROR_ARGUMENT;
 	
 	/* disable the counter before changing values */
@@ -624,7 +632,7 @@ void TPM_IRQHandler(TPM_RESOURCES* tpm)
 	/* should we report any channel interrupt? */
 	if ( tpm->info->status & MSF_TPM_STATUS_ANY_CHANNEL )
 	{
-		for ( i=0; i<6; i++)
+		for ( i=0; i<tpm->nchannels; i++)
 		{
 			if (tpm->reg->CONTROLS[i].CnSC & TPM_CnSC_CHF_MASK)
 			{

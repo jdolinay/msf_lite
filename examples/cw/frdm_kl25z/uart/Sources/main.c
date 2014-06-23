@@ -38,7 +38,9 @@ const char* str_9600 = "9600\n\r";
 
 // event handler for timer TPM0
 void TPM0_SignalEvent(uint32_t event, uint32_t arg);
+void TPM2_SignalEvent(uint32_t event, uint32_t arg);
 uint32_t g_duty;
+uint32_t g_duty2;
 
 int main(void)
 {
@@ -57,6 +59,33 @@ int main(void)
 	// TODO: move to new project
 	Driver_TPM0.Initialize(TPM0_SignalEvent);	// init timer, internal clock
 	
+	
+	Driver_TPM2.Initialize(TPM2_SignalEvent);	// TPM2 timer - for RED and green led
+	// test TPM2 in TOF mode
+	//Driver_TPM2.Control(MSF_TPM_TOF_SIGNAL | MSF_TPM_PRESCALER_SET, MSF_TPM_PRESCALER_64);
+	// Test in mode for driving LED with HW PWM
+	// If we want 50 Hz PWM signal: 
+	// MOD = Ft/Fo - 1 = Fsrc / (Fo . PRESCALER) - 1
+	// = 8000000 / (50 * PRSC) - 1; for prescaler = 64: MOD = 2499
+	Driver_TPM2.Control(MSF_TPM_PRESCALER_SET, MSF_TPM_PRESCALER_64);
+	Driver_TPM2.Control(MSF_TPM_MOD_VALUE, 2499);	
+	g_duty2 = 249;	/* 10% */
+	//Driver_TPM2.SetChannelMode(0, PWM_edge_lowtrue, MSF_TPM_PARAM_CHANNEL_EVENT); 	// Set channel 0 (RED LED), lowtrue pulses so that the
+	// "pulse" is actually log. 0 state, signal channel event (to change the duty safely)
+	// Note that handling event 50-times per second is not good..
+	Driver_TPM2.SetChannelMode(1, PWM_edge_lowtrue, 0); 	// without event
+	while(1)
+	{
+		if ( g_duty2 <= 2250 )
+			g_duty2 += 249;		// add 10%
+		else
+			g_duty2 = 0;
+		Driver_TPM2.WriteChannel(1, g_duty2 );	
+		msf_delay_ms(1000);
+		
+	}
+	
+	
 	// Enable TOF signal and set prescaler
 	// With clock option 1 (48 MHz) the timer clock is 8 MHz.
 	// with prescaler = 128 we get counter freq = 62500 Hz and about 1 overflow in 1 second.
@@ -72,7 +101,7 @@ int main(void)
 	// blue LED is TPM0 channel 1
 	// IMPORTANT: the LEDS are connected so that they are ON when the pin is LOW, keep it in mind when testing PWM.
 	// For example with hightrue pulses and duty 10%, the log.1 pulse is 10% of the period long but the LED will be
-	// 10% of the period off and 90% on!
+	// off 10% of the period and on 90%!
 	
 	g_duty = 15000;		// set in event handler
 	// with 8 MHz src for timer, we get lowest counter freq. of Ft = 62500 Hz
@@ -160,7 +189,25 @@ void TPM0_SignalEvent(uint32_t event, uint32_t arg)
 		break;
 	
 	case MSF_TPM_EVENT_CH1:
-		Driver_TPM0.WriteChannel(1, g_duty );	// 90%
+		Driver_TPM0.WriteChannel(1, g_duty );	
+		break;
+	}
+	
+}
+void TPM2_SignalEvent(uint32_t event, uint32_t arg)
+{	
+	switch ( event )
+	{
+	case MSF_TPM_EVENT_TOF:
+		msf_pin_toggle(RED_LED);
+		break;
+	
+	case MSF_TPM_EVENT_CH0:
+		Driver_TPM2.WriteChannel(0, g_duty2 );	
+		break;
+	
+	case MSF_TPM_EVENT_CH1:
+//		Driver_TPM2.WriteChannel(1, g_duty );	
 		break;
 	}
 	
