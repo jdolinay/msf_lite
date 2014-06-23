@@ -19,6 +19,7 @@
 #include "drv_adc.h"  /* ADC driver needed for analogReference() */
 //#include "drv_uart.h"	/* UART driver needed for Serial.begin() */
 #include "coniob.h"		/* buffered serial line for Serial */
+#include "drv_tpm.h"	/* timer for analogWrite */
 
 /* Arduino pin definitions 
  * Digital pin n is named PDn etc.
@@ -102,6 +103,11 @@ extern const uint32_t g_msf_analogpins_arduino[];
 											 (format == HEX) ?  "%X" : \
 											 (format == OCT) ?  "%o" : \
 											 "")  
+
+/** Internal function which must be called by main before calling setup().
+ * It will initialize the Arduino-compatibility layer.
+ * Implemented in arduino.c */
+void arduino_init();
 
 
 /* Arduino pin number to pin-code conversion */
@@ -220,7 +226,20 @@ static inline int analogRead(int pin)
 }
 
 
-/* TODO: do analogWrite? */
+
+/** Start generatin PWM signal on given pin.  
+ * @param Arduino pin number 0 to 21 (not all pins supported, see note below!)
+ * @param value between 0 and 255; 0 means full time low, 255 means full time log 1 on the pin.
+ * @return none
+ * @note Only some of the pins can be used to really generate PWM (those connected to timer).
+ * For all other pins the function does nothing. This is different behaviour than on Arduino, where
+ * the pin which is not available on timer will be all time low for values 0 - 127 and all time high
+ * for values 128 - 255. This makes the code more complicated (handle pin mode and direction) and
+ * makes little sense to do.  
+ * 
+ * Implemented in arduino.c
+ * */
+void analogWrite(int pin, int value); 
 
 /***********************
  *  Time functions 

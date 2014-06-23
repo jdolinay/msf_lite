@@ -80,7 +80,9 @@ void loop(void)
 int main(void)
 {
 	/* Internal initialisation */
-	msf_init(0);
+	msf_init(0); 
+	arduino_init();
+	
 	
 	setup();
 	

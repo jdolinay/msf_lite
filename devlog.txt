@@ -5,6 +5,19 @@ Projekty examples staci .cproject a .project a slozka .settings jak mam ted - ov
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 ------------------------------------------------
 
+23.6.2014
+Pokracuj: dodelat analogWrite + driver status viz nize
+TODO: TPM driver asi getStatus viz analogWrite bude potrebovat.
+REMEM: moje reseni analogWrite
+Nastavuji casovace pri inicializaci tak, abych mohl zapisovat primo 0-255 do
+kanalu. Pak vyjde pwm frekvence 488 Hz.
+Neresim zadne nastavovani apod. rozsirovanim arduino-like API, radeji odkazu 
+na nativni MSF driver!
+Pozor uzivatel by nemel kombinovat analogWrite a pouziti napr. TPM driveru primo,
+resp. muze ale opatrne. Spise doporuceni: pro basic funkcionalitu muze pouzit 
+analogWrite, pro narocnejsi zapomen na analogWrite a pouzij MSF primo :)
+END REMEM 
+
 20.6.2014
 _Pokracuj: otestovat instance driveru...
 _TODO: udelat instance pro TPM1 a TPM2 at overim vice instanci driveru :)

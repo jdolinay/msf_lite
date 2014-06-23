@@ -30,6 +30,7 @@ frdm_kl25z/arduino.o: D:/Git/msf_lite/board/frdm_kl25z/arduino.c \
  D:/Git/msf_lite/platform/kinetis/drv_adc.h \
  D:/Git/msf_lite/common/coniob.h \
  D:/Git/msf_lite/platform/kinetis/drv_uart.h \
+ D:/Git/msf_lite/platform/kinetis/drv_tpm.h \
  C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/stdlib.h \
  C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/cstdlib \
  C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/div_t.h \
@@ -98,6 +99,8 @@ D:/Git/msf_lite/platform/kinetis/drv_adc.h:
 D:/Git/msf_lite/common/coniob.h:
 
 D:/Git/msf_lite/platform/kinetis/drv_uart.h:
+
+D:/Git/msf_lite/platform/kinetis/drv_tpm.h:
 
 C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/stdlib.h:
 
