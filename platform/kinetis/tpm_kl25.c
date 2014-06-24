@@ -451,10 +451,11 @@ static uint32_t TPM_SetChannelMode(uint32_t channel, TMP_channel_mode_t mode, ui
 	switch(mode)
 	{
 	case Disabled:	/* The channel is disabled */
-		/* counter is disabled above... */
+		/* the channel is disabled above... */
 		break;
 		
 	case SWcompare:	/* TODO: what is this mode? */
+		tpm->reg->CONTROLS[channel].CnSC |= TPM_CnSC_MSB_MASK;	
 		break;
 
 		

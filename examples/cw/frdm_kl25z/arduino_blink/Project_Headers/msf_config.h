@@ -126,6 +126,10 @@
 // Timer 0, channel 5
 #define		MSF_TPM0_CH5_PIN	(GPIO_C9)	// Arduino pin 7
 #define		MSF_TPM0_CH5_ALT	(3)
+/*
+#define		MSF_TPM0_CH5_PIN	(GPIO_D5)	// Arduino pin 9
+#define		MSF_TPM0_CH5_ALT	(4)
+ */
 
 /* Timer TPM1 pins (only 2 channels on KL25) */
 // Timer 1, channel 0
@@ -134,6 +138,7 @@
 // Timer 1, channel 1
 #define		MSF_TPM1_CH1_PIN	(GPIO_A13)	// Arduino pin 8 /*PTE21/3; PTA13/3; PTB1/3*/
 #define		MSF_TPM1_CH1_ALT	(3)
+
 
 /* Timer TPM2 pins (only 2 channels on KL25) */
 // Timer 2, channel 0

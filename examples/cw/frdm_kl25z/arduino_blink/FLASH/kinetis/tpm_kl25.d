@@ -1,8 +1,7 @@
-frdm_kl25z/arduino.o: D:/Git/msf_lite/board/frdm_kl25z/arduino.c \
+kinetis/tpm_kl25.o: D:/Git/msf_lite/platform/kinetis/tpm_kl25.c \
  C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/lib_ewl.prefix \
  C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/common.prefix \
  C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/ewl_c_version.h \
- D:/Git/msf_lite/board/frdm_kl25z/arduino.h \
  D:/Git/msf_lite/examples/cw/frdm_kl25z/arduino_blink/Project_Headers/msf_config.h \
  D:/Git/msf_lite/board/frdm_kl25z/frdm_kl25z.h \
  D:/Git/msf_lite/board/frdm_kl25z/msf_config_mkl25z.h \
@@ -27,32 +26,14 @@ frdm_kl25z/arduino.o: D:/Git/msf_lite/board/frdm_kl25z/arduino.c \
  D:/Git/msf_lite/platform/kinetis/mkl25z/msf_mkl25z.h \
  D:/Git/msf_lite/platform/kinetis/gpio.h \
  D:/Git/msf_lite/platform/kinetis/delay_util.h \
- D:/Git/msf_lite/platform/kinetis/drv_adc.h \
- D:/Git/msf_lite/common/coniob.h \
- D:/Git/msf_lite/platform/kinetis/drv_uart.h \
- D:/Git/msf_lite/platform/kinetis/drv_tpm.h \
- C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/stdio.h \
- C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/cstdio \
- C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/cstddef \
- C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/null.h \
- C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/size_t.h \
- C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/wchar_t.h \
- C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/ewl_rsize_t.h \
- C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/eof.h \
- C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/va_list.h \
- C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/file_struc.h \
- C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/stdio_api.h \
- C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/stdarg.h \
- C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/cstdarg \
- C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/arm/stdarg.ARM.h
+ D:/Git/msf_lite/platform/kinetis/tpm_kl25.h \
+ D:/Git/msf_lite/platform/kinetis/drv_tpm.h
 
 C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/lib_ewl.prefix:
 
 C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/common.prefix:
 
 C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/ewl_c_version.h:
-
-D:/Git/msf_lite/board/frdm_kl25z/arduino.h:
 
 D:/Git/msf_lite/examples/cw/frdm_kl25z/arduino_blink/Project_Headers/msf_config.h:
 
@@ -102,38 +83,6 @@ D:/Git/msf_lite/platform/kinetis/gpio.h:
 
 D:/Git/msf_lite/platform/kinetis/delay_util.h:
 
-D:/Git/msf_lite/platform/kinetis/drv_adc.h:
-
-D:/Git/msf_lite/common/coniob.h:
-
-D:/Git/msf_lite/platform/kinetis/drv_uart.h:
+D:/Git/msf_lite/platform/kinetis/tpm_kl25.h:
 
 D:/Git/msf_lite/platform/kinetis/drv_tpm.h:
-
-C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/stdio.h:
-
-C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/cstdio:
-
-C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/cstddef:
-
-C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/null.h:
-
-C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/size_t.h:
-
-C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/wchar_t.h:
-
-C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/ewl_rsize_t.h:
-
-C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/eof.h:
-
-C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/va_list.h:
-
-C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/file_struc.h:
-
-C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/stdio_api.h:
-
-C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/stdarg.h:
-
-C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/cstdarg:
-
-C:/Freescale/CW\ MCU\ v10.5/MCU/ARM_GCC_Support/ewl/EWL_C/include/arm/stdarg.ARM.h:

@@ -37,7 +37,7 @@ OBJS_OS_FORMAT += \
 # Each subdirectory must supply rules for building sources it contributes
 common/coniob.o: $(COMMON)/coniob.c
 	@echo 'Building file: $<'
-	@echo 'Executing target #6 $<'
+	@echo 'Executing target #7 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
 	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"common/coniob.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"common/coniob.o"
 	@echo 'Finished building: $<'
@@ -45,7 +45,7 @@ common/coniob.o: $(COMMON)/coniob.c
 
 common/msf_print.o: $(COMMON)/msf_print.c
 	@echo 'Building file: $<'
-	@echo 'Executing target #7 $<'
+	@echo 'Executing target #8 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
 	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"common/msf_print.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"common/msf_print.o"
 	@echo 'Finished building: $<'

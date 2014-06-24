@@ -4,7 +4,7 @@
 */
 #include "arduino.h"
 
-#include <stdlib.h>	/* for sprintf */
+#include <stdio.h>	/* for sprintf */
 
 
 /* Array which maps the pin numbers used in Arduino to
@@ -31,6 +31,15 @@ const uint32_t g_msf_analogpins_arduino[] =
 	PA0, PA1, PA2, PA3, PA4, PA5,	 
 };
 
+/** In this wariable we keep record of which timer channels were already set to
+ * PWM mode (so we can only change the channel value in analogWrite) and do
+ * not need to set the channel to PWM mode.
+ * Each byte is reserved for 1 TPM module, byte 0 is TPM0, byte 1 is PTM2, etc.
+ * Each bit within the byte is 1 channel of the timer, bit 0 in byte 0 is TPM0 channel 0,
+ * bit 1 is TPM0 channel 1, etc. 
+ */
+uint32_t g_msf_awritechannels;
+
 /** Internal function which must be called by main before calling setup().
  * It will initialize the Arduino-compatibility layer.
  * NOTE: this assumes the timer clock is 8 MHz, which is true for CLOCK_SETUP = 1
@@ -41,6 +50,8 @@ const uint32_t g_msf_analogpins_arduino[] =
  * */
 void arduino_init()
 {
+	g_msf_awritechannels = 0;
+	
 	// Initialize the timers for analogWrite
 	// MOD = Ft/Fo - 1 = Fsrc / (Fo . PRESCALER) - 1
 	// We want Fo = 500 Hz
@@ -51,7 +62,6 @@ void arduino_init()
 	Driver_TPM0.Initialize(null);	
 	Driver_TPM0.Control(MSF_TPM_PRESCALER_SET, MSF_TPM_PRESCALER_64);
 	Driver_TPM0.Control(MSF_TPM_MOD_VALUE, 255);	
-		
 	
 	Driver_TPM1.Initialize(null);	
 	Driver_TPM1.Control(MSF_TPM_PRESCALER_SET, MSF_TPM_PRESCALER_64);
@@ -77,19 +87,21 @@ static inline uint32_t val_to_cnval(int value)
 }
 
 
-/** Start generatin PWM signal on given pin.  
- * @param Arduino pin number 0 to 21 (not all pins supported, see note below!)
- * @param value between 0 and 255; 0 means full time low, 255 means full time log 1 on the pin.
+/** Start generating PWM signal on given pin.  
+ * @param Arduino pin number 0 to 21 (not all pins supported, see note below!). You do not need to send
+ * 	the pin to output mode using pinMode.
+ * @param value between 0 and 255; 0 means full time low, 255 means full time high on the pin.
  * @return none
- * @note Only some of the pins can be used to really generate PWM (those connected to timer).
- * For all other pins the function does nothing. This is different behaviour than on Arduino, where
+ * @note Not all pins can be used to really generate PWM (only those connected to timer can).
+ * For pins 14 and 15 the function does nothing. This is different behaviour than on Arduino, where
  * the pin which is not available on timer will be all time low for values 0 - 127 and all time high
  * for values 128 - 255. This makes the code more complicated (handle pin mode and direction) and
- * makes little sense to do.  
+ * makes little sense to do. On the other hand almost all pins can be used for PWM here while on Arduino
+ * there are only few. :)  
  * 
  * Pins with PWM support:
  * 0 (PTA1) - TMP2_ch0
- * 1 (PTA2) - TMP2_ch1
+ * 1 (PTA2) - TMP2_ch1 
  * 2 (PTD4) - TMP0_ch4
  * 3 (PTA12) - TMP1_ch0
  * 4 (PTA4) - TMP0_ch1
@@ -97,7 +109,7 @@ static inline uint32_t val_to_cnval(int value)
  * 6 (PTC8) - TMP0_ch4	(same channel as pin 2!)
  * 7 (PTC9) - TMP0_ch5
  * 8 (PTA13) - TMP1_ch1
- * 9 (PTD5) - TMP0_ch5
+ * 9 (PTD5) - TMP0_ch5	(same channel as pin 7!)
  * 10 (PTD0) - TMP0_ch0
  * 11 (PTD2) - TMP0_ch2	(same channel as pin 5!)
  * 12 (PTD3) - TMP0_ch3
@@ -109,42 +121,115 @@ static inline uint32_t val_to_cnval(int value)
  * 18 (PTB2) - TMP2_ch0 (same channel as pin 0!)
  * 19 (PTB3) - TMP2_ch1 (same channel as pin 1!)
  * 20 (PTC2) - TMP0_ch1 (same channel as pin 4!)
- * 21 (PTC1) - TMP0_ch0 (same channel as pin 10!) 
+ * 21 (PTC1) - TMP0_ch0 (same channel as pin 10!)
+ * 
+ * Pins which are defined as default for analogWrite. No need to change msf_config.h to use these pins with 
+ * analogWrite:
+ * 2,3,4,5,7,8,10,12,18,19. 
  * 
  * Note about pins which use the same timer channel (e.g. pin 6 and pin 2):
  * Only one of the pins can be used at a time. This is defined in msf_config.h, see the 
  * "Pin configuration for the timer TPMn drivers." section. The pins with lower numbers are
- * generally pre-defined; the alternate pin definitions are given in comment. 
+ * generally pre-defined, except for pins 0 and 1. The alternate pin definitions are given in comment. 
  * IMPORTANT: if you do not configure the pin in msf_config.h, analogWrite on this pin will not work!
+ * 
+ * Note on using the same pin for analogWrite and digital read/write:
+ * This should be avoided...
+ * If you use a pin for analogWrite and then want to use it in digital mode, set it to input/output 
+ * mode using pinMode and then you can use digital Read/Write. But note that the pin will not work
+ * with analogWrite again, because the analogWrite will not attach the pin to the timer channel, because 
+ * it will still think it is already attached (see g_msf_awritechannels).
  * 
  * Note about implementation: Arduino initializes all the timers to fixed frequency and analogWrite just connects
  * timer pins to the timer as required. 
- * TODO: our implementation....
- * by default init the timers to 500 Hz PWM but do not set channels to PWM mode (this would attach the pin)
+ * Our implementation also initializes the timers to freq. abouit 488 Hz and 
+ * does not set channels to PWM mode (this would attach the pin).
  * 
  * */
 void analogWrite(int pin, int value)
 {
 	MSF_DRIVER_TPM* pDrv = null;
 	int channel = -1;
-	// We use direct mapping of pin-number to timer "object" and channel
+	uint32_t channel_mask, module_pos;
+	
+	// We use direct mapping of pin-number to timer "object" and channel using this switch...
 	// This should allow fast code for const pins
 	switch ( pin )
 	{
 	case 0:
+	case 18:
 		pDrv = &Driver_TPM2;
 		channel = 0;
+		module_pos = 2;
+		break;
+	case 1:
+	case 19:
+		pDrv = &Driver_TPM2;
+		channel = 1;
+		module_pos = 2;
+		break;
+	case 2:
+	case 6:
+		pDrv = &Driver_TPM0;
+		channel = 4;
+		module_pos = 0;
+		break;
+	case 3:
+	case 16:
+		pDrv = &Driver_TPM1;
+		channel = 0;
+		module_pos = 1;
+		break;
+	case 4:
+	case 13:
+	case 20:
+		pDrv = &Driver_TPM0;
+		channel = 1;
+		module_pos = 0;
+		break;
+	case 5:
+	case 11:
+		pDrv = &Driver_TPM0;
+		channel = 2;
+		module_pos = 0;
+		break;
+	case 7:
+	case 9:
+		pDrv = &Driver_TPM0;
+		channel = 5;
+		module_pos = 0;
+		break;	
+	case 8:
+	case 17:
+		pDrv = &Driver_TPM1;
+		channel = 1;
+		module_pos = 1;
+		break;	
+	case 10:
+	case 21:
+		pDrv = &Driver_TPM0;
+		channel = 0;
+		module_pos = 0;
+		break;	
+	case 12:
+		pDrv = &Driver_TPM0;
+		channel = 3;
+		module_pos = 0;
 		break;
 		
-	default:
+	default:			
 		channel = -1;
 	
 	}
 	
 	if ( channel >= 0 )
 	{
-		if ( ! TODO: getchannel mode neni pwm )
+		channel_mask = (1UL << (8*module_pos+channel));	// see g_msf_awritechannels comment
+		if ( (channel_mask &  g_msf_awritechannels) == 0 )
+		{
+			g_msf_awritechannels |= channel_mask;
 			pDrv->SetChannelMode(channel, PWM_edge_hightrue, 0);
+		}
 		// write the new value
 		pDrv->WriteChannel(channel, val_to_cnval(value));
 	}
@@ -311,8 +396,7 @@ static void SerialPrintInt(int val, int format)
  * and select print formats: "int_FP" 
  *  */
 static void SerialPrintFloat(float val, int decplaces)
-{
-	char fc;
+{	
 	char tmp[12];
 	char format[5] = "%.nf";
 	if ( decplaces > 9 )

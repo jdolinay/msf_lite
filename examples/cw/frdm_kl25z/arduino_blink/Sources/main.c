@@ -68,6 +68,10 @@ void loop(void)
 		else if ( c == 'o' )
 			Serial.printInt(17, OCT);
 	}
+	
+	// testing analog write
+	analogWrite(2, 128); // 50%	
+	analogWrite(3, 26);	 // 10%
 }
 
 

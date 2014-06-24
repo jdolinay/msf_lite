@@ -27,7 +27,7 @@ extern "C" {
 /* TPM Run-time information*/
 typedef struct _TPM_INFO {
   MSF_TPM_Event_t cb_event;          // Event Callback
-  uint32_t      status;               // Status flags - not used yet.
+  uint32_t      status;               // Status flags 
        
 } TPM_INFO;
 

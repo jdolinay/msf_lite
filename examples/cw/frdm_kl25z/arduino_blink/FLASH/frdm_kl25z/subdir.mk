@@ -30,7 +30,7 @@ OBJS_OS_FORMAT += \
 # Each subdirectory must supply rules for building sources it contributes
 frdm_kl25z/arduino.o: $(FRDM_KL25Z)/arduino.c
 	@echo 'Building file: $<'
-	@echo 'Executing target #5 $<'
+	@echo 'Executing target #6 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
 	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"frdm_kl25z/arduino.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"frdm_kl25z/arduino.o"
 	@echo 'Finished building: $<'

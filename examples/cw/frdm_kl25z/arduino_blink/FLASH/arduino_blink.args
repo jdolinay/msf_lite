@@ -8,6 +8,7 @@
 "./common/coniob.o"
 "./frdm_kl25z/arduino.o"
 "./kinetis/uart_kl25.o"
+"./kinetis/tpm_kl25.o"
 "./kinetis/msf_analog.o"
 "./kinetis/msf.o"
 "./kinetis/adc_kl25.o"

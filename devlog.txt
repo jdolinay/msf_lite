@@ -5,9 +5,16 @@ Projekty examples staci .cproject a .project a slozka .settings jak mam ted - ov
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 ------------------------------------------------
 
+24.6.2014
+- analogWrite hotovo, otestovat.
+
+REMEM: vyhoda proti Arduino: prakticky vsechny piny jde pouzit pro PWM, viz arduino.c
+
 23.6.2014
-Pokracuj: dodelat analogWrite + driver status viz nize
-TODO: TPM driver asi getStatus viz analogWrite bude potrebovat.
+_Pokracuj: dodelat analogWrite + driver status viz nize
+_TODO: TPM driver asi getStatus viz analogWrite bude potrebovat.
+ >zatim neresit; pamatovat si bude arduino fce co uz nastavila.
+ 
 REMEM: moje reseni analogWrite
 Nastavuji casovace pri inicializaci tak, abych mohl zapisovat primo 0-255 do
 kanalu. Pak vyjde pwm frekvence 488 Hz.
@@ -17,6 +24,13 @@ Pozor uzivatel by nemel kombinovat analogWrite a pouziti napr. TPM driveru primo
 resp. muze ale opatrne. Spise doporuceni: pro basic funkcionalitu muze pouzit 
 analogWrite, pro narocnejsi zapomen na analogWrite a pouzij MSF primo :)
 END REMEM 
+
+REMEM: duvod proc arduino digitalRead/write vypina timer je asi to,
+ze po analogWrite se dany pin spoji s vystupem casovace a jak jej
+pak prepnout zpet na GPIO?
+ > pro msf logicky volanim pin_mode - to nastavi jako vstup/vystup a pritom
+ i prepne MUX na gpio.
+END REMEM
 
 20.6.2014
 _Pokracuj: otestovat instance driveru...

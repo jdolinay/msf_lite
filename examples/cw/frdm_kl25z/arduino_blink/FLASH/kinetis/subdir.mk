@@ -9,42 +9,49 @@ C_SRCS_QUOTED += \
 "$(KINETIS)/adc_kl25.c" \
 "$(KINETIS)/msf.c" \
 "$(KINETIS)/msf_analog.c" \
+"$(KINETIS)/tpm_kl25.c" \
 "$(KINETIS)/uart_kl25.c" \
 
 C_SRCS += \
 $(KINETIS)/adc_kl25.c \
 $(KINETIS)/msf.c \
 $(KINETIS)/msf_analog.c \
+$(KINETIS)/tpm_kl25.c \
 $(KINETIS)/uart_kl25.c \
 
 OBJS += \
 ./kinetis/adc_kl25.o \
 ./kinetis/msf.o \
 ./kinetis/msf_analog.o \
+./kinetis/tpm_kl25.o \
 ./kinetis/uart_kl25.o \
 
 C_DEPS += \
 ./kinetis/adc_kl25.d \
 ./kinetis/msf.d \
 ./kinetis/msf_analog.d \
+./kinetis/tpm_kl25.d \
 ./kinetis/uart_kl25.d \
 
 OBJS_QUOTED += \
 "./kinetis/adc_kl25.o" \
 "./kinetis/msf.o" \
 "./kinetis/msf_analog.o" \
+"./kinetis/tpm_kl25.o" \
 "./kinetis/uart_kl25.o" \
 
 C_DEPS_QUOTED += \
 "./kinetis/adc_kl25.d" \
 "./kinetis/msf.d" \
 "./kinetis/msf_analog.d" \
+"./kinetis/tpm_kl25.d" \
 "./kinetis/uart_kl25.d" \
 
 OBJS_OS_FORMAT += \
 ./kinetis/adc_kl25.o \
 ./kinetis/msf.o \
 ./kinetis/msf_analog.o \
+./kinetis/tpm_kl25.o \
 ./kinetis/uart_kl25.o \
 
 
@@ -73,9 +80,17 @@ kinetis/msf_analog.o: $(KINETIS)/msf_analog.c
 	@echo 'Finished building: $<'
 	@echo ' '
 
-kinetis/uart_kl25.o: $(KINETIS)/uart_kl25.c
+kinetis/tpm_kl25.o: $(KINETIS)/tpm_kl25.c
 	@echo 'Building file: $<'
 	@echo 'Executing target #4 $<'
+	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
+	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"kinetis/tpm_kl25.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"kinetis/tpm_kl25.o"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+kinetis/uart_kl25.o: $(KINETIS)/uart_kl25.c
+	@echo 'Building file: $<'
+	@echo 'Executing target #5 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
 	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"kinetis/uart_kl25.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"kinetis/uart_kl25.o"
 	@echo 'Finished building: $<'
