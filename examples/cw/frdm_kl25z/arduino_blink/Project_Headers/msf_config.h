@@ -62,6 +62,21 @@
 #define	MSF_DRIVER_TPM1		1	/* Use TPM1 driver */
 #define	MSF_DRIVER_TPM2		1	/* Use TPM2 driver */
 
+/*********************************************
+*   Define the PWM frequency for Arduino analogWrite
+*	Define one of the values as 1, all others as 0
+*	Note that the values in the macros are approximate (rounded), the
+*	exact values are given in comment to analogWrite in Arduino.c 
+********************************************/
+#define	MSF_AWRITE_244HZ	0
+#define	MSF_AWRITE_500HZ	1
+#define	MSF_AWRITE_1KHZ		0
+#define	MSF_AWRITE_2KHZ		0
+#define	MSF_AWRITE_4KHZ		0
+#define	MSF_AWRITE_8KHZ		0
+#define	MSF_AWRITE_16KHZ	0
+#define	MSF_AWRITE_32KHZ	0
+
 
 /*********************************************
 * Pin configuration for the timer TPMn drivers.

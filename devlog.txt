@@ -5,10 +5,41 @@ Projekty examples staci .cproject a .project a slozka .settings jak mam ted - ov
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 ------------------------------------------------
 
+7.7.2014
+Vytvoreny templates pro modul a pro cmsis driver...
+
+4.7.2014
+TODO: v tpm driveru asi neni potreba mit 6 pinu pro tpm1 a 2, viz ukazalo se ze kod
+musi testovat skutecne dostupny pocet -> undefined piny odstatnit.
+ 
+
+26.6.2014
+TODO: definovat si coding standard pro MSF/msf_lite asi podle Ganssle i kdyz 
+ on vyzaduje aaa_boo a CMSIS i knizka embedded pouziva aaaBoo.
+ >podivat i na CMSIS standard - pouziva misra2004 + velmi strucne poznamky na uvodni strane
+ pod "coding rules".
+ 
+ > nedelat podrobne
+ > neni moc dobry "kockopec" kdy cmsis-like funkce jsou initNeco a global jsou init_neco
+ ale zase asi C-styl s _ je dobry... nevim_?
+ > misra2004 viz mcu\informace
+ 
+_TODO: udelat (viz standard ganssle) template file pro zdrojaky - hodilo by se mi pro ovladace CMSIS-like.
+  
+ 
 24.6.2014
+Pokracuj: otestovat aW, 
+     - analogWrite funguje ok na všech pinech testováno kromì 90 % a více které malý scope nezvládá :(
+     - testovano i pro 8 kHz PWM ok.
+     
+TODO: + high level msf pwm/ic/oc driver abych mel neco pro advanced pouziti.
+TODO: + asi i SPI driver pred release, mozna i touch slider? 
 - analogWrite hotovo, otestovat.
+TODO: otestovat TPM driver pro inpuit capture mode - mam napsano.
+TODO: otestovat TPM driver pro output compare mode - mam napsano.
 
 REMEM: vyhoda proti Arduino: prakticky vsechny piny jde pouzit pro PWM, viz arduino.c
+ + nastavitelna freq vystupu az 32 kHz v msf_config.h 
 
 23.6.2014
 _Pokracuj: dodelat analogWrite + driver status viz nize
@@ -166,7 +197,7 @@ _TODO: uart/serial musi mit buffer. UART driver dle CMSIS kazdy send/receive del
  
 
 4.6.2014
-TODO: dodelani Serial + otestovani analog funkci, casovacich a serial.
+_TODO: dodelani Serial + otestovani analog funkci, casovacich a serial.
 > Serial v arduino umi i paritu a datove bity :(
 _TODO: v conio driveru nacteni stringu? msf_read_str() krome read_char (?)
  > mam viz conio_gets() 

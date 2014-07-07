@@ -422,7 +422,7 @@ static uint32_t TPM2_Control(uint32_t control, uint32_t arg)
    MSF_TPM_PARAM_CHANNEL_EVENT - signal the channel event (interrupt)   
            
 */
-static uint32_t TPM_SetChannelMode(uint32_t channel, TMP_channel_mode_t mode, uint32_t args, TPM_RESOURCES* tpm)
+static uint32_t TPM_ChannelSetMode(uint32_t channel, TMP_channel_mode_t mode, uint32_t args, TPM_RESOURCES* tpm)
 {
 	uint32_t val, i;
 	 	
@@ -481,7 +481,42 @@ static uint32_t TPM_SetChannelMode(uint32_t channel, TMP_channel_mode_t mode, ui
 		tpm->reg->CONTROLS[channel].CnSC |= (TPM_CnSC_MSB_MASK | TPM_CnSC_ELSA_MASK);	
 		break;
 			
-	/* TODO: add other modes */
+	case InCapture_rising_edge:
+		tpm->reg->CONTROLS[channel].CnSC |= TPM_CnSC_ELSA_MASK;
+		wtpm_enable_pin(channel, tpm);
+		break;
+	case InCapture_falling_edge:
+		tpm->reg->CONTROLS[channel].CnSC |= TPM_CnSC_ELSB_MASK;
+		wtpm_enable_pin(channel, tpm);
+		break;	
+	case InCapture_both_edges:
+		tpm->reg->CONTROLS[channel].CnSC |= (TPM_CnSC_ELSB_MASK | TPM_CnSC_ELSA_MASK);
+		wtpm_enable_pin(channel, tpm);
+		break;
+		
+	case OutCompare_toggle:
+		tpm->reg->CONTROLS[channel].CnSC |= (TPM_CnSC_ELSA_MASK | TPM_CnSC_MSA_MASK);
+		wtpm_enable_pin(channel, tpm);
+		break;
+	case OutCompare_clear:
+		tpm->reg->CONTROLS[channel].CnSC |= (TPM_CnSC_ELSB_MASK | TPM_CnSC_MSA_MASK);
+		wtpm_enable_pin(channel, tpm);
+		break;
+	case OutCompare_set:
+		tpm->reg->CONTROLS[channel].CnSC |= (TPM_CnSC_ELSB_MASK | TPM_CnSC_ELSA_MASK | TPM_CnSC_MSA_MASK);
+		wtpm_enable_pin(channel, tpm);
+		break;
+		
+	case OutCompare_pulselow:
+		tpm->reg->CONTROLS[channel].CnSC |= (TPM_CnSC_ELSB_MASK  | TPM_CnSC_MSA_MASK | TPM_CnSC_MSB_MASK);
+		wtpm_enable_pin(channel, tpm);
+		break;	
+		
+	case OutCompare_pulsehigh:
+		tpm->reg->CONTROLS[channel].CnSC |= (TPM_CnSC_ELSA_MASK  | TPM_CnSC_MSA_MASK | TPM_CnSC_MSB_MASK);
+		wtpm_enable_pin(channel, tpm);
+		break;		
+	
 			
 	}	/* end switch */
 	
@@ -524,25 +559,25 @@ static uint32_t TPM_SetChannelMode(uint32_t channel, TMP_channel_mode_t mode, ui
 
 #if (MSF_DRIVER_TPM0)    
 /* Instance specific function pointed-to from the driver access struct */
-static uint32_t TPM0_SetChannelMode(uint32_t channel, TMP_channel_mode_t mode, uint32_t args) 
+static uint32_t TPM0_ChannelSetMode(uint32_t channel, TMP_channel_mode_t mode, uint32_t args) 
 {
-  return TPM_SetChannelMode(channel, mode, args, &TPM0_Resources);
+  return TPM_ChannelSetMode(channel, mode, args, &TPM0_Resources);
 }
 #endif   /* MSF_DRIVER_TPM0 */
 
 #if (MSF_DRIVER_TPM1)    
 /* Instance specific function pointed-to from the driver access struct */
-static uint32_t TPM1_SetChannelMode(uint32_t channel, TMP_channel_mode_t mode, uint32_t args) 
+static uint32_t TPM1_ChannelSetMode(uint32_t channel, TMP_channel_mode_t mode, uint32_t args) 
 {
-  return TPM_SetChannelMode(channel, mode, args, &TPM1_Resources);
+  return TPM_ChannelSetMode(channel, mode, args, &TPM1_Resources);
 }
 #endif   /* MSF_DRIVER_TPM1 */
 
 #if (MSF_DRIVER_TPM2)    
 /* Instance specific function pointed-to from the driver access struct */
-static uint32_t TPM2_SetChannelMode(uint32_t channel, TMP_channel_mode_t mode, uint32_t args) 
+static uint32_t TPM2_ChannelSetMode(uint32_t channel, TMP_channel_mode_t mode, uint32_t args) 
 {
-  return TPM_SetChannelMode(channel, mode, args, &TPM2_Resources);
+  return TPM_ChannelSetMode(channel, mode, args, &TPM2_Resources);
 }
 #endif   /* MSF_DRIVER_TPM2 */
 
@@ -553,7 +588,7 @@ static uint32_t TPM2_SetChannelMode(uint32_t channel, TMP_channel_mode_t mode, u
   \return      error code (0 = OK)
   \note                      
 */
-static uint32_t TPM_WriteChannel(uint32_t channel, uint16_t value, TPM_RESOURCES* tpm) 
+static uint32_t TPM_ChannelWrite(uint32_t channel, uint16_t value, TPM_RESOURCES* tpm) 
 {
 	if ( channel > 5 )
 		return MSF_ERROR_ARGUMENT;
@@ -562,34 +597,34 @@ static uint32_t TPM_WriteChannel(uint32_t channel, uint16_t value, TPM_RESOURCES
 }
 
 #if (MSF_DRIVER_TPM0)   
-static uint32_t TPM0_WriteChannel(uint32_t channel, uint16_t value) 
+static uint32_t TPM0_ChannelWrite(uint32_t channel, uint16_t value) 
 {
-	return TPM_WriteChannel(channel, value,  &TPM0_Resources); 
+	return TPM_ChannelWrite(channel, value,  &TPM0_Resources); 
 }
 #endif   /* MSF_DRIVER_TPM0 */
 
 #if (MSF_DRIVER_TPM1)   
-static uint32_t TPM1_WriteChannel(uint32_t channel, uint16_t value) 
+static uint32_t TPM1_ChannelWrite(uint32_t channel, uint16_t value) 
 {
-	return TPM_WriteChannel(channel, value,  &TPM1_Resources); 
+	return TPM_ChannelWrite(channel, value,  &TPM1_Resources); 
 }
 #endif   /* MSF_DRIVER_TPM0 */
 
 #if (MSF_DRIVER_TPM2)   
-static uint32_t TPM2_WriteChannel(uint32_t channel, uint16_t value) 
+static uint32_t TPM2_ChannelWrite(uint32_t channel, uint16_t value) 
 {
-	return TPM_WriteChannel(channel, value,  &TPM2_Resources); 
+	return TPM_ChannelWrite(channel, value,  &TPM2_Resources); 
 }
 #endif   /* MSF_DRIVER_TPM0 */
 
 /**
-  \brief       Read value from the channel register (e.g. in input capture mode the timestamp)
+  \brief       Read value from the channel register (used in input capture mode)
   \param[in]   channel The number of the channel to set (0-5) but depends on TPMn module!
   \param[in]   value The value to write
   \return      The 16-bit value from the CnV register or error code 0xffffffff.
   \note                      
 */
-static uint32_t TPM_ReadChannel(uint32_t channel, TPM_RESOURCES* tpm) 
+static uint32_t TPM_ChannelRead(uint32_t channel, TPM_RESOURCES* tpm) 
 {
 	if ( channel > 5 )
 		return MSF_ERROR_MAXDWORD;
@@ -597,23 +632,23 @@ static uint32_t TPM_ReadChannel(uint32_t channel, TPM_RESOURCES* tpm)
 }
 
 #if (MSF_DRIVER_TPM0)   
-static uint32_t TPM0_ReadChannel(uint32_t channel) 
+static uint32_t TPM0_ChannelRead(uint32_t channel) 
 {
-	return TPM_ReadChannel(channel, &TPM0_Resources); 
+	return TPM_ChannelRead(channel, &TPM0_Resources); 
 }
 #endif   /* MSF_DRIVER_TPM0 */
 
 #if (MSF_DRIVER_TPM1)   
-static uint32_t TPM1_ReadChannel(uint32_t channel) 
+static uint32_t TPM1_ChannelRead(uint32_t channel) 
 {
-	return TPM_ReadChannel(channel, &TPM1_Resources); 
+	return TPM_ChannelRead(channel, &TPM1_Resources); 
 }
 #endif   /* MSF_DRIVER_TPM1 */
 
 #if (MSF_DRIVER_TPM2)   
-static uint32_t TPM2_ReadChannel(uint32_t channel) 
+static uint32_t TPM2_ChannelRead(uint32_t channel) 
 {
-	return TPM_ReadChannel(channel, &TPM2_Resources); 
+	return TPM_ChannelRead(channel, &TPM2_Resources); 
 }
 #endif   /* MSF_DRIVER_TPM2 */
 
@@ -638,7 +673,8 @@ void TPM_IRQHandler(TPM_RESOURCES* tpm)
 			if (tpm->reg->CONTROLS[i].CnSC & TPM_CnSC_CHF_MASK)
 			{
 				tpm->reg->CONTROLS[i].CnSC |= TPM_CnSC_CHF_MASK;	/* clear the interrupt flag */
-				tpm->info->cb_event(MSF_TPM_EVENT_CHN(i), 0);				
+				/* call user handler with the channel value in arg parameter */
+				tpm->info->cb_event(MSF_TPM_EVENT_CHN(i), tpm->reg->CONTROLS[i].CnV);				
 			}
 		}
 	}
@@ -676,9 +712,9 @@ MSF_DRIVER_TPM Driver_TPM0 = {
   TPM0_Uninitialize,
   TPM0_PowerControl,
   TPM0_Control,  
-  TPM0_SetChannelMode,
-  TPM0_WriteChannel,
-  TPM0_ReadChannel,
+  TPM0_ChannelSetMode,
+  TPM0_ChannelWrite,
+  TPM0_ChannelRead,
   
 };
 #endif	/* MSF_DRIVER_TPM0 */
@@ -692,9 +728,9 @@ MSF_DRIVER_TPM Driver_TPM1 = {
   TPM1_Uninitialize,
   TPM1_PowerControl,
   TPM1_Control,  
-  TPM1_SetChannelMode,
-  TPM1_WriteChannel,
-  TPM1_ReadChannel,
+  TPM1_ChannelSetMode,
+  TPM1_ChannelWrite,
+  TPM1_ChannelRead,
   
 };
 #endif	/* MSF_DRIVER_TPM1 */
@@ -708,9 +744,9 @@ MSF_DRIVER_TPM Driver_TPM2 = {
   TPM2_Uninitialize,
   TPM2_PowerControl,
   TPM2_Control,  
-  TPM2_SetChannelMode,
-  TPM2_WriteChannel,
-  TPM2_ReadChannel,  
+  TPM2_ChannelSetMode,
+  TPM2_ChannelWrite,
+  TPM2_ChannelRead,  
 };
 #endif	/* MSF_DRIVER_TPM2 */
 

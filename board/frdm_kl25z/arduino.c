@@ -40,6 +40,38 @@ const uint32_t g_msf_analogpins_arduino[] =
  */
 uint32_t g_msf_awritechannels;
 
+/** Prescaler value for timers according to user-defined PWM frequency 
+ * in msf_config.h.
+ * Prescaler values for frequency:
+ * 128 - 244 Hz
+ * 64 - 488 H
+ * 32 - 977 Hz
+ * 16 - 1953 Hz
+ * 8 - 3906 Hz
+ * 4 - 7.812 kHz
+ * 2 - 15.625 kHz
+ * 1 - 31.250 Khz
+ * 
+ * */
+#if MSF_AWRITE_244HZ
+	#define	MSF_AWRITE_PRESCALER	(MSF_TPM_PRESCALER_128)	/* freq. 244 Hz */
+#elif MSF_AWRITE_500HZ
+	#define	MSF_AWRITE_PRESCALER	(MSF_TPM_PRESCALER_64)	/* freq. 488 Hz */
+#elif MSF_AWRITE_1KHZ
+	#define	MSF_AWRITE_PRESCALER	(MSF_TPM_PRESCALER_32)	/* freq. 977 kHz */
+#elif MSF_AWRITE_2KHZ
+	#define	MSF_AWRITE_PRESCALER	(MSF_TPM_PRESCALER_16)	/* freq. 1.953 kHz */
+#elif MSF_AWRITE_4KHZ
+	#define	MSF_AWRITE_PRESCALER	(MSF_TPM_PRESCALER_8)	/* freq. 3.906 kHz */
+#elif MSF_AWRITE_8KHZ
+	#define	MSF_AWRITE_PRESCALER	(MSF_TPM_PRESCALER_4)	/* freq. 7.812 kHz */
+#elif MSF_AWRITE_16KHZ
+	#define	MSF_AWRITE_PRESCALER	(MSF_TPM_PRESCALER_2)	/* freq. 15.625 kHz */
+#elif MSF_AWRITE_32KHZ
+	#define	MSF_AWRITE_PRESCALER	(MSF_TPM_PRESCALER_1)	/* freq. 31.250 Hz */
+#else
+	#define	MSF_AWRITE_PRESCALER	(MSF_TPM_PRESCALER_64)	/* default freq. 488 Hz */
+#endif
 /** Internal function which must be called by main before calling setup().
  * It will initialize the Arduino-compatibility layer.
  * NOTE: this assumes the timer clock is 8 MHz, which is true for CLOCK_SETUP = 1
@@ -54,21 +86,22 @@ void arduino_init()
 	
 	// Initialize the timers for analogWrite
 	// MOD = Ft/Fo - 1 = Fsrc / (Fo . PRESCALER) - 1
-	// We want Fo = 500 Hz
+	// If we want Fo = 500 Hz
 	// For timer clock Fsrc = 8 MHz:
 	// PRSC = 128: Fo = 62500; MOD = 124	(too little resolution)
 	// PRSC = 64: Fo = 125000; MOD = 250	(ok if we change the frequency a little)
 	// Fo = Ft/(MOD + 1) = 125000/256 = 488.2 Hz
+	// Fo = Fsrc/(MOD+1)*PRESCALER
 	Driver_TPM0.Initialize(null);	
-	Driver_TPM0.Control(MSF_TPM_PRESCALER_SET, MSF_TPM_PRESCALER_64);
+	Driver_TPM0.Control(MSF_TPM_PRESCALER_SET, MSF_AWRITE_PRESCALER);
 	Driver_TPM0.Control(MSF_TPM_MOD_VALUE, 255);	
 	
 	Driver_TPM1.Initialize(null);	
-	Driver_TPM1.Control(MSF_TPM_PRESCALER_SET, MSF_TPM_PRESCALER_64);
+	Driver_TPM1.Control(MSF_TPM_PRESCALER_SET, MSF_AWRITE_PRESCALER);
 	Driver_TPM1.Control(MSF_TPM_MOD_VALUE, 255);	
 		
 	Driver_TPM2.Initialize(null);	
-	Driver_TPM2.Control(MSF_TPM_PRESCALER_SET, MSF_TPM_PRESCALER_64);
+	Driver_TPM2.Control(MSF_TPM_PRESCALER_SET, MSF_AWRITE_PRESCALER);
 	Driver_TPM2.Control(MSF_TPM_MOD_VALUE, 255);	
 	
 }
@@ -92,11 +125,12 @@ static inline uint32_t val_to_cnval(int value)
  * 	the pin to output mode using pinMode.
  * @param value between 0 and 255; 0 means full time low, 255 means full time high on the pin.
  * @return none
- * @note Not all pins can be used to really generate PWM (only those connected to timer can).
+ * @note The PWM frequency is 488 Hz by default but can be changed in msf_config.h 
+ * Not all pins can be used to really generate PWM (only those connected to timer can).
  * For pins 14 and 15 the function does nothing. This is different behaviour than on Arduino, where
  * the pin which is not available on timer will be all time low for values 0 - 127 and all time high
  * for values 128 - 255. This makes the code more complicated (handle pin mode and direction) and
- * makes little sense to do. On the other hand almost all pins can be used for PWM here while on Arduino
+ * makes little sense to do. On the other hand, almost all pins can be used for PWM here while on Arduino
  * there are only few. :)  
  * 
  * Pins with PWM support:
@@ -142,8 +176,10 @@ static inline uint32_t val_to_cnval(int value)
  * 
  * Note about implementation: Arduino initializes all the timers to fixed frequency and analogWrite just connects
  * timer pins to the timer as required. 
- * Our implementation also initializes the timers to freq. abouit 488 Hz and 
+ * Our implementation also initializes the timers to freq. about 488 Hz and 
  * does not set channels to PWM mode (this would attach the pin).
+ * 
+ * 
  * 
  * */
 void analogWrite(int pin, int value)
@@ -228,10 +264,10 @@ void analogWrite(int pin, int value)
 		if ( (channel_mask &  g_msf_awritechannels) == 0 )
 		{
 			g_msf_awritechannels |= channel_mask;
-			pDrv->SetChannelMode(channel, PWM_edge_hightrue, 0);
+			pDrv->ChannelSetMode(channel, PWM_edge_hightrue, 0);
 		}
 		// write the new value
-		pDrv->WriteChannel(channel, val_to_cnval(value));
+		pDrv->ChannelWrite(channel, val_to_cnval(value));
 	}
 }
 

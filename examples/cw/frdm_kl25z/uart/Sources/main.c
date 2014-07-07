@@ -73,14 +73,14 @@ int main(void)
 	//Driver_TPM2.SetChannelMode(0, PWM_edge_lowtrue, MSF_TPM_PARAM_CHANNEL_EVENT); 	// Set channel 0 (RED LED), lowtrue pulses so that the
 	// "pulse" is actually log. 0 state, signal channel event (to change the duty safely)
 	// Note that handling event 50-times per second is not good..
-	Driver_TPM2.SetChannelMode(1, PWM_edge_lowtrue, 0); 	// without event
+	Driver_TPM2.ChannelSetMode(1, PWM_edge_lowtrue, 0); 	// without event
 	while(1)
 	{
 		if ( g_duty2 <= 2250 )
 			g_duty2 += 249;		// add 10%
 		else
 			g_duty2 = 0;
-		Driver_TPM2.WriteChannel(1, g_duty2 );	
+		Driver_TPM2.ChannelWrite(1, g_duty2 );	
 		msf_delay_ms(1000);
 		
 	}
@@ -116,7 +116,7 @@ int main(void)
 	// 100% duty is 2xMOD = 62500; we set CnV between 0 and 31250
 	// For 10% duty set channel to: 10% od MOD = 3125   
 	Driver_TPM0.Control(MSF_TPM_MOD_VALUE, 31250);	
-	Driver_TPM0.SetChannelMode(1, PWM_center_hightrue, MSF_TPM_PARAM_CHANNEL_EVENT); 	// with event
+	Driver_TPM0.ChannelSetMode(1, PWM_center_hightrue, MSF_TPM_PARAM_CHANNEL_EVENT); 	// with event
 	while(1)
 	{
 		// assuming the write to uint32_t is atomic
@@ -189,7 +189,7 @@ void TPM0_SignalEvent(uint32_t event, uint32_t arg)
 		break;
 	
 	case MSF_TPM_EVENT_CH1:
-		Driver_TPM0.WriteChannel(1, g_duty );	
+		Driver_TPM0.ChannelWrite(1, g_duty );	
 		break;
 	}
 	
@@ -203,7 +203,7 @@ void TPM2_SignalEvent(uint32_t event, uint32_t arg)
 		break;
 	
 	case MSF_TPM_EVENT_CH0:
-		Driver_TPM2.WriteChannel(0, g_duty2 );	
+		Driver_TPM2.ChannelWrite(0, g_duty2 );	
 		break;
 	
 	case MSF_TPM_EVENT_CH1:

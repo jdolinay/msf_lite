@@ -72,7 +72,11 @@ void wconiob_update_txfifo(void);
 
 /* -------- Implementation of public functions   -------- */
 
-/** Initialize the console I/O driver
+/** @fn   void coniob_init(UART_speed_t baudrate) 
+ * @brief Initialize the console I/O driver
+ * @param[in] baudrate the communication speed; one of the enum values!
+ * @return none
+ * @note    
  **/
 void coniob_init(UART_speed_t baudrate)               
 {
@@ -92,9 +96,10 @@ void coniob_init(UART_speed_t baudrate)
 	CONIOB_UART_DRIVER.Receive(CBUF_GetPushEntryPtr(coniob_rxQ), 1);
 }
 
-/** Read one character from SCI.
+/** @fn   char coniob_getch(void)    
+ * @brief Read one character from SCI.
  * @return the character read or 0 if there is no character available.
- * @note  
+ * @note    
  **/
 char coniob_getch(void)               
 {	

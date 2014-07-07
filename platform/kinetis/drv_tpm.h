@@ -79,7 +79,9 @@ typedef void (*MSF_TPM_Event_t) (uint32_t event, uint32_t arg);
 
 /** TPM events (masks) 
  * The driver will generate these events (if enabled)
- * The user defined function MSF_TPM_Event_t will get the mask in event parameter */
+ * The user defined function MSF_TPM_Event_t will get the mask in event parameter.
+ * The arg parameter will contain the CnV register value which can be used in input capture
+ * mode to obtain the time-stamp without calling ReadChannelValue() */
 #define		MSF_TPM_EVENT_TOF		(1UL << 0)	/**< Timer overflow (TOF) interrupt.  */
 #define		MSF_TPM_EVENT_CHN(n)	(1UL << (n+1))	/**< Timer channel N event.  */
 /* For user convenience - to find out which event it was in the event handler */
@@ -110,8 +112,9 @@ typedef void (*MSF_TPM_Event_t) (uint32_t event, uint32_t arg);
 
 /** Modes for timer channel 
  * Note that the channels are not completely independent. They share the same counter
- * and settings. In PWM mode all channels must be either edge-aligned or center aligned.
- * If at least one channel is in Center aligned mode, all other channels must be in the same
+ * and settings. 
+ * In PWM mode all channels must be either edge-aligned or center-aligned.
+ * If at least one channel is in Center-aligned PWM mode, all other channels must be in the same
  * mode or disabled, because the counter is counting up+down which is not compatible with any
  * other mode than center-aligned PWM.  */
 typedef enum _MSF_DRIVER_CHANNEL_MODES {
@@ -120,7 +123,7 @@ typedef enum _MSF_DRIVER_CHANNEL_MODES {
 	InCapture_rising_edge,
 	InCapture_falling_edge,
 	InCapture_both_edges,
-	OutCompate_toggle,
+	OutCompare_toggle,
 	OutCompare_clear,
 	OutCompare_set,
 	OutCompare_pulselow,
@@ -140,9 +143,9 @@ typedef struct _MSF_DRIVER_TPM {
   uint32_t      (*Uninitialize) (void);                       
   uint32_t      (*PowerControl) (MSF_power_state state); 
   uint32_t      (*Control)      (uint32_t control, uint32_t arg);
-  uint32_t		(*SetChannelMode)(uint32_t channel, TMP_channel_mode_t mode, uint32_t args);
-  uint32_t		(*WriteChannel)(uint32_t channel, uint16_t value);
-  uint32_t		(*ReadChannel)(uint32_t channel);
+  uint32_t		(*ChannelSetMode)(uint32_t channel, TMP_channel_mode_t mode, uint32_t args);
+  uint32_t		(*ChannelWrite)(uint32_t channel, uint16_t value);
+  uint32_t		(*ChannelRead)(uint32_t channel);
               
 } const MSF_DRIVER_TPM;
 
