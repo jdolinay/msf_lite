@@ -62,6 +62,28 @@
 #define	MSF_DRIVER_TPM1		1	/* Use TPM1 driver */
 #define	MSF_DRIVER_TPM2		1	/* Use TPM2 driver */
 
+/*********************************************
+* Here you can select which pin is used for each UART Rx and Tx from
+* the available pins for that UART.
+* You will need to look into the datasheet into the Pinout chapter
+* (in Signal Multiplexing and Signal Descriptions) to find out which
+* pins are available for each UART. 
+* Or check the comment for each pin here :)
+* Define the name of the pin as defined in msf_<device>.h for you MCU
+* and the number of the ALTx function as found in the pinout table in 
+* the datasheet.
+**********************************************/
+
+/* UART0 pins */
+#define		MSF_UART0_RX_PIN	(GPIO_A1)	/* PTA1/2; PTA15/3; PTB16/3; PTD6/3; PTE21/4; */
+#define		MSF_UART0_RX_ALT	(2)
+#define		MSF_UART0_TX_PIN	(GPIO_A2)	/* PTA2/2; PTA14/3; PTB17/3; PTD7/3; PTE20/4; */
+#define		MSF_UART0_TX_ALT	(2)
+
+/* UART1 pins */
+
+/* UART2 pins */
+
 
 /*********************************************
 * Pin configuration for the timer TPMn drivers.

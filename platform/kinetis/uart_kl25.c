@@ -22,34 +22,29 @@
 #if (MSF_DRIVER_UART0)
 /* Define the resource for each UART available on the MCU */
 /* runtime info for UART0 */
-static UART_INFO UART0_Info;    
+static UART_INFO UART0_Info; 
+
+/* The pins for UART0 
+ * The pins are user-configurable through msf_config.h file.
+ * Each is defined by pin-code (see msf_<device>.h) and the number of the alternate
+ * function (ALTn) which is the UART function for this pin. 
+ *  */
+static UART_PINS UART0_Pins = {
+		{MSF_UART0_RX_PIN, MSF_UART0_RX_ALT},	/* pin for Rx */
+		{MSF_UART0_TX_PIN, MSF_UART0_TX_ALT},	/* pin for Tx */
+};
 
 /* UART0 Resources */
 static UART_RESOURCES UART0_Resources = {
   UART0,    /* UART0 type object defined in CMSIS <device.h>*/
-  /*  This is how the I/O pin structure is created for one instance
-  {
-  #if (RTE_SPI1_NSS_PIN)
-    RTE_SPI1_NSS_PORT,
-  #else
-    NULL,
-  #endif
-    RTE_SPI1_SCL_PORT,
-    RTE_SPI1_MISO_PORT,
-    RTE_SPI1_MOSI_PORT,
-    RTE_SPI1_NSS_BIT,
-    RTE_SPI1_SCL_BIT,
-    RTE_SPI1_MISO_BIT,
-    RTE_SPI1_MOSI_BIT,
-    GPIO_AF_SPI1,
-  },*/
- 
+  &UART0_Pins,
   &UART0_Info
 };
 
 #endif /* MSF_DRIVER_UART0 */
 
-/* Internal function */
+
+/* Internal functions */
 static void uart0_setbaudrate(uint32_t baudrate, UART_RESOURCES* uart);
 static void uart0_intconfig(uint32_t enable, UART_RESOURCES* uart);
 
@@ -65,6 +60,9 @@ static void uart0_intconfig(uint32_t enable, UART_RESOURCES* uart);
   \note			            	  
   	  Initializes UART for 8N1 operation, no parity, interrupts disabled, and
   	  no hardware flow-control.
+  	  Pins used for Rx and Tx are configured in msf_config.h.
+  	  Note that the clock for the port used by the Rx and Tx pins must be enabled by the 
+  	  caller before calling this function.
   	  
   	  Common function called by instance-specific function.
 */
@@ -75,19 +73,23 @@ static uint32_t  UART_Initialize( UART_speed_t baudrate, MSF_UART_Event_t event,
 	uart->info->status = MSF_UART_STATUS_POLLED_MODE;
 		
 	/* Enable clock for PORTA needed for Tx, Rx pins */
-	SIM->SCGC5 |= SIM_SCGC5_PORTA_MASK;
-			
-	/* Enable the UART_TXD function on PTA1 */	
-	GPIO_PORT_OBJECT(GPIO_A1)->PCR[GPIO_PIN_NUM(GPIO_A1)] = PORT_PCR_MUX(2);
+	//SIM->SCGC5 |= SIM_SCGC5_PORTA_MASK;			
+	/* Enable the UART_RXD function on PTA1 */	
+	//GPIO_PORT_OBJECT(GPIO_A1)->PCR[GPIO_PIN_NUM(GPIO_A1)] = PORT_PCR_MUX(2);
 	/* Enable the UART_TXD function on PTA2 */	
-	GPIO_PORT_OBJECT(GPIO_A2)->PCR[GPIO_PIN_NUM(GPIO_A2)] = PORT_PCR_MUX(2);
+	//GPIO_PORT_OBJECT(GPIO_A2)->PCR[GPIO_PIN_NUM(GPIO_A2)] = PORT_PCR_MUX(2);
+	
+	/* Enable the UART Rx and Tx functions on the user-defined pins */	
+	if ( uart->pins->rxpin.pin_code == GPIO_INVALID_PIN
+			|| uart->pins->txpin.pin_code == GPIO_INVALID_PIN)
+		return MSF_ERROR_CONFIG;
+	GPIO_PORT_OBJECT(uart->pins->rxpin.pin_code)->PCR[GPIO_PIN_NUM(uart->pins->rxpin.pin_code)] = PORT_PCR_MUX(uart->pins->rxpin.alt_num);
+	GPIO_PORT_OBJECT(uart->pins->txpin.pin_code)->PCR[GPIO_PIN_NUM(uart->pins->txpin.pin_code)] = PORT_PCR_MUX(uart->pins->txpin.alt_num);
 	
 	/* set clock for UART0 */
-	//SIM->SOPT2 |= SIM_SOPT2_UART0SRC(1); // select the PLLFLLCLK as UART0 clock source
-	//SIM->SOPT2 |= SIM_SOPT2_UART0SRC(2); // select the OSCERCLK as UART0 clock source
 	SIM->SOPT2 |= SIM_SOPT2_UART0SRC(MSF_UART0_CLKSEL);
 	
-	SIM->SCGC4 |= SIM_SCGC4_UART0_MASK;	/* Enable clock for UART */	
+	SIM->SCGC4 |= SIM_SCGC4_UART0_MASK;		/* Enable clock for UART */	
 		
 	/* Disable UART0 before changing registers */	
 	/* uart->reg->C2 &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK); */

@@ -27,7 +27,6 @@ extern "C" {
 #endif
 
 
-/* TODO: define the I/O pins structure and runtime info structure if needed */
 /* UART Run-time information*/
 typedef struct _UART_INFO {
   MSF_UART_Event_t cb_event;          // Event Callback
@@ -40,6 +39,19 @@ typedef struct _UART_INFO {
   uint32_t  rx_total;			// total number of bytes to receive or transmit
 } UART_INFO;
 
+/** UART pin info 
+ */
+typedef struct _UART_PIN {
+	MCU_pin_t	pin_code;	/* the pin-code defined in msf_<device>.h*/
+	uint8_t		alt_num; /* the number of alt function for the given pin, for example, 2 for ALT2, etc. */
+} UART_PIN;
+
+/* UART information about the pins used by one instance of UART driver
+ * This is the Tx and Rx pin */
+typedef struct _UART_PINS {
+	UART_PIN rxpin;
+	UART_PIN txpin;
+} UART_PINS;
 
 
 /* The data for one instance of the driver - the "resource" */
@@ -47,9 +59,9 @@ typedef struct _UART_INFO {
 overlay struct. There will always be only 1 instance of the UART0;
 there could be 1 or 2 instances of UART driver for UART1 and UART2. */
 typedef struct {
-        UART0_Type  *reg;  // UART peripheral register interface, CMSIS
-        // TODO: UART_IO        io; // UART I/O pins
-        UART_INFO   *info;   // Run-Time information
+        UART0_Type  *reg;  		// UART peripheral register interface, CMSIS
+        UART_PINS   *pins; 		// UART I/O pins
+        UART_INFO   *info;   	// Run-Time information
 } const UART_RESOURCES;
 
 

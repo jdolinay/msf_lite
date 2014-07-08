@@ -34,6 +34,7 @@ extern "C" {
 #define		MSF_ERROR_SYSTIMER		(4)		/**< failed to initialise system timer  */
 #define     MSF_ERROR_ARGUMENT      (6)     /**< invalid input argument for a function */
 #define     MSF_ERROR_NOINIT        (7)     /**< device was not properly initialized */
+#define     MSF_ERROR_CONFIG        (8)     /**< driver not properly configured; e.g. invalid pins defined in msf_config.h */
 
 #define     MSF_ERROR_MAXDWORD      (0xffffffff)    /**< special error indication used by ADC_Read and TPM_ReadChannel */
 
