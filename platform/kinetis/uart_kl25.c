@@ -149,6 +149,8 @@ static uint32_t  UART_Initialize( UART_speed_t baudrate, MSF_UART_Event_t event,
 		uart->reg1->C1 = 0;	/* default values */	
 		uart->reg1->C3 = 0;	/* default values */
 		uart->reg1->BDH = 0;	/* default value including 1 stop bit */
+		
+		/* TODO: BR value using UART_GET_BR_UART1(baudrate) */
 	}
     return MSF_ERROR_OK;
 }

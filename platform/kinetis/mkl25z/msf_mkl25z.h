@@ -133,13 +133,18 @@ typedef enum {
  * baud = uart_clock / ((OSR+1)xBR)
  * BR is baud rate divisor set in baud register UART_BDH (1 - 8191)
  * OSR is oversampling set in UART_C4 register ( 4 - 32)
- * We define the enum value as the BD in lower word and OSR in upper word 
+ * We define the enum value as the BD in lower 13-bits; OSR in bits 13-17 
+ * and BR for or UART1/2 in bits 18-30, so that we can use the same enum for all UARTs
+ * UART1/2 clock is BUS clock (24 MHz)
+ * BR = BUSCLK / (16xBR) 
  * */
 /** macro which creates 32-bit value by combining OSR and BR values.
  * osr is the real OSR value; the register C4 stores osr-1 (value %11 (3) in OSR means real osr = 4) */
-#define		UART_MAKE_BDVAL(osr, br)	((br & 0x0000FFFF) | ((osr) << 16))
+#define		UART_MAKE_BDVAL(osr, br, uart1_br )	((br & 0x00001FFF) | ((osr & 0x1F) << 13) \
+														| ((uart1_br & 0x00001FFF) << 18))
 #define		UART_GET_BR(baud_val)		(baud_val & 0x00001FFF)				/* the BR is actually only 13-bit long*/
-#define		UART_GET_OSR(baud_val)		((baud_val >> 16) & 0x0000001F)		/* OSR is only 5-bits */
+#define		UART_GET_OSR(baud_val)		((baud_val >> 13) & 0x0000001F)		/* OSR is only 5-bits */
+#define		UART_GET_BR_UART1(baud_val)	(baud_val & 0x7FFC0000)				/* the BR for UART1/2, 13-bit long*/
 
 #if F_CPU == 48000000
 /* CLOCK_SETUP = 1 in system_MKL25Z4.c (CMSIS); the UART0 must be clocked from OSCERCLK, because 
@@ -147,146 +152,85 @@ typedef enum {
 typedef enum  
  {
         BD_INVALID = 0,
-        BD2400 = UART_MAKE_BDVAL(14, 238),	 
-        BD4800 = UART_MAKE_BDVAL(14, 119),	
-        BD9600 = UART_MAKE_BDVAL(13, 64),	        
-        BD19200 = UART_MAKE_BDVAL(13, 32),
-        BD38400 = UART_MAKE_BDVAL(13, 16),
-        BD57600 = UART_MAKE_BDVAL(14, 10),
-        BD115200 = UART_MAKE_BDVAL(14, 5),        
- } UART0_baudrate_type;
+        BD2400 = UART_MAKE_BDVAL(14, 238, 625),	 
+        BD4800 = UART_MAKE_BDVAL(14, 119, 314),	
+        BD9600 = UART_MAKE_BDVAL(13, 64, 156),	        
+        BD19200 = UART_MAKE_BDVAL(13, 32, 78),
+        BD38400 = UART_MAKE_BDVAL(13, 16, 39),
+        BD57600 = UART_MAKE_BDVAL(14, 10, 26),
+        BD115200 = UART_MAKE_BDVAL(14, 5, 13),        
+ } UART_baudrate_type;
  
 /** The value of the UART0SRC bitfield in SIM_SOPT2 */
 #define	MSF_UART0_CLKSEL	(2) /* OSCERCLK as UART0 clock source */
  
-/* Baudrate values for UART1 and UART2
- * UART clock is BUS clock, which is 24 MHz
- * BR = BUSCLK / (16xBR)
- * The enum value is the BR value. 
- * */
-typedef enum
-{
-	BD_INVALID = 0,
-	BD2400 = 625,	 
-	BD4800 = 314,	
-	BD9600 = 156,	        
-	BD19200 = 78,
-	BD38400 = 39,
-	BD57600 = 26,
-	BD115200 = 13,   	
-} UART1_baudrate_type;
 
  
 #elif F_CPU == 20900000		/* default for frdm-kl25z */
 /* CLOCK_SETUP = 3 
  * The default clock if no clock init is performed. We can clock UART from PLLFLLCLK which is 20.9 MHz
- * Note that we assume PLLFLLSEL = 0 (MCGFLLCLK clock)! */ 
+ * Note that we assume PLLFLLSEL = 0 (MCGFLLCLK clock)!  
+ BUS clock 13,98 MHz */
  typedef enum  
  {
         BD_INVALID = 0,
-        BD2400 = UART_MAKE_BDVAL(18, 484),	 
-        BD4800 = UART_MAKE_BDVAL(18, 242),	
-        BD9600 = UART_MAKE_BDVAL(11, 198),
-        BD19200 = UART_MAKE_BDVAL(11, 99),
-        BD38400 = UART_MAKE_BDVAL(17, 32),
-        BD57600 = UART_MAKE_BDVAL(11, 33),
-        BD115200 = UART_MAKE_BDVAL(13, 14),        
- } UART0_baudrate_type;
+        BD2400 = UART_MAKE_BDVAL(18, 484, 364),	 
+        BD4800 = UART_MAKE_BDVAL(18, 242, 182),	
+        BD9600 = UART_MAKE_BDVAL(11, 198, 91),
+        BD19200 = UART_MAKE_BDVAL(11, 99, 46),
+        BD38400 = UART_MAKE_BDVAL(17, 32, 23),
+        BD57600 = UART_MAKE_BDVAL(11, 33, 15),
+        BD115200 = UART_MAKE_BDVAL(13, 14, 0),	/* UART1 error is 5.5% with BR = 8*/        
+ } UART_baudrate_type;
 
  /** The value of the UART0SRC bitfield in SIM_SOPT2 */
  #define	MSF_UART0_CLKSEL	(1)	/* PLLFLLCLK as UART0 clock source */
  
- /* Baudrate values for UART1 and UART2
-  * UART clock is BUS clock, which is 13,98 MHz
-  * BR = BUSCLK / (16xBR)
-  * The enum value is the BR value. 
-  * */
- typedef enum
- {
- 	BD_INVALID = 0,
- 	BD2400 = 364,	 
- 	BD4800 = 182,	
- 	BD9600 = 91,	        
- 	BD19200 = 46,
- 	BD38400 = 23,
- 	BD57600 = 15,
- 	/* BD115200 = 8, The error is 5.5% */   	
- } UART1_baudrate_type;
  
  
 #elif F_CPU == 8000000		
  /* CLOCK_SETUP = 2 in system_MKL25Z4.c (CMSIS); the UART0 must be clocked from OSCERCLK, because 
-   PLLFLLCLK is disabled; the UART0 clock is 8 MHz (external crystal)*/  
+   PLLFLLCLK is disabled; the UART0 clock is 8 MHz (external crystal)  
+ BUS clock 8 MHz */
  typedef enum  
  {
 	 /* same values as for the 48 MHz F_CPU */
 	 BD_INVALID = 0,
-	 BD2400 = UART_MAKE_BDVAL(14, 238),	 
-	 BD4800 = UART_MAKE_BDVAL(14, 119),	
-	 BD9600 = UART_MAKE_BDVAL(13, 64),	        
-	 BD19200 = UART_MAKE_BDVAL(13, 32),
-	 BD38400 = UART_MAKE_BDVAL(13, 16),
-	 BD57600 = UART_MAKE_BDVAL(14, 10),
-	 BD115200 = UART_MAKE_BDVAL(14, 5),         
- } UART0_baudrate_type;
+	 BD2400 = UART_MAKE_BDVAL(14, 238, 208),	 
+	 BD4800 = UART_MAKE_BDVAL(14, 119, 104),	
+	 BD9600 = UART_MAKE_BDVAL(13, 64, 52),	        
+	 BD19200 = UART_MAKE_BDVAL(13, 32, 26),
+	 BD38400 = UART_MAKE_BDVAL(13, 16, 13),
+	 BD57600 = UART_MAKE_BDVAL(14, 10, 0), /* 9, Error is 3.7% */
+	 BD115200 = UART_MAKE_BDVAL(14, 5, 0), /* 4, Error is 8% */         
+ } UART_baudrate_type;
 
  /** The value of the UART0SRC bitfield in SIM_SOPT2 */
  #define	MSF_UART0_CLKSEL	(2)	/* OSCERCLK as UART0 clock source */
  
- /* Baudrate values for UART1 and UART2
-   * UART clock is BUS clock, which is 8 MHz
-   * BR = BUSCLK / (16xBR)
-   * The enum value is the BR value. 
-   * */
-  typedef enum
-  {
-  	BD_INVALID = 0,
-  	BD2400 = 208,	 
-  	BD4800 = 104,	
-  	BD9600 = 52,	        
-  	BD19200 = 26,
-  	BD38400 = 13,
-  	/* BD57600 = 9, Error is 3.7% */
-  	/* BD115200 = 4, Error is 8% */   	
-  } UART1_baudrate_type;
- 
+
 /* Core clock = 41.94MHz */
 #elif F_CPU == 41943040		
  /* CLOCK_SETUP = 0 in system_MKL25Z4.c (CMSIS); 
   * UART0 clock = F_CPU, is clocked from PLLFLLCLK 
-  * Note that we assume PLLFLLSEL = 0 (MCGFLLCLK clock)! */  
+  * Note that we assume PLLFLLSEL = 0 (MCGFLLCLK clock)! 
+  * Bus clock 5.225 MHz */  
  typedef enum  
  {	 
 	 BD_INVALID = 0,
-	 BD2400 = UART_MAKE_BDVAL(32, 546),	 
-	 BD4800 = UART_MAKE_BDVAL(32, 273),	 
-	 BD9600 = UART_MAKE_BDVAL(16, 273),	 
-	 BD19200 = UART_MAKE_BDVAL(14, 156 ),
-	 BD38400 = UART_MAKE_BDVAL(14, 78 ),
-	 BD57600 = UART_MAKE_BDVAL(14, 52),
-	 BD115200 = UART_MAKE_BDVAL(13, 28),
-	 BD230400 = UART_MAKE_BDVAL(14, 13),
- } UART0_baudrate_type;
+	 BD2400 = UART_MAKE_BDVAL(32, 546, 136 ),	 
+	 BD4800 = UART_MAKE_BDVAL(32, 273, 68),	 
+	 BD9600 = UART_MAKE_BDVAL(16, 273, 34),	 
+	 BD19200 = UART_MAKE_BDVAL(14, 156, 17 ),
+	 BD38400 = UART_MAKE_BDVAL(14, 78, 0 ),
+	 BD57600 = UART_MAKE_BDVAL(14, 52, 0),
+	 BD115200 = UART_MAKE_BDVAL(13, 28, 0),
+	 BD230400 = UART_MAKE_BDVAL(14, 13, 0),
+ } UART_baudrate_type;
  
  /** The value of the UART0SRC bitfield in SIM_SOPT2 */
  #define	MSF_UART0_CLKSEL	(1)	/* PLLFLLCLK as UART0 clock source */
  
- /* Baudrate values for UART1 and UART2
-    * UART clock is BUS clock, which is 5.225 MHz
-    * BR = BUSCLK / (16xBR)
-    * The enum value is the BR value. 
-    * */
-   typedef enum
-   {
-   	BD_INVALID = 0,
-   	BD2400 = 136,	 
-   	BD4800 = 68,	
-   	BD9600 = 34,	        
-   	BD19200 = 17,
-   	/* BD38400 = 9, Error is 6%
-   	/* BD57600 = 6, Error is 6% */
-   	/* BD115200 = 3, Error is 8% */   	
-   } UART1_baudrate_type;
  
 #else
 	#error The CPU clock defined by F_CPU is not supported.

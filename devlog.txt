@@ -5,6 +5,16 @@ Projekty examples staci .cproject a .project a slozka .settings jak mam ted - ov
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 ------------------------------------------------
 
+8.7.2014
+Pokracuj: UART1 driver; 
+REMEM: baudrate pro uart upraveno tak, ze v enum je jak hodnota pro UART0 tak
+i pro UART1/2 - aby slo pouzit stejnou funkci UART_initialize s parametrem baudrate type.
+Nejde tak ale zamezit volani pro UART1/2 s nepodporovanou baudrate protoze enum
+value pro UART0 existuje. Driver init vrati runtime chybu... je to lepsi nez 
+definovat dalsi enum pro UART1/2 a resit nejakou konverzi nebo separatni init funkce.
+Verze se samostatnymi enum byla predtim definovana, je v git ale pak smazana a nahrazena
+verzi se spolecnym enum.
+
 7.7.2014
 Vytvoreny templates pro modul a pro cmsis driver...
 TODO: uart ovladac pro uart1 a 2
@@ -29,7 +39,7 @@ _TODO: udelat (viz standard ganssle) template file pro zdrojaky - hodilo by se m
   
  
 24.6.2014
-Pokracuj: otestovat aW, 
+_Pokracuj: otestovat aW, 
      - analogWrite funguje ok na všech pinech testováno kromì 90 % a více které malý scope nezvládá :(
      - testovano i pro 8 kHz PWM ok.
      

@@ -109,7 +109,7 @@ typedef void (*MSF_UART_Event_t) (uint32_t event, uint32_t arg);
 /** UART_speed_t 
  @brief The data type for baud rate for UART (SCI). 
 */
-typedef UART0_baudrate_type  UART_speed_t;
+typedef UART_baudrate_type  UART_speed_t;
 
 
 /**
