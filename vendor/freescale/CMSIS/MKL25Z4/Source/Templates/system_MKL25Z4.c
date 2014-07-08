@@ -68,7 +68,7 @@
          Core clock/Bus clock derived directly from an external crystal 8MHz with no multiplication
          Core clock = 8MHz, BusClock = 8MHz
    3 ... jd: default settings; internal clock source 32.768kHz and FLL mode
-   	   	 Core clock = 20.9MHz, BusClock = ?
+   	   	 Core clock = 20.9 MHz, BusClock = 5.225 MHz?
 */
 
 /*----------------------------------------------------------------------------

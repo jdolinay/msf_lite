@@ -4,8 +4,10 @@
  * @version  1
  * @date     20. May 2014
  *
- * @note    This is simplified imitation od CMSIS driver (which does not 
- *          exist for Kinetis(?)). 
+ * @note    This is simplified imitation of CMSIS driver (which does not 
+ *          exist for Kinetis(?)).
+ *          UART1 and UART2 does not support all the baudrates as UART0, see msf_<device>.h
+ *          with definitions of UART0_baudrate_type and UART1_baudrate_type 
  *          Should be used as a standard for MSF drivers.    
  *
  ******************************************************************************/
@@ -37,11 +39,37 @@ static UART_PINS UART0_Pins = {
 /* UART0 Resources */
 static UART_RESOURCES UART0_Resources = {
   UART0,    /* UART0 type object defined in CMSIS <device.h>*/
+  0,
   &UART0_Pins,
   &UART0_Info
 };
-
 #endif /* MSF_DRIVER_UART0 */
+
+
+#if (MSF_DRIVER_UART1)
+/* Define the resource for each UART available on the MCU */
+/* runtime info for UART0 */
+static UART_INFO UART1_Info; 
+
+/* The pins for UART1 
+ * The pins are user-configurable through msf_config.h file.
+ * Each is defined by pin-code (see msf_<device>.h) and the number of the alternate
+ * function (ALTn) which is the UART function for this pin. 
+ *  */
+static UART_PINS UART1_Pins = {
+		{MSF_UART1_RX_PIN, MSF_UART1_RX_ALT},	/* pin for Rx */
+		{MSF_UART1_TX_PIN, MSF_UART1_TX_ALT},	/* pin for Tx */
+};
+
+/* UART1 Resources */
+static UART_RESOURCES UART1_Resources = {
+  0,    /* UART0 type object defined in CMSIS <device.h>*/
+  UART1,
+  &UART1_Pins,
+  &UART1_Info
+};
+
+#endif /* MSF_DRIVER_UART1 */
 
 
 /* Internal functions */
@@ -86,38 +114,57 @@ static uint32_t  UART_Initialize( UART_speed_t baudrate, MSF_UART_Event_t event,
 	GPIO_PORT_OBJECT(uart->pins->rxpin.pin_code)->PCR[GPIO_PIN_NUM(uart->pins->rxpin.pin_code)] = PORT_PCR_MUX(uart->pins->rxpin.alt_num);
 	GPIO_PORT_OBJECT(uart->pins->txpin.pin_code)->PCR[GPIO_PIN_NUM(uart->pins->txpin.pin_code)] = PORT_PCR_MUX(uart->pins->txpin.alt_num);
 	
-	/* set clock for UART0 */
-	SIM->SOPT2 |= SIM_SOPT2_UART0SRC(MSF_UART0_CLKSEL);
-	
-	SIM->SCGC4 |= SIM_SCGC4_UART0_MASK;		/* Enable clock for UART */	
+	/* For UART0 the code is different than for UART1 and UART2*/
+	if ( uart->reg )
+	{
+		/* set clock for UART0 */
+		SIM->SOPT2 |= SIM_SOPT2_UART0SRC(MSF_UART0_CLKSEL);
 		
-	/* Disable UART0 before changing registers */	
-	/* uart->reg->C2 &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK); */
-	uart->reg->C2 = 0;	/* default values */	  
-	uart->reg->C1 = 0;	/* default values */	
-	uart->reg->C3 = 0;	/* default values */
-	uart->reg->BDH = 0;	/* default value including 1 stop bit */
-	
-	/* changes C4 and C5 to default values + sets baudrate preserving the other bits in BDH*/
-	uart0_setbaudrate((uint32_t)baudrate, uart);		
+		SIM->SCGC4 |= SIM_SCGC4_UART0_MASK;		/* Enable clock for UART */	
 			
-	/* Enable receiver and transmitter */
-	uart->reg->C2 |= (UART0_C2_TE_MASK | UART0_C2_RE_MASK );
+		/* Disable UART0 before changing registers */	
+		/* uart->reg->C2 &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK); */
+		uart->reg->C2 = 0;	/* default values */	  
+		uart->reg->C1 = 0;	/* default values */	
+		uart->reg->C3 = 0;	/* default values */
+		uart->reg->BDH = 0;	/* default value including 1 stop bit */
+		
+		/* changes C4 and C5 to default values + sets baudrate preserving the other bits in BDH*/
+		uart0_setbaudrate((uint32_t)baudrate, uart);		
+				
+		/* Enable receiver and transmitter */
+		uart->reg->C2 |= (UART0_C2_TE_MASK | UART0_C2_RE_MASK );
+	}
+	else
+	{
+		/* Code for UART1 and UART2 */
+		if ( uart->reg1 == 0 )
+			return MSF_ERROR_CONFIG;	/* UART_RESOURCES not defined properly */
+		
+		/* The clock for UART1/2 is bus clock */
+		
+		/* TODO: enable clock for uart1 or 2 in caller */
+		
+		uart->reg1->C2 = 0;	/* default values */	  
+		uart->reg1->C1 = 0;	/* default values */	
+		uart->reg1->C3 = 0;	/* default values */
+		uart->reg1->BDH = 0;	/* default value including 1 stop bit */
+	}
     return MSF_ERROR_OK;
 }
 
 /* Instance specific function pointed-to from the driver access struct */
-static uint32_t UART0_Initialize (UART_speed_t baudrate, MSF_UART_Event_t pEvent) 
+static uint32_t UART0_Initialize(UART_speed_t baudrate, MSF_UART_Event_t pEvent) 
 {
   return UART_Initialize(baudrate, pEvent, &UART0_Resources);
 }
 
-/* example: function for another instance of the UART
-static int32_t UART1_Initialize (UART_Event_t pEvent) {
-  return UART_Initialize(pEvent, &UART1_Resources);
+
+static uint32_t UART1_Initialize(UART_speed_t baudrate, MSF_UART_Event_t pEvent) 
+{
+	return UART_Initialize(baudrate, pEvent, &UART1_Resources);
 }
-}
-*/
+
 
 /**
   \fn          uint32_t  UART_Uninitialize( void)
@@ -503,6 +550,21 @@ static uint32_t UART0_DataAvailable(void)
 	  UART0_DataAvailable,
 	};
 #endif /* MSF_DRIVER_UART0 */
+	
+/* Access structure for UART1 */
+#if (MSF_DRIVER_UART1)
+		MSF_DRIVER_USART Driver_UART1 = {
+		  UART1_Initialize,
+		  /*UART0_Uninitialize,
+		  UART0_PowerControl,
+		  UART0_Control,  
+		  UART0_Send,
+		  UART0_Receive,  
+		  UART0_GetRxCount,
+		  UART0_GetTxCount,
+		  UART0_DataAvailable,*/
+		};
+#endif /* MSF_DRIVER_UART1 */	
 	
 	
 /* Common interrupt handler for all UARTs */

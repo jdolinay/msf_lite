@@ -59,7 +59,8 @@ typedef struct _UART_PINS {
 overlay struct. There will always be only 1 instance of the UART0;
 there could be 1 or 2 instances of UART driver for UART1 and UART2. */
 typedef struct {
-        UART0_Type  *reg;  		// UART peripheral register interface, CMSIS
+        UART0_Type  *reg;  		// UART0 peripheral register interface, CMSIS
+        UART_Type	*reg1;		// UART1 and UART2 registers, CMSIS
         UART_PINS   *pins; 		// UART I/O pins
         UART_INFO   *info;   	// Run-Time information
 } const UART_RESOURCES;
