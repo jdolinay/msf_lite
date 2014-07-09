@@ -32,6 +32,7 @@ void polled_uart_test(void);
 void interrupt_uart_simple_test(void);
 void interrupt_uart_full_test(void);	
 void coniob_test(void);
+void uart12_test(void);
 void tpm_timer_test(void);
 
 const char* str_115200 = "115200\n\r";
@@ -62,10 +63,11 @@ int main(void)
 	/* Test the UART driver 
 	 * Please un-comment one of the functions.
 	 * */
-	polled_uart_test();
+	//polled_uart_test();
 	//interrupt_uart_simple_test();
 	//interrupt_uart_full_test();
 	//coniob_test();
+	uart12_test();
 		
 	for(;;) {	   
 	   	counter++;
@@ -511,3 +513,27 @@ void coniob_test(void)
 	}
 }
 
+/* Test UART1/2 
+ * UART1 is available on pins Arduino #14 (PTE0) Tx; #15 (PTE1) Rx
+ * UART2 is available on pins Arduino #12 (PTD3) Tx; #11 Rx (PTD2)
+ */
+void uart12_test(void)
+{
+	char buff[8];
+	coniob_puts("starting receive...\n");
+	msf_delay_ms(2000);
+	//Driver_UART1.Initialize(BD9600, null);
+	Driver_UART2.Initialize(BD9600, null);
+	while(1)
+	{
+		// wait for 3 bytes; blocking
+		//Driver_UART1.Receive(buff, 3);
+		Driver_UART2.Receive(buff, 3);
+		buff[3] = 0;
+		
+		// print received string to UART0
+		coniob_puts(buff);
+		//coniob_puts("aho");
+	}
+
+}

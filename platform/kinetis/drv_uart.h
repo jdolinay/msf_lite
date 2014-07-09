@@ -31,9 +31,11 @@ extern "C" {
 typedef void (*MSF_UART_Event_t) (uint32_t event, uint32_t arg);   
 
 
-/* The priority of the UART interrupt; lower number means higher priority.
+/* The priority of the UART interrupts; lower number means higher priority.
  * For KL25Z valid value is 0 thru 3; 3 is lowest */
-#define		MSF_UART_INT_PRIORITY	(2)
+#define		MSF_UART0_INT_PRIORITY	(2)	/* Priority for UART0 */
+#define		MSF_UART12_INT_PRIORITY	(2) /* Priority for UART1 and UART2 */
+
 
 /** Flags (operations and parameters) for the Control function */
 /* To allow changing only desired values in call to Control(), most flags use
@@ -132,7 +134,15 @@ typedef struct _MSF_DRIVER_USART {
  * This is placed here rather than in uart_k25.h because then
  * the client program would need to include the (possible) MCU-specific
  * file such us uart_k25.h, which is not good for generic drivers such as Conio. */
-extern MSF_DRIVER_USART Driver_UART0;
+#if (MSF_DRIVER_UART0)
+	extern MSF_DRIVER_USART Driver_UART0;
+#endif
+#if (MSF_DRIVER_UART1)
+	extern MSF_DRIVER_USART Driver_UART1;
+#endif
+#if (MSF_DRIVER_UART2)
+	extern MSF_DRIVER_USART Driver_UART2;
+#endif
 
 #ifdef __cplusplus
 }

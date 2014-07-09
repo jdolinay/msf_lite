@@ -65,7 +65,11 @@ typedef struct {
         UART_INFO   *info;   	// Run-Time information
 } const UART_RESOURCES;
 
-
+/** Obtain the NVIC interrupt number for given instance of the UART driver.
+ * Works for UART1 and UART2; not for UART0 which is different! 
+ * uart_adr is the address of the register overlay structure for the UARTn module. */
+#define	MSF_UART_GETNVIC_IRQn(uart_adr)	((UART_Type*)uart_adr == UART1) ? UART1_IRQn : \
+										((UART_Type*)uart_adr == UART2) ? UART2_IRQn : -1
 
 #ifdef __cplusplus
 }

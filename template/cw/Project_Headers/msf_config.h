@@ -57,6 +57,8 @@
 *    your applicaiton will not use with 0.
 ********************************************/
 #define MSF_DRIVER_UART0    1   /* Use UART0 driver (create UART0 driver instance) */
+#define	MSF_DRIVER_UART1	1	/* Use UART1 driver */
+#define	MSF_DRIVER_UART2	1	/* Use UART2 driver */
 #define MSF_DRIVER_ADC0     0	/* Use ADC driver */
 #define	MSF_DRIVER_TPM0		1	/* Use TPM0 driver */
 #define	MSF_DRIVER_TPM1		1	/* Use TPM1 driver */
@@ -81,8 +83,16 @@
 #define		MSF_UART0_TX_ALT	(2)
 
 /* UART1 pins */
+#define		MSF_UART1_RX_PIN	(GPIO_E1)	/* PTC3/3; PTA18/3; PTE1/3; */
+#define		MSF_UART1_RX_ALT	(3)
+#define		MSF_UART1_TX_PIN	(GPIO_E0)	/* PTC4/3; PTA19/3; PTE0/3; */
+#define		MSF_UART1_TX_ALT	(3)
 
 /* UART2 pins */
+#define		MSF_UART2_RX_PIN	(GPIO_E1)	/* PTD2/3; PTD4/3; PTE23/4; */
+#define		MSF_UART2_RX_ALT	(3)
+#define		MSF_UART2_TX_PIN	(GPIO_E0)	/* PTD3/3; PTD5/3; PTE22/4; */
+#define		MSF_UART2_TX_ALT	(3)
 
 
 /*********************************************

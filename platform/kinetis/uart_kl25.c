@@ -6,9 +6,12 @@
  *
  * @note    This is simplified imitation of CMSIS driver (which does not 
  *          exist for Kinetis(?)).
- *          UART1 and UART2 does not support all the baudrates as UART0, see msf_<device>.h
- *          with definitions of UART0_baudrate_type and UART1_baudrate_type 
- *          Should be used as a standard for MSF drivers.    
+ *          UART1 and UART2 does not support all the baudrates as UART0.
+ *          As the baudrate enum values are defined for all UARTs, it is not guaranteed that
+ *          all available enum values will be really supported by UART1/2 for any F_CPU. 
+ *          See the definition of the baudrate enum in msf_<device>.h.
+ *          The UART_Initialize will return MSF_ERROR_ARGUMENT if called with unsupported 
+ *          baudrate.              
  *
  ******************************************************************************/
 /* MSF includes */
@@ -48,7 +51,7 @@ static UART_RESOURCES UART0_Resources = {
 
 #if (MSF_DRIVER_UART1)
 /* Define the resource for each UART available on the MCU */
-/* runtime info for UART0 */
+/* runtime info for UART1 */
 static UART_INFO UART1_Info; 
 
 /* The pins for UART1 
@@ -71,10 +74,37 @@ static UART_RESOURCES UART1_Resources = {
 
 #endif /* MSF_DRIVER_UART1 */
 
+#if (MSF_DRIVER_UART2)
+/* Define the resource for each UART available on the MCU */
+/* runtime info for UART2 */
+static UART_INFO UART2_Info; 
+
+/* The pins for UART1 
+ * The pins are user-configurable through msf_config.h file.
+ * Each is defined by pin-code (see msf_<device>.h) and the number of the alternate
+ * function (ALTn) which is the UART function for this pin. 
+ *  */
+static UART_PINS UART2_Pins = {
+		{MSF_UART2_RX_PIN, MSF_UART2_RX_ALT},	/* pin for Rx */
+		{MSF_UART2_TX_PIN, MSF_UART2_TX_ALT},	/* pin for Tx */
+};
+
+/* UART2 Resources */
+static UART_RESOURCES UART2_Resources = {
+  0,    /* UART0 type object defined in CMSIS <device.h>*/
+  UART2,
+  &UART2_Pins,
+  &UART2_Info
+};
+
+#endif /* MSF_DRIVER_UART2 */
+
 
 /* Internal functions */
 static void uart0_setbaudrate(uint32_t baudrate, UART_RESOURCES* uart);
 static void uart0_intconfig(uint32_t enable, UART_RESOURCES* uart);
+static uint32_t uart1_setbaudrate(uint32_t baudrate, UART_RESOURCES* uart);
+static void uart1_intconfig(uint32_t enable, UART_RESOURCES* uart);
 
 /* The driver API functions */
 
@@ -84,7 +114,7 @@ static void uart0_intconfig(uint32_t enable, UART_RESOURCES* uart);
   \param[in]   baudrate  baudrate constant as defined in msf_<device>.h
   \param[in]   cb_event  Pointer to UART_Event function or null
   \param[in]   uart       Pointer to UART resources
-  \return      error code (0 = OK)
+  \return      error code (0 = OK). May return MSF_ERROR_ARGUMENT if baudrate is not supported.
   \note			            	  
   	  Initializes UART for 8N1 operation, no parity, interrupts disabled, and
   	  no hardware flow-control.
@@ -95,7 +125,7 @@ static void uart0_intconfig(uint32_t enable, UART_RESOURCES* uart);
   	  Common function called by instance-specific function.
 */
 static uint32_t  UART_Initialize( UART_speed_t baudrate, MSF_UART_Event_t event,  UART_RESOURCES* uart)
-{
+{	
     /* init given UART */	
 	uart->info->cb_event = event;	/* store pointer to user callback*/
 	uart->info->status = MSF_UART_STATUS_POLLED_MODE;
@@ -140,17 +170,17 @@ static uint32_t  UART_Initialize( UART_speed_t baudrate, MSF_UART_Event_t event,
 		/* Code for UART1 and UART2 */
 		if ( uart->reg1 == 0 )
 			return MSF_ERROR_CONFIG;	/* UART_RESOURCES not defined properly */
-		
-		/* The clock for UART1/2 is bus clock */
-		
-		/* TODO: enable clock for uart1 or 2 in caller */
-		
+				
 		uart->reg1->C2 = 0;	/* default values */	  
 		uart->reg1->C1 = 0;	/* default values */	
 		uart->reg1->C3 = 0;	/* default values */
 		uart->reg1->BDH = 0;	/* default value including 1 stop bit */
+				
+		if ( !uart1_setbaudrate((uint32_t)baudrate, uart) )
+			return MSF_ERROR_ARGUMENT;		/* It will return zero if the baudrate is not supported */
 		
-		/* TODO: BR value using UART_GET_BR_UART1(baudrate) */
+		/* Enable receiver and transmitter */
+		uart->reg1->C2 |= (UART_C2_TE_MASK | UART_C2_RE_MASK );
 	}
     return MSF_ERROR_OK;
 }
@@ -164,7 +194,16 @@ static uint32_t UART0_Initialize(UART_speed_t baudrate, MSF_UART_Event_t pEvent)
 
 static uint32_t UART1_Initialize(UART_speed_t baudrate, MSF_UART_Event_t pEvent) 
 {
+	/* Enable the clock for UART1 */
+	SIM->SCGC4 |= SIM_SCGC4_UART1_MASK;	
 	return UART_Initialize(baudrate, pEvent, &UART1_Resources);
+}
+
+static uint32_t UART2_Initialize(UART_speed_t baudrate, MSF_UART_Event_t pEvent) 
+{
+	/* Enable the clock for UART2 */
+	SIM->SCGC4 |= SIM_SCGC4_UART2_MASK;	
+	return UART_Initialize(baudrate, pEvent, &UART2_Resources);
 }
 
 
@@ -183,7 +222,10 @@ static uint32_t  UART_Uninitialize( UART_RESOURCES* uart)
     uart->info->status = 0;
     
     /* Disable the UART */
-    uart->reg->C2 &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK);
+    if (uart->reg )
+    	uart->reg->C2 &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK);
+    else
+    	uart->reg1->C2 &= ~(UART_C2_TE_MASK | UART_C2_RE_MASK);
     
     return MSF_ERROR_OK;
 }
@@ -193,9 +235,18 @@ static uint32_t UART0_Uninitialize (void)
   return UART_Uninitialize(&UART0_Resources);
 }
 
+static uint32_t UART1_Uninitialize (void) 
+{
+  return UART_Uninitialize(&UART1_Resources);
+}
+
+static uint32_t UART2_Uninitialize (void) 
+{
+  return UART_Uninitialize(&UART2_Resources);
+}
 
 /**
-  \brief       Initialize UART Interface.
+  \brief       Change the power mode of the UART.
   \param[in]   state  The requested power state
   \param[in]   uart    Pointer to UART resources
   \return      error code (0 = OK)
@@ -213,34 +264,61 @@ static uint32_t UART0_PowerControl(MSF_power_state state)
   return UART_PowerControl(state, &UART0_Resources);
 }
 
+static uint32_t UART1_PowerControl(MSF_power_state state) 
+{
+  return UART_PowerControl(state, &UART1_Resources);
+}
+
+static uint32_t UART2_PowerControl(MSF_power_state state) 
+{
+  return UART_PowerControl(state, &UART2_Resources);
+}
+
 /**
   \brief       Initialize UART Interface.
   \param[in]   control  Flags indicating what parameter(s) to set
   \param[in]   arg Optional argument for the command
   \param[in]   uart    Pointer to UART resources
-  \return      error code (0 = OK)
+  \return      error code (0 = OK);	
   \note        Call to Control always stops any pending receive and transmit in interrupt mode.
+  	  	  	  When changing baudrate, returns MSF_ERROR_ARGUMENT if baudrate is not available 
+  	  	  	  for current F_CPU.
   	  Common function called by instance-specific function.      
 */
 static uint32_t UART_Control(uint32_t control, uint32_t arg, UART_RESOURCES* uart)
 {
+	uint32_t result;
+	
 	/* stop any transfer in progress */
 	uart->info->status &= ~(MSF_UART_STATUS_TXNOW | MSF_UART_STATUS_RXNOW);	
 	
 	/* Disable Tx and Rx interrupts */
-	uart->reg->C2 &= ~(UART0_C2_TIE_MASK | UART0_C2_RIE_MASK); 	
+	if ( uart->reg )
+		uart->reg->C2 &= ~(UART0_C2_TIE_MASK | UART0_C2_RIE_MASK);
+	else
+		uart->reg1->C2 &= ~(UART_C2_TIE_MASK | UART_C2_RIE_MASK);
+		
 			
 	/* Changing baudrate? */
 	if ( (control & MSF_UART_BAUD_Mask) && (arg != 0) )
 	{	/* arg must be is valid baudrate value from the enum UART_speed_t */
-		
-		/* Disable UART0 before changing registers */	
-		uart->reg->C2 &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK);
-		
-		uart0_setbaudrate((uint32_t)(UART_speed_t)arg, uart);	  
-		
-		/* Enable receiver and transmitter */
-		uart->reg->C2 |= (UART0_C2_TE_MASK | UART0_C2_RE_MASK );		
+		if ( uart->reg )
+		{
+			/* Disable UART0 before changing registers */
+			uart->reg->C2 &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK);
+			uart0_setbaudrate((uint32_t)(UART_speed_t)arg, uart);	  
+			/* Enable receiver and transmitter */
+			uart->reg->C2 |= (UART0_C2_TE_MASK | UART0_C2_RE_MASK );
+		}
+		else
+		{
+			uart->reg1->C2 &= ~(UART_C2_TE_MASK | UART_C2_RE_MASK);
+			result = uart1_setbaudrate((uint32_t)(UART_speed_t)arg, uart);	  
+			/* Enable receiver and transmitter */
+			uart->reg1->C2 |= (UART_C2_TE_MASK | UART_C2_RE_MASK );
+			if ( result == 0 )
+				return MSF_ERROR_ARGUMENT;	/* baudrate not supported for current F_CPU */
+		}
 	}
 	
 	/* Changing mode: interrupt vs polled */
@@ -249,18 +327,22 @@ static uint32_t UART_Control(uint32_t control, uint32_t arg, UART_RESOURCES* uar
 		if ( (control & MSF_UART_INTMODE_Mask) == MSF_UART_INT_MODE )
 		{
 			/* interrupt mode */
-			/*if ( uart->info->cb_event == null )
-				return MSF_ERROR_ARGUMENT;*/ /* for interrupt mode the event must be specified in Initialize() */ 
 			
 			/* internal status to interrupt mode */
 			uart->info->status &= ~MSF_UART_STATUS_POLLED_MODE;
 			uart->info->status |= MSF_UART_STATUS_INT_MODE;
-			
-			uart0_intconfig(1, uart);	/* enable interrupt */
+			if ( uart->reg )
+				uart0_intconfig(1, uart);	/* enable interrupt */
+			else
+				uart1_intconfig(1, uart);	/* enable interrupt */
 		}
 		else
 		{
-			uart0_intconfig(0, uart);	/* disable interrupt */
+			/* pollede mode */
+			if ( uart->reg )
+				uart0_intconfig(0, uart);	/* disable interrupt */
+			else
+				uart1_intconfig(0, uart);	/* disable interrupt */
 			
 			/* internal status to polled mode */
 			uart->info->status &= ~MSF_UART_STATUS_INT_MODE;
@@ -274,40 +356,68 @@ static uint32_t UART_Control(uint32_t control, uint32_t arg, UART_RESOURCES* uar
 		/* stop any transmit in progress */
 		uart->info->status &= ~MSF_UART_STATUS_TXNOW;	 	
 		/* Disable Tx Interrupt */
-		uart->reg->C2 &= ~UART0_C2_TIE_MASK; 	
+		if ( uart->reg )
+			uart->reg->C2 &= ~UART0_C2_TIE_MASK;
+		else
+			uart->reg1->C2 &= ~UART_C2_TIE_MASK;
 	}
+	
 	if ( control & MSF_UART_ABORTRX_Mask)
 	{
 		/* stop any receive in progress */
 		uart->info->status &= ~MSF_UART_STATUS_RXNOW;	
 		/* Disable Tx and Rx interrupts */
-		uart->reg->C2 &= ~UART0_C2_RIE_MASK; 	
+		if ( uart->reg )
+			uart->reg->C2 &= ~UART0_C2_RIE_MASK;
+		else
+			uart->reg1->C2 &= ~UART_C2_RIE_MASK;
 	}
 	
 	/* Change parity */
 	if ( control & MSF_UART_PARITY_Mask )
 	{	
-		/* Disable UART0 before changing registers */	
-		uart->reg->C2 &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK);
+		/* Disable UART0 before changing registers */
+		if ( uart->reg )
+			uart->reg->C2 &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK);
+		else
+			uart->reg1->C2 &= ~(UART_C2_TE_MASK | UART_C2_RE_MASK);
 			
+		
 		if ( (control & MSF_UART_PARITY_Mask) == MSF_UART_PARITY_NONE )
 		{
 			/* no parity */
-			uart->reg->C1 &= ~(UART0_C1_PT_MASK | UART0_C1_PE_MASK);			
+			if ( uart->reg )
+				uart->reg->C1 &= ~(UART0_C1_PT_MASK | UART0_C1_PE_MASK);
+			else
+				uart->reg1->C1 &= ~(UART_C1_PT_MASK | UART_C1_PE_MASK);
 		}
 		else if ( (control & MSF_UART_PARITY_Mask) == MSF_UART_PARITY_EVEN )
 		{
 			/* even parity */
-			uart->reg->C1 |= UART0_C1_PE_MASK;	/* PE = 1 > parity check enabled */
-			uart->reg->C1 &= ~UART0_C1_PT_MASK;	/* PT = 0 */
+			if ( uart->reg )
+			{
+				uart->reg->C1 |= UART0_C1_PE_MASK;	/* PE = 1 > parity check enabled */
+				uart->reg->C1 &= ~UART0_C1_PT_MASK;	/* PT = 0 */
+			}
+			else
+			{
+				uart->reg1->C1 |= UART_C1_PE_MASK;	/* PE = 1 > parity check enabled */
+				uart->reg1->C1 &= ~UART_C1_PT_MASK;	/* PT = 0 */	
+			}
 		}
 		else
 		{	/* odd parity */
-			uart->reg->C1 |= (UART0_C1_PE_MASK | UART0_C1_PT_MASK);	/* PE = 1 > parity check enabled */
+			if ( uart->reg )
+				uart->reg->C1 |= (UART0_C1_PE_MASK | UART0_C1_PT_MASK);	/* PE = 1 > parity check enabled */
+			else
+				uart->reg1->C1 |= (UART_C1_PE_MASK | UART_C1_PT_MASK);	/* PE = 1 > parity check enabled */
 		}
 			
 		/* Enable receiver and transmitter */
-		uart->reg->C2 |= (UART0_C2_TE_MASK | UART0_C2_RE_MASK );		
+		if ( uart->reg )
+			uart->reg->C2 |= (UART0_C2_TE_MASK | UART0_C2_RE_MASK );
+		else
+			uart->reg1->C2 |= (UART_C2_TE_MASK | UART_C2_RE_MASK );
 	}
 	
 	/* Change number of stop bits */
@@ -315,11 +425,17 @@ static uint32_t UART_Control(uint32_t control, uint32_t arg, UART_RESOURCES* uar
 	{
 		if ( (control & MSF_UART_STOPBIT_Mask) == MSF_UART_STOP_BITS_2 )
 		{
-			uart->reg->BDH |= UART0_BDH_SBNS_MASK;	/* 2 stop bits */
+			if ( uart->reg )
+				uart->reg->BDH |= UART0_BDH_SBNS_MASK;	/* 2 stop bits */
+			else
+				uart->reg1->BDH |= UART_BDH_SBNS_MASK;	/* 2 stop bits */
 		}
 		else
 		{
-			uart->reg->BDH &= ~UART0_BDH_SBNS_MASK; /* 1 stop bit */
+			if ( uart->reg )
+				uart->reg->BDH &= ~UART0_BDH_SBNS_MASK; /* 1 stop bit */
+			else
+				uart->reg1->BDH &= ~UART_BDH_SBNS_MASK; /* 1 stop bit */
 		}
 	}
 	
@@ -330,11 +446,18 @@ static uint32_t UART_Control(uint32_t control, uint32_t arg, UART_RESOURCES* uar
 	{
 		if ( (control & MSF_UART_DATA_BITS_Mask) == MSF_UART_DATA_BITS_9 )
 		{
-			uart->reg->C1 |= UART0_C1_M_MASK;	/* 9 data bits */
+			if ( uart->reg )
+				uart->reg->C1 |= UART0_C1_M_MASK;	/* 9 data bits */
+			else
+				uart->reg1->C1 |= UART_C1_M_MASK;	/* 9 data bits */
 		}
 		else
 		{
-			uart->reg->C1 &= ~UART0_C1_M_MASK; /* 8 data bits */
+			if ( uart->reg )
+				uart->reg->C1 &= ~UART0_C1_M_MASK; /* 8 data bits */
+			else
+				uart->reg1->C1 &= ~UART_C1_M_MASK; /* 8 data bits */
+				
 		}
 	}
 		
@@ -346,6 +469,16 @@ static uint32_t UART_Control(uint32_t control, uint32_t arg, UART_RESOURCES* uar
 static uint32_t UART0_Control(uint32_t control, uint32_t arg) 
 {
   return UART_Control(control, arg, &UART0_Resources);
+}
+
+static uint32_t UART1_Control(uint32_t control, uint32_t arg) 
+{
+  return UART_Control(control, arg, &UART1_Resources);
+}
+
+static uint32_t UART2_Control(uint32_t control, uint32_t arg) 
+{
+  return UART_Control(control, arg, &UART2_Resources);
 }
 
 /**
@@ -369,13 +502,25 @@ uint32_t UART_Send(const void* data, uint32_t cnt, UART_RESOURCES* uart)
 	uint32_t i;
 	if ( uart->info->status & MSF_UART_STATUS_POLLED_MODE )
 	{	/* blocking (polled) mode */
-		for ( i =0; i< cnt; i++ )	
-		{
-			/* Wait until space is available in the FIFO */
-			while(!(uart->reg->S1 & UART0_S1_TDRE_MASK))
-				 ;
-			 /* Send the character */
-			uart->reg->D = ((const uint8_t*)data)[i];		
+		if ( uart->reg )
+		{	/* UART0 */
+			for ( i =0; i< cnt; i++ )	
+			{			
+				/* Wait until space is available in the FIFO */
+				while(!(uart->reg->S1 & UART0_S1_TDRE_MASK))
+					 ;
+				 /* Send the character */
+				uart->reg->D = ((const uint8_t*)data)[i];		
+			}
+		}
+		else
+		{	/* UART1/2 */
+			for ( i =0; i< cnt; i++ )	
+			{			
+				while(!(uart->reg1->S1 & UART_S1_TDRE_MASK))
+					;
+				uart->reg1->D = ((const uint8_t*)data)[i];		
+			}
 		}
 	}
 	else
@@ -387,14 +532,20 @@ uint32_t UART_Send(const void* data, uint32_t cnt, UART_RESOURCES* uart)
 			uart->info->status &= ~MSF_UART_STATUS_TXNOW;
 			/* Disable Tx  interrupt. If user calls (by error) Send or Receive before previous 
 			 * operation is completed, the interrupt would never be disabled. */
-			uart->reg->C2 &= ~UART0_C2_TIE_MASK; 	
+			if ( uart->reg )
+				uart->reg->C2 &= ~UART0_C2_TIE_MASK;
+			else
+				uart->reg1->C2 &= ~UART_C2_TIE_MASK;
 			
 			/* Setup the internal data to start sending */
 			uart->info->txbuff = (void*)data;
 			uart->info->tx_total = cnt;
 			uart->info->tx_cnt = 0;		/* 1 because we send the 1st char here */
 			uart->info->status |= MSF_UART_STATUS_TXNOW;	/* now sending... */
-			uart->reg->C2 |= UART0_C2_TIE_MASK;
+			if ( uart->reg )
+				uart->reg->C2 |= UART0_C2_TIE_MASK;
+			else
+				uart->reg1->C2 |= UART_C2_TIE_MASK;
 		}
 #if 0
 		/* Send first character now; the next one will be sent by ISR */ 
@@ -417,6 +568,16 @@ static uint32_t UART0_Send(const void* data, uint32_t cnt)
   return UART_Send(data, cnt, &UART0_Resources);
 }
 
+static uint32_t UART1_Send(const void* data, uint32_t cnt) 
+{
+  return UART_Send(data, cnt, &UART1_Resources);
+}
+
+static uint32_t UART2_Send(const void* data, uint32_t cnt) 
+{
+  return UART_Send(data, cnt, &UART2_Resources);
+}
+
 /**
   \brief       Receive data from UART.
   \param[in]   data pointer to buffer which receives the data
@@ -435,25 +596,49 @@ static uint32_t UART0_Send(const void* data, uint32_t cnt)
 */
 uint32_t UART_Receive(void* data, uint32_t cnt, UART_RESOURCES* uart)
 {
-	uint32_t i;
+	uint32_t i = 0;
 	if ( uart->info->status & MSF_UART_STATUS_POLLED_MODE )
 	{	/* blocking (polled) mode */
 		
 		/* Clear overrun flag 
 		 It is possible Receive was not called for some time and we missed some 
 		 characters. When Overrun is set, we do not get the receiver data full flag? */
-		uart->reg->S1 |= UART0_S1_OR_MASK;
+		if ( uart->reg )
+			uart->reg->S1 |= UART0_S1_OR_MASK;
+		else
+		{
+			/* For UART1/2 the flag is cleared by reading data register*/
+			//((uint8_t*)data)[0] = uart->reg->D;
+			//i = 1;
+			/* TODO: is it correct to read the data like this? */
+			/* It seems the data register does not contain valid data, so just drop it*/
+			i = uart->reg->D;
+			i = 0;
+		}
 		
-		for ( i=0; i<cnt; i++ )
-		{		
-			/* Wait until character has been received */
-			while (!(uart->reg->S1 & UART0_S1_RDRF_MASK))
-				;
-					 
-			/* store the 8-bit data from the receiver */
-			((uint8_t*)data)[i] = uart->reg->D;
+		if ( uart->reg )
+		{	/* UART0 */
+			for ( i=0; i<cnt; i++ )
+			{		
+				/* Wait until character has been received */
+				while (!(uart->reg->S1 & UART0_S1_RDRF_MASK))
+					;
+						 
+				/* store the 8-bit data from the receiver */
+				((uint8_t*)data)[i] = uart->reg->D;
+			}
+		}
+		else
+		{	/* UART1/2*/
+			for ( /* i may be 1 or 0*/; i<cnt; i++ )
+			{		
+				while (!(uart->reg1->S1 & UART_S1_RDRF_MASK))
+					;
+				((uint8_t*)data)[i] = uart->reg1->D;
+			}
 		}
 	}
+		
 	else
 	{	/* non-blocking (interrupt) mode */
 	 			
@@ -461,14 +646,20 @@ uint32_t UART_Receive(void* data, uint32_t cnt, UART_RESOURCES* uart)
 		uart->info->status &= ~MSF_UART_STATUS_RXNOW;	
 		/* Disable Rx interrupt. If user calls (by error) Send or Receive before previous 
 		* operation is complete, the interrupt would never be disabled. */
-		uart->reg->C2 &= ~UART0_C2_RIE_MASK; 	
+		if ( uart->reg )				
+			uart->reg->C2 &= ~UART0_C2_RIE_MASK;
+		else
+			uart->reg1->C2 &= ~UART_C2_RIE_MASK;
 		
 		/* Setup the internal data to start receiving */
 		uart->info->rxbuff = data;
 		uart->info->rx_total = cnt;
 		uart->info->rx_cnt = 0;
 		uart->info->status |= MSF_UART_STATUS_RXNOW;	/* now receiving... */
-		uart->reg->C2 |= UART0_C2_RIE_MASK; /* Enable interrupt for Rx buffer full */
+		if ( uart->reg )
+			uart->reg->C2 |= UART0_C2_RIE_MASK; /* Enable interrupt for Rx buffer full */
+		else
+			uart->reg1->C2 |= UART_C2_RIE_MASK; 
 	}
 	
     return MSF_ERROR_OK;
@@ -477,6 +668,16 @@ uint32_t UART_Receive(void* data, uint32_t cnt, UART_RESOURCES* uart)
 static uint32_t UART0_Receive(void* data, uint32_t cnt) 
 {
   return UART_Receive(data, cnt, &UART0_Resources);
+}
+
+static uint32_t UART1_Receive(void* data, uint32_t cnt) 
+{
+  return UART_Receive(data, cnt, &UART1_Resources);
+}
+
+static uint32_t UART2_Receive(void* data, uint32_t cnt) 
+{
+  return UART_Receive(data, cnt, &UART2_Resources);
 }
 
 /**
@@ -498,6 +699,16 @@ static uint32_t UART0_GetRxCount(void)
 	return UART_GetRxCount(&UART0_Resources);
 }
 
+static uint32_t UART1_GetRxCount(void)
+{
+	return UART_GetRxCount(&UART1_Resources);
+}
+
+static uint32_t UART2_GetRxCount(void)
+{
+	return UART_GetRxCount(&UART2_Resources);
+}
+
 /**
   \brief       Get number of bytes sent so far during Send operation in interrupt mode
   \param[in]   uart    Pointer to UART resources
@@ -517,6 +728,16 @@ static uint32_t UART0_GetTxCount(void)
 	return UART_GetTxCount(&UART0_Resources);
 }
 
+static uint32_t UART1_GetTxCount(void)
+{
+	return UART_GetTxCount(&UART1_Resources);
+}
+
+static uint32_t UART2_GetTxCount(void)
+{
+	return UART_GetTxCount(&UART2_Resources);
+}
+
 /**
   \fn          uint32_t  UART_DataAvailable( void)
   \brief       Check is there is some byte received
@@ -526,15 +747,32 @@ static uint32_t UART0_GetTxCount(void)
 */
 static uint32_t  UART_DataAvailable( UART_RESOURCES* uart)
 {
-    if ( (uart->reg->S1 & UART0_S1_RDRF_MASK) != 0 )
-        return 1;
-    else        
-        return 0;
+	if ( uart->reg )
+	{
+		if ( (uart->reg->S1 & UART0_S1_RDRF_MASK) != 0 )
+			return 1;
+	}
+	else
+	{
+		if ( (uart->reg1->S1 & UART_S1_RDRF_MASK) != 0 )
+			return 1;		
+	}
+	return 0;
 }
 /* Instance specific function pointed-to from the driver access struct */
 static uint32_t UART0_DataAvailable(void) 
 {
   return UART_DataAvailable(&UART0_Resources);
+}	
+
+static uint32_t UART1_DataAvailable(void) 
+{
+  return UART_DataAvailable(&UART1_Resources);
+}	
+
+static uint32_t UART2_DataAvailable(void) 
+{
+  return UART_DataAvailable(&UART2_Resources);
 }	
 
 
@@ -555,22 +793,37 @@ static uint32_t UART0_DataAvailable(void)
 	
 /* Access structure for UART1 */
 #if (MSF_DRIVER_UART1)
-		MSF_DRIVER_USART Driver_UART1 = {
+	MSF_DRIVER_USART Driver_UART1 = {
 		  UART1_Initialize,
-		  /*UART0_Uninitialize,
-		  UART0_PowerControl,
-		  UART0_Control,  
-		  UART0_Send,
-		  UART0_Receive,  
-		  UART0_GetRxCount,
-		  UART0_GetTxCount,
-		  UART0_DataAvailable,*/
+		  UART1_Uninitialize,
+		  UART1_PowerControl,
+		  UART1_Control,  
+		  UART1_Send,
+		  UART1_Receive,  
+		  UART1_GetRxCount,
+		  UART1_GetTxCount,
+		  UART1_DataAvailable,
 		};
 #endif /* MSF_DRIVER_UART1 */	
+
+/* Access structure for UART2 */
+#if (MSF_DRIVER_UART2)
+	MSF_DRIVER_USART Driver_UART2 = {
+		  UART2_Initialize,
+		  UART2_Uninitialize,
+		  UART2_PowerControl,
+	  	  UART2_Control,  
+		  UART2_Send,
+		  UART2_Receive,  
+		  UART2_GetRxCount,
+		  UART2_GetTxCount,
+		  UART2_DataAvailable,
+	};
+#endif /* MSF_DRIVER_UART2 */	
+
 	
-	
-/* Common interrupt handler for all UARTs */
-void UART_handleIRQ( UART_RESOURCES* uart)
+/* Interrupt handler for UART 0 only! */
+void UART0_handleIRQ( UART_RESOURCES* uart)
 {	
 	
 	/* sanity check - are we in interrupt mode? we should not be called if not. */
@@ -655,13 +908,104 @@ void UART_handleIRQ( UART_RESOURCES* uart)
 	
 }
 
-/* Interrupt handler for the UART0 */
-void UART0_IRQHandler()
-{
-	UART_handleIRQ( &UART0_Resources);
+/* Common interrupt handler for UART1 and 2 */
+void UART_handleIRQ( UART_RESOURCES* uart)
+{		
+	/* sanity check - are we in interrupt mode? we should not be called if not. */
+	if ( (uart->info->status & MSF_UART_STATUS_INT_MODE) == 0 )
+		return;
+	
+	/* Tx buffer empty int. */
+	/* If sending now and the Tx buffer is empty
+	 * Note that it is empty all the time except when sending! */
+	if ( (uart->info->status & MSF_UART_STATUS_TXNOW) && (uart->reg1->S1 & UART_S1_TDRE_MASK) )
+	{
+		/* Send next char */			
+		uart->reg1->D = ((const uint8_t*)uart->info->txbuff)[uart->info->tx_cnt++];
+		/* Check if sent all we wanted */
+		if ( uart->info->tx_cnt >= uart->info->tx_total )
+		{
+			/* stop sending */
+			uart->info->status &= ~MSF_UART_STATUS_TXNOW;	
+			/* Disable this interrupt; the Send() will re-enable it */
+			uart->reg1->C2 &= ~UART_C2_TIE_MASK;
+			/* generate user event */
+			if ( uart->info->cb_event )
+				uart->info->cb_event(MSF_UART_EVENT_SEND_COMPLETE, 0);
+			/* Reset the Tx count */
+			uart->info->tx_cnt = 0;
+			/* Enable Transmit complete interrupt  - to generate event when line is idle */
+			uart->reg1->C2 |= UART_C2_TCIE_MASK;	
+		}			
+	}
+	
+
+	/* Transmit complete int.  */
+	/* If Tx complete int is enabled and the flag is set.
+	 * Note that the flag is set all the time if th eline is idle, so we use the int enable bit
+	 * to chech if we are interested in this event now */
+	if ( (uart->reg1->C2 & UART_C2_TCIE_MASK) && (uart->reg1->S1 & UART_S1_TC_MASK) )
+	{
+		/* disable the TC interrupt */
+		uart->reg1->C2 &= ~UART_C2_TCIE_MASK;	
+		if ( uart->info->cb_event )
+			uart->info->cb_event(MSF_UART_EVENT_TRANSFER_COMPLETE, 0);
+	}
+
+	
+	/* Rx buffer full flag is set AND we are receiving now  */
+	if ( (uart->reg1->S1 & UART_S1_RDRF_MASK) && (uart->info->status & MSF_UART_STATUS_RXNOW) )
+	{		
+		/* Save next byte */
+		((uint8_t*)uart->info->rxbuff)[uart->info->rx_cnt++] = uart->reg->D;
+		/* Check if received all we wanted */
+		if ( uart->info->rx_cnt >= uart->info->rx_total )
+		{
+			/* stop receiving */
+			uart->info->status &= ~MSF_UART_STATUS_RXNOW;
+			/* Disable this interrupt; the Receive() will re-enable it when needed */
+			uart->reg1->C2 &= ~UART_C2_RIE_MASK;
+			/* generate user event */
+			if ( uart->info->cb_event )
+				uart->info->cb_event(MSF_UART_EVENT_RECEIVE_COMPLETE, 0);
+			/* reset the Rx count */
+			uart->info->rx_cnt = 0;
+		}						
+	}
+	
+
+	/* Rx overflow occurred? */
+	if ( uart->reg1->S1 & UART_S1_OR_MASK )
+	{	
+		/* Clear the overflow flag. For UART1/2 this is done by reading the data register */
+		if ( uart->info->cb_event )
+			uart->info->cb_event(MSF_UART_EVENT_RX_OVERFLOW, uart->reg1->D);		
+	}
 	
 }
 
+/* Interrupt handler for the UART0 */
+#if (MSF_DRIVER_UART0)
+	void UART0_IRQHandler()
+	{
+		UART0_handleIRQ( &UART0_Resources);
+		
+	}
+#endif
+
+#if (MSF_DRIVER_UART1)
+	void UART1_IRQHandler()
+	{
+		UART_handleIRQ( &UART1_Resources);	
+	}
+#endif
+
+#if (MSF_DRIVER_UART2)
+	void UART2_IRQHandler()
+	{
+		UART_handleIRQ( &UART2_Resources);	
+	}
+#endif
 
 
 /* Internal workers */
@@ -718,7 +1062,7 @@ static void uart0_intconfig(uint32_t enable, UART_RESOURCES* uart)
 		NVIC_ClearPendingIRQ(UART0_IRQn);	/* Clear possibly pending interrupt */
 		NVIC_EnableIRQ(UART0_IRQn);			/* and enable it */	
 		/* Set priority for the interrupt; 0 is highest, 3 is lowest */
-		NVIC_SetPriority(UART0_IRQn, MSF_UART_INT_PRIORITY);
+		NVIC_SetPriority(UART0_IRQn, MSF_UART0_INT_PRIORITY);
 	}
 	else
 	{
@@ -726,6 +1070,58 @@ static void uart0_intconfig(uint32_t enable, UART_RESOURCES* uart)
 		
 		/* Disable the interrupt in NVIC */
 		NVIC_DisableIRQ(UART0_IRQn);	
+	}
+}
+
+
+/* Set baudrate for UART1/2 */
+static uint32_t uart1_setbaudrate(uint32_t baudrate, UART_RESOURCES* uart)
+{
+	uint32_t sbr_val, reg_temp;
+	
+	/* assert(uart->reg == 0) calling us for uart0 is error */
+	sbr_val = UART_GET_BR_UART1(baudrate);	
+	if (sbr_val == 0 )
+		return 0;
+	/* Save current value of uartx_BDH except for the SBR field */
+	reg_temp = uart->reg1->BDH & ~(UART_BDH_SBR(0x1F));
+	/* write new value */  
+	uart->reg1->BDH = reg_temp |  UART_BDH_SBR(((sbr_val & 0x1F00) >> 8));
+	uart->reg1->BDL = (uint8_t)(sbr_val & UART_BDL_SBR_MASK);
+	return 1;
+}
+
+/* Configure interrupt for UART1 or 2 
+ * enable = 0 > disable interrupt; anything else >  enablke int*/
+static void uart1_intconfig(uint32_t enable, UART_RESOURCES* uart)
+{	
+	/* assert(uart->reg == 0) */
+	uint32_t irqn;
+	irqn = MSF_UART_GETNVIC_IRQn(uart->reg1);	
+	
+	if ( irqn < 0 )
+		return;		/* Invalid IRQ number; invalid uart->reg1 pointer? */
+	
+	if ( enable )
+	{
+		/* Configure UART1 or 2*/
+		/* Enable int when transmit data buffer empty; TDRE flag and Receiver buffer full (RDRF) */ 						
+		/* We cannot enable the interrupts for all time, only when really Tx-ing or Rx-ing, otherwise the
+		 * ISR is called all the time */
+		uart->reg1->C3 |= UART_C3_ORIE_MASK;	/* Rx overflow interrupt enabled */
+		
+		/* Configure NVIC */
+		NVIC_ClearPendingIRQ(irqn);	/* Clear possibly pending interrupt */
+		NVIC_EnableIRQ(irqn);			/* and enable it */	
+		/* Set priority for the interrupt; 0 is highest, 3 is lowest */
+		NVIC_SetPriority(irqn, MSF_UART12_INT_PRIORITY);
+	}
+	else
+	{
+		uart->reg1->C3 &= ~UART0_C3_ORIE_MASK;	/* Rx overflow interrupt enabled */
+		
+		/* Disable the interrupt in NVIC */
+		NVIC_DisableIRQ(irqn);	
 	}
 }
 

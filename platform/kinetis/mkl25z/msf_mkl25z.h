@@ -144,7 +144,7 @@ typedef enum {
 														| ((uart1_br & 0x00001FFF) << 18))
 #define		UART_GET_BR(baud_val)		(baud_val & 0x00001FFF)				/* the BR is actually only 13-bit long*/
 #define		UART_GET_OSR(baud_val)		((baud_val >> 13) & 0x0000001F)		/* OSR is only 5-bits */
-#define		UART_GET_BR_UART1(baud_val)	(baud_val & 0x7FFC0000)				/* the BR for UART1/2, 13-bit long*/
+#define		UART_GET_BR_UART1(baud_val)	((baud_val & 0x7FFC0000) >> 18)			/* the BR for UART1/2, 13-bit long*/
 
 #if F_CPU == 48000000
 /* CLOCK_SETUP = 1 in system_MKL25Z4.c (CMSIS); the UART0 must be clocked from OSCERCLK, because 

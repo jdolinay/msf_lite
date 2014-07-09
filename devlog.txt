@@ -5,8 +5,27 @@ Projekty examples staci .cproject a .project a slozka .settings jak mam ted - ov
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 ------------------------------------------------
 
+9.7.2014
+TODO: coniob nefunguje spravne viz testy uart1, pri puts("aho") tiskne "ahooaho"...
+asi je to "soubehem" kdy zapisuju do bufferu moc rychle, nez odvysila predchozi AHO, ale
+musi to zvladat!
+TODO: test uart1/2 i na vysilani.
+
+Pokracuj: po dotestovani uart smerovat asi k publikaci, nema cenu delat spi, dasty vyuzije proc expert a ne drivery...
+
+
+
+- uart driver dodelan. uart0 funguje i po upravach ok (testovano polled a full int test)
+ uart1 a 2 otestovany na prijem (polled) ok.
+REMEM: vyvody UART na Arduino headerech:
+UART0 - pin 0 a 1 (standard arduino UART), je propojeno s uart na openSDA = dostupne i na virtual seriovem portu "Open SDA COM...".
+UART1 pin 14 (Tx)= PTE0 a pin 15 (Rx) = PTE1
+UART2 - na pinu 11 (Rx)= PTD2 a 12 (Tx) = PTD3
+UART2 pinu 2 (Rx) = PTD4; pin 9 (Tx) = PTD5
+ + mozna i dalsi...
+
 8.7.2014
-Pokracuj: UART1 driver; 
+_Pokracuj: UART1 driver; 
 REMEM: baudrate pro uart upraveno tak, ze v enum je jak hodnota pro UART0 tak
 i pro UART1/2 - aby slo pouzit stejnou funkci UART_initialize s parametrem baudrate type.
 Nejde tak ale zamezit volani pro UART1/2 s nepodporovanou baudrate protoze enum
@@ -17,7 +36,7 @@ verzi se spolecnym enum.
 
 7.7.2014
 Vytvoreny templates pro modul a pro cmsis driver...
-TODO: uart ovladac pro uart1 a 2
+_TODO: uart ovladac pro uart1 a 2
 
 4.7.2014
 TODO: v tpm driveru asi neni potreba mit 6 pinu pro tpm1 a 2, viz ukazalo se ze kod
