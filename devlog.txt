@@ -8,6 +8,13 @@ po importu jako existing project into workspace ( bez kopirovani do workspace) j
 10.7.2014
 Pokracuj: smerovat asi k publikaci, nema cenu delat spi, dasty vyuzije proc expert a ne drivery...
 
+TODO: + high level msf pwm/ic/oc driver abych mel neco pro advanced pouziti.
+TODO: + asi i SPI driver pred release, mozna i touch slider? 
+- analogWrite hotovo, otestovat.
+TODO: otestovat TPM driver pro inpuit capture mode - mam napsano.
+TODO: otestovat TPM driver pro output compare mode - mam napsano.
+TODO: testovat msf_print funkce po uprave na coniob.
+
 9.7.2014
 _TODO: coniob nefunguje spravne viz testy uart1, pri puts("aho") tiskne "ahooaho"...
 asi je to "soubehem" kdy zapisuju do bufferu moc rychle, nez odvysila predchozi AHO, ale
@@ -42,16 +49,17 @@ Vytvoreny templates pro modul a pro cmsis driver...
 _TODO: uart ovladac pro uart1 a 2
 
 4.7.2014
-TODO: v tpm driveru asi neni potreba mit 6 pinu pro tpm1 a 2, viz ukazalo se ze kod
+_TODO: v tpm driveru asi neni potreba mit 6 pinu pro tpm1 a 2, viz ukazalo se ze kod
 musi testovat skutecne dostupny pocet -> undefined piny odstatnit.
+ >nejde to udelat viz struktura TPM_PINS je deklarovana spolecne provsechny timery
+ a je tam pole kde musi byt 6. Asi by slo nejak vyresit ale zatim low priority. 
  
 
 26.6.2014
-TODO: definovat si coding standard pro MSF/msf_lite asi podle Ganssle i kdyz 
+_TODO: definovat si coding standard pro MSF/msf_lite asi podle Ganssle i kdyz 
  on vyzaduje aaa_boo a CMSIS i knizka embedded pouziva aaaBoo.
  >podivat i na CMSIS standard - pouziva misra2004 + velmi strucne poznamky na uvodni strane
  pod "coding rules".
- 
  > nedelat podrobne
  > neni moc dobry "kockopec" kdy cmsis-like funkce jsou initNeco a global jsou init_neco
  ale zase asi C-styl s _ je dobry... nevim_?
@@ -65,11 +73,6 @@ _Pokracuj: otestovat aW,
      - analogWrite funguje ok na všech pinech testováno kromì 90 % a více které malý scope nezvládá :(
      - testovano i pro 8 kHz PWM ok.
      
-TODO: + high level msf pwm/ic/oc driver abych mel neco pro advanced pouziti.
-TODO: + asi i SPI driver pred release, mozna i touch slider? 
-- analogWrite hotovo, otestovat.
-TODO: otestovat TPM driver pro inpuit capture mode - mam napsano.
-TODO: otestovat TPM driver pro output compare mode - mam napsano.
 
 REMEM: vyhoda proti Arduino: prakticky vsechny piny jde pouzit pro PWM, viz arduino.c
  + nastavitelna freq vystupu az 32 kHz v msf_config.h 
@@ -148,7 +151,7 @@ Pokracuj: analogWrite, jinak uz arduino layer asi komplet ok.
  >je analogwrite v arduino pres HW kde to jde nebo vsude SW.
 - Serial funguje, otestovan v arduino_blink
 
-TODO: testovat msf_print funkce po uprave na coniob.
+
 _TODO: do uart driveru dat nastaveni start/stop bitu jak potøeba pro arduino.
  > nastaveni datovych bitu a stop bitu done.
  > nastaveni 8,9,10 dat bitu nebudu delat, je komplikovany pak prijem i vysilani (=vice nez byte dat najednou.)
