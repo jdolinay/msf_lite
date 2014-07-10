@@ -1,0 +1,66 @@
+MSF lite  Coding Rules
+----------------------
+This document provides the coding rules recommended for MSF Lite.
+The rules are based on "A Firmware Development Standard" by Ganssle Group.
+(www.ganssle.com/misc/fsm.doc) and also inspired by the Coding Rules for CMSIS.
+This is not complete list of rules but just the main points.
+
+
+Names
+1. All filenames should be lower case to enhance portability between Windows 
+and Linux systems.
+
+2. Use long names for variables and functions to clarify their meaning.
+
+3. Prefered separator for words in variable/function names is underscore.
+    Example: timer_data
+   Using capital letters as separator for function names is also allowed 
+   (as it is standard for the CMSIS ARM drivers and MSF low-level drivers
+    which use the same style).
+    Example: timerStart()
+
+4. Variable and function names are defined with the first words being descriptive
+ of broad ideas, and later words narrowing down to specifics. 
+    Example: Universe_Galaxy_System_Planet
+
+5. Global variables should begin with g_. 
+    Example: g_timer_0_counter.
+    
+6. To avoid confusion, never name a variable or function with a leading underscore.
+    such as _my_variable. This is wrong!  
+
+
+Comments
+1. C- style comments are recommended. Example: /* comment */
+
+2. C++ style comments are also allowed in CMSIS-like MSF drivers. Example: // comment
+
+3. Each file should have a header as defined in the template files (see below). 
+
+4. Each function should have a heading comment as defined in the template files (see below).
+
+
+Templates
+1. Templates for source and header files are provided in \template\src. 
+There is a template for general .C and .H file (a module) and a separate 
+templates for CMSIS-style drivers.
+
+
+Data types and defines
+1. Uses ANSI C standard data types defined in <stdint.h>.
+    Example: uint8_t
+   Do not use the types which can have different size on different machines
+   such as int or long.
+
+2. #defines should have names with all capital letters. The expression should be always 
+enclosed in parenthesis.
+    Example: #define    UNIVERSE_SIZE  (8)
+
+
+Spacing and Indentation
+1. Put a space after each comma in argument lists for functions and after 
+the semicolons separating expressions in a for statement. 
+
+2. Indent C code in increments of 4 spaces. That is, every indent level is 4, 8, 12, etc. spaces.
+    
+
