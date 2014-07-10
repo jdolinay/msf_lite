@@ -957,7 +957,7 @@ void UART_handleIRQ( UART_RESOURCES* uart)
 	if ( (uart->reg1->S1 & UART_S1_RDRF_MASK) && (uart->info->status & MSF_UART_STATUS_RXNOW) )
 	{		
 		/* Save next byte */
-		((uint8_t*)uart->info->rxbuff)[uart->info->rx_cnt++] = uart->reg->D;
+		((uint8_t*)uart->info->rxbuff)[uart->info->rx_cnt++] = uart->reg1->D;
 		/* Check if received all we wanted */
 		if ( uart->info->rx_cnt >= uart->info->rx_total )
 		{

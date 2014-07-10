@@ -40,7 +40,7 @@
 */
 /* Define the default baudrate used by console I/O (conio).
  * This must be one of the values from the enum defined in msf_<device>.h. */
-#define	 MSF_STDIO_BAUDRATE		(BD19200)
+#define	 MSF_STDIO_BAUDRATE		(BD9600)
 
 /*********************************************
 *    Define whether we want to use analog inputs

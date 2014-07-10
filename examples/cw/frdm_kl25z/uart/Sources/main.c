@@ -66,8 +66,8 @@ int main(void)
 	//polled_uart_test();
 	//interrupt_uart_simple_test();
 	//interrupt_uart_full_test();
-	//coniob_test();
-	uart12_test();
+	coniob_test();
+	//uart12_test();
 		
 	for(;;) {	   
 	   	counter++;
@@ -479,9 +479,10 @@ void coniob_test(void)
 		}
 		/* we expect always 3 chars as a command */
 		cnt = coniob_kbhit();
-		if (  cnt >= 3 )
+		if (  cnt >= 3  )
 		{
-			coniob_gets(buff, cnt, 0);
+			// do not read more than our buffer can handle!
+			coniob_gets(buff, 3, 0);
 			if (strcmp(buff, "dir") == 0 )
 				coniob_puts("dir command received\n");
 			else if (strcmp(buff, "end") == 0 )
@@ -516,10 +517,16 @@ void coniob_test(void)
 /* Test UART1/2 
  * UART1 is available on pins Arduino #14 (PTE0) Tx; #15 (PTE1) Rx
  * UART2 is available on pins Arduino #12 (PTD3) Tx; #11 Rx (PTD2)
+ * Tested by connectiong with another board (Arduino) which sends some
+ * chars to UART and also reads reply.
+ * Another test was using the coniob_test() with the coniob using UART2
+ * driver instead of UART0.
  */
 void uart12_test(void)
 {
 	char buff[8];
+	char ack[4] = "ACK";
+	
 	coniob_puts("starting receive...\n");
 	msf_delay_ms(2000);
 	//Driver_UART1.Initialize(BD9600, null);
@@ -533,7 +540,11 @@ void uart12_test(void)
 		
 		// print received string to UART0
 		coniob_puts(buff);
-		//coniob_puts("aho");
+		
+		// also send something to the sender
+		Driver_UART2.Send(ack, 3);
+		
+		msf_delay_ms(500);
 	}
 
 }

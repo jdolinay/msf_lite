@@ -43,7 +43,12 @@
 
 
 /*---------- Internal variables ---------------- */
-/* The name of the size for the buffer must match this patters */
+/* The name of the size for the buffer must match this patterns */
+/* The circular buffer library requires that the circular buffer size be a power of two, and the
+*   size of the buffer needs to smaller than the index. So an 8 bit index
+*   supports a circular buffer upto ( 1 << 7 ) = 128 entries, and a 16 bit index
+*   supports a circular buffer upto ( 1 << 15 ) = 32768 entries.
+*   */
 #define coniob_txQ_SIZE    CONIOB_TXBUFFER_SIZE
 #define coniob_rxQ_SIZE    CONIOB_RXBUFFER_SIZE
    
@@ -61,14 +66,14 @@ volatile struct
     uint8_t     m_entry[ coniob_rxQ_SIZE ];
 } coniob_rxQ;
 
-/* the number of read bytes last time we updated the Rx FIFO */
+
 volatile uint32_t coniob_nowSending;
 
 
 /* -------- Prototypes of internal functions   -------- */
 void coniob_UART_SignalEvent(uint32_t event, uint32_t arg);
-void wconiob_update_rxfifo(void);
-void wconiob_update_txfifo(void);
+//void wconiob_update_rxfifo(void);
+//void wconiob_update_txfifo(void);
 
 /* -------- Implementation of public functions   -------- */
 
@@ -123,9 +128,9 @@ uint32_t coniob_kbhit(void)
  * @param char to send
  **/
 void coniob_putch(char c)        
-{	
-	
-	uint8_t* pStart = CBUF_GetLastEntryPtr(coniob_txQ);
+{		
+	//uint8_t* pStart = CBUF_GetLastEntryPtr(coniob_txQ);
+	uint8_t* pData;
 	
 	/* push to FIFO; if full, overwrites the oldest char 
 	 * TODO: would it be better to block the caller and wait for ISR to transmit some bytes? */
@@ -146,7 +151,9 @@ void coniob_putch(char c)
     	 * otherwise we would have to handle the situation when the 1st char is at the end of the 
     	 * FIFO buffer and the next char is at the beginning, which the UART driver does not handle-
     	 * - it needs simple flat buffer.  */
-    	CONIOB_UART_DRIVER.Send(pStart, 1);
+    	//CONIOB_UART_DRIVER.Send(pStart, 1);
+    	pData = &CBUF_Pop(coniob_txQ);
+    	CONIOB_UART_DRIVER.Send( pData, 1);		
     }
 }
 
@@ -156,8 +163,9 @@ void coniob_putch(char c)
  **/
 void coniob_puts(const char* str)     
 {		
-	uint8_t* pStart = CBUF_GetLastEntryPtr(coniob_txQ);
-    
+	//uint8_t* pStart = CBUF_GetLastEntryPtr(coniob_txQ);
+	uint8_t* pData;
+	
 	while(*str) 
     {	    	
     	if( *str == '\n')
@@ -181,7 +189,9 @@ void coniob_puts(const char* str)
     	* otherwise we would have to handle the situation when the 1st char is at the end of the 
     	* FIFO buffer and the next char is at the beginning, which the UART driver does not handle-
     	* - it needs simple flat buffer.  */
-    	CONIOB_UART_DRIVER.Send(pStart, 1);
+    	//CONIOB_UART_DRIVER.Send(pStart, 1);
+    	pData = &CBUF_Pop(coniob_txQ);
+    	CONIOB_UART_DRIVER.Send( pData, 1);		
     }
 }
 
@@ -252,7 +262,7 @@ void coniob_flush(void)
  * */
 void coniob_UART_SignalEvent(uint32_t event, uint32_t arg)
 {
-	volatile uint8_t* pData;
+	uint8_t* pData;
 	
 	switch( event) 
 	{

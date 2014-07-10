@@ -5,15 +5,18 @@ Projekty examples staci .cproject a .project a slozka .settings jak mam ted - ov
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 ------------------------------------------------
 
+10.7.2014
+Pokracuj: smerovat asi k publikaci, nema cenu delat spi, dasty vyuzije proc expert a ne drivery...
+
 9.7.2014
-TODO: coniob nefunguje spravne viz testy uart1, pri puts("aho") tiskne "ahooaho"...
+_TODO: coniob nefunguje spravne viz testy uart1, pri puts("aho") tiskne "ahooaho"...
 asi je to "soubehem" kdy zapisuju do bufferu moc rychle, nez odvysila predchozi AHO, ale
 musi to zvladat!
-TODO: test uart1/2 i na vysilani.
-
-Pokracuj: po dotestovani uart smerovat asi k publikaci, nema cenu delat spi, dasty vyuzije proc expert a ne drivery...
-
-
+ > opraveno, bylo to tim ze kod pro vysilani primo z puts a z obsluhy eventu nebyl stejny...
+ 
+_TODO: test uart1/2 i na vysilani.
+ - ok v polled mode.
+ - ok v int mode rx i tx, zkouseno presmerovanim coniob na uart2 a ok.
 
 - uart driver dodelan. uart0 funguje i po upravach ok (testovano polled a full int test)
  uart1 a 2 otestovany na prijem (polled) ok.
