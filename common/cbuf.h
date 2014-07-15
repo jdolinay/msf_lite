@@ -103,7 +103,9 @@
 *   contained in the circular buffer.
 */
 
-#define CBUF_Len( cbuf )        ((typeof( cbuf.m_putIdx ))(( cbuf.m_putIdx ) - ( cbuf.m_getIdx )))
+//#define CBUF_Len( cbuf )        ((typeof( cbuf.m_putIdx ))(( cbuf.m_putIdx ) - ( cbuf.m_getIdx )))
+/* JD: modified for build in KDS IDE - it seems typeof is not supported. */
+#define CBUF_Len( cbuf )        ((( cbuf.m_putIdx ) - ( cbuf.m_getIdx )))
 
 /**
 *   Appends an element to the end of the circular buffer. The

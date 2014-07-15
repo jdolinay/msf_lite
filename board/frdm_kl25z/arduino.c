@@ -411,9 +411,9 @@ static void SerialWrite(int val)
 	coniob_putch((char)val);
 }
 
-/** Prints integer number in given format: DEC, HEX, OCT, BIN 
+/** Prints integer number in given format: DEC, HEX, OCT 
  * Note that without C++ features we cannot have function of the same name (print)
- * We do not support binary format as standard C print doe snot have it.
+ * We do not support binary format as standard C print does not have it.
  */
 static void SerialPrintInt(int val, int format)
 {

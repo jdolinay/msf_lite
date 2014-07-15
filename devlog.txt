@@ -5,8 +5,33 @@ Projekty examples staci .cproject a .project a slozka .settings jak mam ted - ov
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 ------------------------------------------------
 
+15.7.2014
+Pokus zprovoznit blink prtojekt v IDE Kinetis Design Studio, návod viz \doc.
+Nefunguje, skáèe na default isr handler.
+- nevím jak je øešen init hw v KDS; 
+- vychozi kod je init_hardware prazdny, asi nenastavi vektor tabulku
+- pri blink prosel pres UART.Receive a pak spadl do default isr.
+- pøidal jsem zázak watchdogu a init vector tabulky dle cw projektu a dostalo se 
+o kousek dál, ale pak v delay_ms stejne spadlo.
+- mozna je nejaky kod skryt protoze v main.c neni zadne include, nejsou zde
+v projektu odkazy na nejake systemove knihovny, ani neni nikde jejich "header",
+asi nejak automatizovano :( 
+
+11.7.2014
+TIP: asi by bylo lepsi používat v èlánku Kinetis Design Studio misto CW, ale zatim je
+jen beta a download je narocny - vyzaduje registraci a "aprove" od FSL :(
+ > asi je to jedno, nebude jednodušší na ovládání, snad jen menší...
+ TODO: urèitì ale CW 10.6 nutno!
+
+TIP: freescale má Kinetis SDK, viz http://mcuoneclipse.com/2014/05/18/constructing-a-classroom-ide-with-eclipse-for-arm/
+ Nelíbí se mi, že nepoužívá CMSIS styl pro drivery atd viz MCU\freescale\kinetis_sdk.
+ + dobré je øešení driverù ve vrtvì low = HAL = stateles funkce kolem registrù
+  a nad tím vrstva, která odpvídá mojí CMSIS-like.
+  
+
 10.7.2014
 Pokracuj: smerovat asi k publikaci, nema cenu delat spi, dasty vyuzije proc expert a ne drivery...
+ >zacato v mcu\publukace\msf_lite
 
 TODO: + high level msf pwm/ic/oc driver abych mel neco pro advanced pouziti.
 TODO: + asi i SPI driver pred release, mozna i touch slider? 

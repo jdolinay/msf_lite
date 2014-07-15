@@ -1,0 +1,107 @@
+Howto create projects for MSF lite in Kinetis Design Studio (beta) 
+
+Note:
+The MSF lite projects in KDS for the FRDM-KL25Z board use the universal 
+ARM-defined CMSIS (register definitions and init functions) rather than the 
+Freescale-specific EWL definitions.
+
+
+
+------------------
+Full manual setup
+------------------
+1) Create new KDS project in for Kinetis L > MKL2x > KL25Z >  MKL25Z128xxx4 
+ 
+ - Do not enable use of  Processor Expert in the wizard
+ - Note that if you do not create the project in the default location, the wizard 
+ will not create a folder for your project; it will place the files directly 
+ into the selected folder.
+ 
+2) Create MSF folder in your project (in KDS by selecting the project and right-click
+ + New > Folder)                                                       
+
+
+3) Import CMSIS files to the project (to the MSF folder):
+  - Import > General > File System > Select the CMSIS folder (checkbox will 
+ select all the files). Located in msf_lite\vendor\freescale\CMSIS.
+ AND in Advanced select Link resources (do not copy the files to your workspace)
+ AND check the "Create top folder" so that the CMSIS folder is also created in your project.
+
+
+4) In the same way import MSF files:
+(again use Create links, Create virtual folders and Create top level folder import options)
+ - msf_lite\common
+ - msf_lite\platform\kinetis
+ - msf_lite\board\frdm_kl25z 
+ 
+ 
+5) Add these paths to Options > C/C++ Build > Settings > ARM C compiler... > Includes:
+"${ProjDirPath}\..\..\..\..\vendor\freescale\CMSIS"
+"${ProjDirPath}\..\..\..\..\vendor\freescale\CMSIS\MKL25Z4/Include"
+"${ProjDirPath}\..\..\..\..\vendor\freescale\CMSIS\Include"
+"${ProjDirPath}\..\..\..\..\common"
+"${ProjDirPath}\..\..\..\..\platform\kinetis"
+"${ProjDirPath}\..\..\..\..\platform\kinetis\mkl25z" 
+"${ProjDirPath}\..\..\..\..\board\frdm_kl25z"
+Note that the KDS beta adds absolute paths if you use the File system button.
+Note that it does not workj if you add the locations with the "virtual" MSF folder
+in your workspace; you need to add the path to the real MSF lite directories.
+
+
+6) Add CMSIS SystemInit call to the CW startup routine __thumb_startup in Project_Settings\Startup_Code\startup.c
+ - place it just before the main() call.
+Note: The KDS startup code by default does not initialize CPU clock, but the CMSIS SystemInit does this.
+
+7) In the main file add these includes:
+/* MSF configuration for this project */
+#include "msf_config.h"
+/* Include the core definitions - CMSIS <device>.h file etc.*/
+#include "coredef.h"
+#include "msf.h"
+
+8) Copy msf_config.h and derivative.h files from [MSF lite]\template\kds to your project\Sources
+and edit the option(s) as suited for your application in these files (see "Configuration files"
+below for more information).
+
+9) Your project should now build without errors.
+
+10) To startup.c add:
+- #include "derivative.h"
+- extern struct tVectorTable __vect_table;
+- in __init_hardware add:
+    SCB->VTOR = (uint32_t)&__vect_table;
+	// Disable the Watchdog because it may reset the core before entering main().
+	SIM->COPC = 0;
+	/* 0 is the value to be written in SIM_COP in order to disable the Watchdog */
+
+11) To Start debugging: 
+- Right click the project and select Debug > Debug configurations...
+- In the Debug configurations window right-click GDB PEMicro Interface Debug and
+select New
+- In the right-hand side of the window click on the Debugger tab
+- In Interface select Open SDA Embedded debug - USB port
+- In Device name select KL25Z128M4
+- Click the Debug button (make sure your FRDM-KL25Z is connected )
+
+
+
+Configuration files
+---------------------
+*) Your application includes msf_config.h. You should create this file locally in
+each project by "clonning" the file provided in [MSF lite]\template\.
+
+*) msf_config.h defines some options which are application-specific (CPU frequency)
+and includes the main header file for the BOARD used in the application, e.g.
+#include "frdm_kl25z.h"  (<board>.h file) 
+
+*) The <board>.h file includes main configuration file for the MCU used in the board, e.g.
+#include "msf_config_mkl25z.h" (msf_config_<device>.h 
+This is internal file which you do not need to edit in most cases!
+You can do so with care, however; it is no magic.
+The <board>.h file also defines the constants for the board, e.g. pin names.
+
+General advice: edit options msf_config.h as needed; do not edit the other files
+included from this file unless you understand what you are doing.
+
+
+
