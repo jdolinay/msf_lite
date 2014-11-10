@@ -5,6 +5,27 @@ Projekty examples staci .cproject a .project a slozka .settings jak mam ted - ov
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 ------------------------------------------------
 
+7.11.2014
+Obnova prace na clanku s KDS verze 1.1.1
+TODO: updatovat blink example pro kds1.1.1 = vytvorit novy projekt, jen zdrojak pujde pouzit
+TIP: do clanku jen otevreni examplu, vytvareni projektu bude v txt v \doc. v clanku by zbytecne vydesilo :)
+TIP: procesorexpert - hide views po vytvo¯enÌ projektu
+TODO: z navodu pro KDS odstranit pridani volani systeminit a asi i CMSIS
+odstrnait uplne z msf_lite protoze KDS uz obsahuje v sobe CMSIS, nepouziva
+FSL headery a startup, ktery bych musel predelavat na CMSIS.
+(mozna i CW10.6, to jsem zazim nezkousel)
+
+TODO: cw navod a vzorove projekty odstranit k msf_lite - nema smysl podporovat
+pokud je zdarma KDS.
+
+TODO: v msf_config updatovat clock options podle noveho KDS souboru, jsou tam 4.
+ >soubory jsou zmatene mezi verzemi templates... nutno pouzit ten s aktualniho projektu 
+ kds v c:\dokumenty\kds1.1.1.workspaces.
+ > v templates\kds mam ok verzi pro arduino - ta je z examplu blink arduino pro cw.
+ 
+TODO: Do navodu pridat vytvoreni debug config - v kds se nevytvori :(
+Nutno vybrat GDB PEMicro Interface a v Debugger tab vybrat OpenSDA Embedded debug + device name KL25Z128M4
+
 15.7.2014
 Pokus zprovoznit blink prtojekt v IDE Kinetis Design Studio, n·vod viz \doc.
 Nefunguje, sk·Ëe na default isr handler.

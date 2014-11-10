@@ -20,61 +20,42 @@ Full manual setup
 2) Create MSF folder in your project (in KDS by selecting the project and right-click
  + New > Folder)                                                       
 
-
-3) Import CMSIS files to the project (to the MSF folder):
-  - Import > General > File System > Select the CMSIS folder (checkbox will 
- select all the files). Located in msf_lite\vendor\freescale\CMSIS.
- AND in Advanced select Link resources (do not copy the files to your workspace)
+3) Import the following folders to the project (to the MSF folder):
+  - Import > General > File System > Select each folder (checkbox will 
+ select all the files). 
+ AND in Advanced select "Link resources" (do not copy the files to your workspace)
  AND check the "Create top folder" so that the CMSIS folder is also created in your project.
-
-
-4) In the same way import MSF files:
-(again use Create links, Create virtual folders and Create top level folder import options)
  - msf_lite\common
  - msf_lite\platform\kinetis
  - msf_lite\board\frdm_kl25z 
  
- 
-5) Add these paths to Options > C/C++ Build > Settings > ARM C compiler... > Includes:
-"${ProjDirPath}\..\..\..\..\vendor\freescale\CMSIS"
-"${ProjDirPath}\..\..\..\..\vendor\freescale\CMSIS\MKL25Z4/Include"
-"${ProjDirPath}\..\..\..\..\vendor\freescale\CMSIS\Include"
-"${ProjDirPath}\..\..\..\..\common"
-"${ProjDirPath}\..\..\..\..\platform\kinetis"
-"${ProjDirPath}\..\..\..\..\platform\kinetis\mkl25z" 
-"${ProjDirPath}\..\..\..\..\board\frdm_kl25z"
-Note that the KDS beta adds absolute paths if you use the File system button.
-Note that it does not workj if you add the locations with the "virtual" MSF folder
-in your workspace; you need to add the path to the real MSF lite directories.
 
+4) In Project Properties > C/C++ Build > Buil Variables add variable MSF_LOC and point
+it to your MSF_lite path. The type will be "Directory". (e.g. C:\git\msf_lite).
+NOTE: adding the path in Resource > Linked Resources does not work! 
 
-6) Add CMSIS SystemInit call to the CW startup routine __thumb_startup in Project_Settings\Startup_Code\startup.c
- - place it just before the main() call.
-Note: The KDS startup code by default does not initialize CPU clock, but the CMSIS SystemInit does this.
+5) Right-click the project in Project Explorer and select properties. 
+Go to C/C++ Build > Settings > ARM C compiler... > Includes and add these paths:
+"${MSF_LOC}/common"
+"${MSF_LOC}/platform/kinetis"
+"${MSF_LOC}/platform/kinetis/mkl25z"
+"${MSF_LOC}/board/frdm_kl25z"
 
-7) In the main file add these includes:
+6) In the main file add these includes:
 /* MSF configuration for this project */
 #include "msf_config.h"
 /* Include the core definitions - CMSIS <device>.h file etc.*/
 #include "coredef.h"
 #include "msf.h"
 
-8) Copy msf_config.h and derivative.h files from [MSF lite]\template\kds to your project\Sources
+7) Copy msf_config.h and derivative.h files from [MSF lite]\template\kds to your project\Sources
 and edit the option(s) as suited for your application in these files (see "Configuration files"
 below for more information).
 
-9) Your project should now build without errors.
+8) Your project should now build without errors.
 
-10) To startup.c add:
-- #include "derivative.h"
-- extern struct tVectorTable __vect_table;
-- in __init_hardware add:
-    SCB->VTOR = (uint32_t)&__vect_table;
-	// Disable the Watchdog because it may reset the core before entering main().
-	SIM->COPC = 0;
-	/* 0 is the value to be written in SIM_COP in order to disable the Watchdog */
 
-11) To Start debugging: 
+9) To Start debugging: 
 - Right click the project and select Debug > Debug configurations...
 - In the Debug configurations window right-click GDB PEMicro Interface Debug and
 select New
