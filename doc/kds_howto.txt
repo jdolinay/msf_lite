@@ -1,11 +1,4 @@
-Howto create projects for MSF lite in Kinetis Design Studio (beta) 
-
-Note:
-The MSF lite projects in KDS for the FRDM-KL25Z board use the universal 
-ARM-defined CMSIS (register definitions and init functions) rather than the 
-Freescale-specific EWL definitions.
-
-
+Howto create projects for MSF lite in Kinetis Design Studio 1.1.1
 
 ------------------
 Full manual setup
@@ -16,6 +9,9 @@ Full manual setup
  - Note that if you do not create the project in the default location, the wizard 
  will not create a folder for your project; it will place the files directly 
  into the selected folder.
+
+When the project is created, go to Processor Expert menu and select Hide Views to
+close the PE views which we will not use. 
  
 2) Create MSF folder in your project (in KDS by selecting the project and right-click
  + New > Folder)                                                       
@@ -30,11 +26,15 @@ Full manual setup
  - msf_lite\board\frdm_kl25z 
  
 
-4) In Project Properties > C/C++ Build > Buil Variables add variable MSF_LOC and point
-it to your MSF_lite path. The type will be "Directory". (e.g. C:\git\msf_lite).
-NOTE: adding the path in Resource > Linked Resources does not work! 
+4) In Project Properties select C/C++ Build > Buil Variables.
+Switch the Configuration at top of the window to Release or [All configurations] 
+Add variable MSF_LOC and point it to your MSF_lite path, for example, "C:\msf_lite"
+As the type select "Directory"
+NOTE 1: You can also use path relative to your project location, 
+  for example, ${ProjDirPath}\..\..\..\..\
+NOTE 2: Adding the path in Resource > Linked Resources does not work.  
 
-5) Right-click the project in Project Explorer and select properties. 
+5) Right-click the project in Project Explorer and select Properties. 
 Go to C/C++ Build > Settings > ARM C compiler... > Includes and add these paths:
 "${MSF_LOC}/common"
 "${MSF_LOC}/platform/kinetis"
@@ -48,8 +48,8 @@ Go to C/C++ Build > Settings > ARM C compiler... > Includes and add these paths:
 #include "coredef.h"
 #include "msf.h"
 
-7) Copy msf_config.h and derivative.h files from [MSF lite]\template\kds to your project\Sources
-and edit the option(s) as suited for your application in these files (see "Configuration files"
+7) Copy msf_config.h and derivative.h files from [MSF lite]\template\kds to [your project]\Sources
+If needed, edit the option(s) in the msf_config.h file (see "Configuration files"
 below for more information).
 
 8) Your project should now build without errors.
@@ -69,7 +69,7 @@ select New
 Configuration files
 ---------------------
 *) Your application includes msf_config.h. You should create this file locally in
-each project by "clonning" the file provided in [MSF lite]\template\.
+each project by "clonning" the file provided in [MSF lite]\template\kds.
 
 *) msf_config.h defines some options which are application-specific (CPU frequency)
 and includes the main header file for the BOARD used in the application, e.g.

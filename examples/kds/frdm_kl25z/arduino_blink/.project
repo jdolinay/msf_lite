@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>blink</name>
+	<name>arduino_blink</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -26,164 +26,170 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>msf/common</name>
+			<name>MSF/common</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>msf/frdm_kl25z</name>
+			<name>MSF/frdm_kl25z</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>msf/kinetis</name>
+			<name>MSF/kinetis</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>msf/common/cbuf.h</name>
+			<name>MSF/common/cbuf.h</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/common/cbuf.h</locationURI>
 		</link>
 		<link>
-			<name>msf/common/conio.c</name>
+			<name>MSF/common/conio.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/common/conio.c</locationURI>
 		</link>
 		<link>
-			<name>msf/common/conio.h</name>
+			<name>MSF/common/conio.h</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/common/conio.h</locationURI>
 		</link>
 		<link>
-			<name>msf/common/coniob.c</name>
+			<name>MSF/common/coniob.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/common/coniob.c</locationURI>
 		</link>
 		<link>
-			<name>msf/common/coniob.h</name>
+			<name>MSF/common/coniob.h</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/common/coniob.h</locationURI>
 		</link>
 		<link>
-			<name>msf/common/msf_print.c</name>
+			<name>MSF/common/msf_print.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/common/msf_print.c</locationURI>
 		</link>
 		<link>
-			<name>msf/frdm_kl25z/arduino.c</name>
+			<name>MSF/frdm_kl25z/arduino.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/board/frdm_kl25z/arduino.c</locationURI>
 		</link>
 		<link>
-			<name>msf/frdm_kl25z/arduino.h</name>
+			<name>MSF/frdm_kl25z/arduino.h</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/board/frdm_kl25z/arduino.h</locationURI>
 		</link>
 		<link>
-			<name>msf/frdm_kl25z/frdm_kl25z.h</name>
+			<name>MSF/frdm_kl25z/frdm_kl25z.h</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/board/frdm_kl25z/frdm_kl25z.h</locationURI>
 		</link>
 		<link>
-			<name>msf/frdm_kl25z/msf_config_mkl25z.h</name>
+			<name>MSF/frdm_kl25z/msf_config_mkl25z.h</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/board/frdm_kl25z/msf_config_mkl25z.h</locationURI>
 		</link>
 		<link>
-			<name>msf/kinetis/adc_kl25.c</name>
+			<name>MSF/kinetis/adc_kl25.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/adc_kl25.c</locationURI>
 		</link>
 		<link>
-			<name>msf/kinetis/adc_kl25.h</name>
+			<name>MSF/kinetis/adc_kl25.h</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/adc_kl25.h</locationURI>
 		</link>
 		<link>
-			<name>msf/kinetis/coredef.h</name>
+			<name>MSF/kinetis/coredef.h</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/coredef.h</locationURI>
 		</link>
 		<link>
-			<name>msf/kinetis/delay_util.h</name>
+			<name>MSF/kinetis/delay_util.h</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/delay_util.h</locationURI>
 		</link>
 		<link>
-			<name>msf/kinetis/drv_adc.h</name>
+			<name>MSF/kinetis/drv_adc.h</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/drv_adc.h</locationURI>
 		</link>
 		<link>
-			<name>msf/kinetis/drv_tpm.h</name>
+			<name>MSF/kinetis/drv_tpm.h</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/drv_tpm.h</locationURI>
 		</link>
 		<link>
-			<name>msf/kinetis/drv_uart.h</name>
+			<name>MSF/kinetis/drv_uart.h</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/drv_uart.h</locationURI>
 		</link>
 		<link>
-			<name>msf/kinetis/gpio.h</name>
+			<name>MSF/kinetis/gpio.h</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/gpio.h</locationURI>
 		</link>
 		<link>
-			<name>msf/kinetis/mkl25z</name>
+			<name>MSF/kinetis/mkl25z</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>msf/kinetis/msf.c</name>
+			<name>MSF/kinetis/msf.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/msf.c</locationURI>
 		</link>
 		<link>
-			<name>msf/kinetis/msf.h</name>
+			<name>MSF/kinetis/msf.h</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/msf.h</locationURI>
 		</link>
 		<link>
-			<name>msf/kinetis/msf_analog.c</name>
+			<name>MSF/kinetis/msf_analog.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/msf_analog.c</locationURI>
 		</link>
 		<link>
-			<name>msf/kinetis/msf_kinetis.h</name>
+			<name>MSF/kinetis/msf_kinetis.h</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/msf_kinetis.h</locationURI>
 		</link>
 		<link>
-			<name>msf/kinetis/msf_stdbool.h</name>
+			<name>MSF/kinetis/msf_stdbool.h</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/msf_stdbool.h</locationURI>
 		</link>
 		<link>
-			<name>msf/kinetis/tpm_kl25.c</name>
+			<name>MSF/kinetis/tpm_kl25.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/tpm_kl25.c</locationURI>
 		</link>
 		<link>
-			<name>msf/kinetis/tpm_kl25.h</name>
+			<name>MSF/kinetis/tpm_kl25.h</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/tpm_kl25.h</locationURI>
 		</link>
 		<link>
-			<name>msf/kinetis/uart_kl25.c</name>
+			<name>MSF/kinetis/uart_kl25.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/uart_kl25.c</locationURI>
 		</link>
 		<link>
-			<name>msf/kinetis/uart_kl25.h</name>
+			<name>MSF/kinetis/uart_kl25.h</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/uart_kl25.h</locationURI>
 		</link>
 		<link>
-			<name>msf/kinetis/mkl25z/msf_mkl25z.h</name>
+			<name>MSF/kinetis/mkl25z/msf_mkl25z.h</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/mkl25z/msf_mkl25z.h</locationURI>
 		</link>
 	</linkedResources>
+	<variableList>
+		<variable>
+			<name>MSF_LOC</name>
+			<value>file:/C:/git/msf_lite</value>
+		</variable>
+	</variableList>
 </projectDescription>

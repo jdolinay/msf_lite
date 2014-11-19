@@ -5,12 +5,22 @@ Projekty examples staci .cproject a .project a slozka .settings jak mam ted - ov
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 ------------------------------------------------
 
+16.11.2014
+Upraveny example projekty KDS:  "blink" = normal MSF projekt, 
+    arduino_blink - arduinovsky projekt s loop()
+Upravena cesta MSF_LOC na relativni k projektu.
+Vytvoren projekt arduino_serial 
+TODO: projekt arduino_analog kde bude steni a pocilani na seriovku, jako example analogSerial v arduino
+a projekt pro analog write (pwm)    
+
+TODO: kontrola postupu pro vytvoreni debug config v navodu 
+
 7.11.2014
 Obnova prace na clanku s KDS verze 1.1.1
-TODO: updatovat blink example pro kds1.1.1 = vytvorit novy projekt, jen zdrojak pujde pouzit
+_TODO: updatovat blink example pro kds1.1.1 = vytvorit novy projekt, jen zdrojak pujde pouzit
 TIP: do clanku jen otevreni examplu, vytvareni projektu bude v txt v \doc. v clanku by zbytecne vydesilo :)
 TIP: procesorexpert - hide views po vytvoøení projektu
-TODO: z navodu pro KDS odstranit pridani volani systeminit a asi i CMSIS
+_TODO: z navodu pro KDS odstranit pridani volani systeminit a asi i CMSIS
 odstrnait uplne z msf_lite protoze KDS uz obsahuje v sobe CMSIS, nepouziva
 FSL headery a startup, ktery bych musel predelavat na CMSIS.
 (mozna i CW10.6, to jsem zazim nezkousel)
@@ -23,7 +33,7 @@ TODO: v msf_config updatovat clock options podle noveho KDS souboru, jsou tam 4.
  kds v c:\dokumenty\kds1.1.1.workspaces.
  > v templates\kds mam ok verzi pro arduino - ta je z examplu blink arduino pro cw.
  
-TODO: Do navodu pridat vytvoreni debug config - v kds se nevytvori :(
+_TODO: Do navodu pridat vytvoreni debug config - v kds se nevytvori :(
 Nutno vybrat GDB PEMicro Interface a v Debugger tab vybrat OpenSDA Embedded debug + device name KL25Z128M4
 
 15.7.2014
