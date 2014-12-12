@@ -147,7 +147,8 @@ typedef enum {
 #define		UART_GET_BR_UART1(baud_val)	((baud_val & 0x7FFC0000) >> 18)			/* the BR for UART1/2, 13-bit long*/
 
 #if F_CPU == 48000000
-/* CLOCK_SETUP = 1 in system_MKL25Z4.c (CMSIS); the UART0 must be clocked from OSCERCLK, because 
+/* CLOCK_SETUP = 1 or 4 in system_MKL25Z4.c (CMSIS);
+  the UART0 must be clocked from OSCERCLK, because
   PLLFLLCLK is disabled; the UART0 clock is 8 MHz (external crystal) */ 
 typedef enum  
  {
@@ -247,7 +248,7 @@ typedef enum
  * We assume the F_CPU is always >= 1 MHz and so this value is always >= 1.
  * We assume SysTick interrupt every ms.
  * Example: F_CPU = 8 MHz, the counter counts from 8000 to 0 to generate interrupt
- * very ms. The MSF_SYSTICK_VALINUS = 8 
+ * every ms. The MSF_SYSTICK_VALINUS = 8
  * Note1: that we do not need to use #if for F_CPU since CMSIS provides F_CPU in a variable. 
  * Note2: this will not be exact for F_CPU which is not in whole MHz*/
 #define		MSF_SYSTICK_VALINUS		(SystemCoreClock/1000000u)

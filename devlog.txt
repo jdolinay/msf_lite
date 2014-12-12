@@ -5,11 +5,18 @@ Projekty examples staci .cproject a .project a slozka .settings jak mam ted - ov
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 ------------------------------------------------
 11.12.2014
+TODO: nutno predelat clock protoze prakticky mam support jen pro 48 MHZ, vsechny
+ >low prio, mozno uverejnit s podporou jen 48 mhz. 
+ostatni jsou rozhozene :( viz 20,9 moje ma mus na polovinu a KDS ma na 20,9 :()
+  > zkusit 20,9, mozna bude fungovat, pisou ze je to default config takze by mela,
+  mozna bus clock nema na nic vliv?
 Pokracuj: reseni clock...nevim jak udelat, 
 a) v msf_config.h definovat clock option ale nevim jak se dostane do system...c ktery je generovan pri vytvoreni projektu
 b) f_cpu v msf_config ktere definuje uzivatel, sam se musi podivat do system...c
 mozna b je lepsi protoze kdyz freescale zmeni clock option jako to udelal ted, pak nerozbije
 msf cod = auto nastaveni f_cpu podle clock_option je nachylne na rozbiti pri zmene od freescale :(
+ > udìlat b, viz i u avr definuju rovnou F_CPU, tam to ani jinak nejde když nastavuji clock
+ pomocí fuses.
 
 TODO: otestovat uart projekt ale až po zapracování zmìnìných clock options!
 
