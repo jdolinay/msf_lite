@@ -48,6 +48,27 @@ void loop(void)
 			Serial.printInt(17, OCT);
 	}
 
+
+	/*
+	// This is example code for analogWrite
+	// You can customize the pins and frequency in msf_config.h
+	// See the comment for analogWrite in arduino.c for detailed description.
+	// The default pins: 2,3,4,5,7,8,10,12,18,19 can be used without any changes
+	// in msf_config.h.
+	// Default PWM frequency is 500 Hz, see MSF_AWRITE_500HZ in msf_config.h
+	// For mapping of the Arduino pin numbers used in this example
+	// to the MCU pins (port+pin) see arduino.h file.
+	analogWrite(2, 3); 		// 1% - D4
+	analogWrite(3, 178); 	// 70% - A12
+	analogWrite(4, 52);		// 20% - A4
+	analogWrite(5, 52);		// 20% - A5
+	analogWrite(7, 52);		// 20% - C9
+	analogWrite(8, 128);	// 50% - A13
+	analogWrite(10, 52);	// 20% - D0
+	analogWrite(12, 255);	// 100% - D3
+	analogWrite(18, 52);	// 20% - B2
+	analogWrite(19, 178);	// 70% - B3
+	*/
 }
 
 

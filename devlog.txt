@@ -4,16 +4,77 @@ Poznamka z AVR:
 Projekty examples staci .cproject a .project a slozka .settings jak mam ted - overeno v eclipse ze
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 ------------------------------------------------
+11.12.2014
+Pokracuj: reseni clock...nevim jak udelat, 
+a) v msf_config.h definovat clock option ale nevim jak se dostane do system...c ktery je generovan pri vytvoreni projektu
+b) f_cpu v msf_config ktere definuje uzivatel, sam se musi podivat do system...c
+mozna b je lepsi protoze kdyz freescale zmeni clock option jako to udelal ted, pak nerozbije
+msf cod = auto nastaveni f_cpu podle clock_option je nachylne na rozbiti pri zmene od freescale :(
 
+TODO: otestovat uart projekt ale až po zapracování zmìnìných clock options!
+
+TODO: cw navod a vzorove projekty odstranit k msf_lite - nema smysl podporovat
+pokud je zdarma KDS.
+
+TODO: v msf_config updatovat clock options podle noveho KDS souboru, jsou tam 4.
+ >soubory jsou zmatene mezi verzemi templates... nutno pouzit ten s aktualniho projektu 
+ kds v c:\dokumenty\kds1.1.1.workspaces.
+ > v templates\kds mam ok verzi pro arduino - ta je z examplu blink arduino pro cw.
+ 
+ CLOCK_SETUP nutno zakomentovat v Project_Settings\Startup_Code\system_MKL25Z4.c aby 
+ se použil ten v msf_config.h ale i nevím jestli se pak uplatní když tam není zaincludovan...
+ --------------------
+ Stare clock:
+ /* Predefined clock setups
+   0 ... Multipurpose Clock Generator (MCG) in FLL Engaged Internal (FEI) mode
+         Reference clock source for MCG module is the slow internal clock source 32.768kHz
+         Core clock = 41.94MHz, BusClock = 13.98MHz
+   1 ... Multipurpose Clock Generator (MCG) in PLL Engaged External (PEE) mode
+         Reference clock source for MCG module is an external crystal 8MHz
+         Core clock = 48MHz, BusClock = 24MHz
+   2 ... Multipurpose Clock Generator (MCG) in Bypassed Low Power External (BLPE) mode
+         Core clock/Bus clock derived directly from an external crystal 8MHz with no multiplication
+         Core clock = 8MHz, BusClock = 8MHz
+   3 ... Default settings: internal clock source 32.768kHz and FLL mode
+   	   	 Core clock = 20.9MHz, BusClock = ?
+*/
+
+Nové clock:
+   0 ... Multipurpose Clock Generator (MCG) in FLL Engaged Internal (FEI) mode
+         Default  part configuration.
+         Reference clock source for MCG module is the slow internal clock source 32.768kHz
+         Core clock = 20.97MHz, BusClock = 20.97MHz
+   1 ... Multipurpose Clock Generator (MCG) in PLL Engaged External (PEE) mode
+         Maximum achievable clock frequency configuration.
+         Reference clock source for MCG module is an external crystal 8MHz
+         Core clock = 48MHz, BusClock = 24MHz
+   2 ... Multipurpose Clock Generator (MCG) in Bypassed Low Power Internal (BLPI) mode
+         Core clock/Bus clock derived directly from an fast internal clock 4MHz with no multiplication
+         The clock settings is ready for Very Low Power Run mode.
+         Core clock = 4MHz, BusClock = 0.8MHz
+   3 ... Multipurpose Clock Generator (MCG) in Bypassed Low Power External (BLPE) mode
+         Core clock/Bus clock derived directly from the external crystal 8MHz with no multiplication
+         The clock settings is ready for Very Low Power Run mode.
+         Core clock = 4MHz, BusClock = 1MHz
+   4 ... Multipurpose Clock Generator (MCG) in PLL Engaged External (PEE) mode
+         USB clock setup - for USB to receive 48MHz input clock.
+         Reference clock source for MCG module is an external crystal 8MHz
+         Core clock = 48MHz, BusClock = 24MHz
+ 
+ 
+ ----------------------
+ 
+ 
 16.11.2014
 Upraveny example projekty KDS:  "blink" = normal MSF projekt, 
     arduino_blink - arduinovsky projekt s loop()
 Upravena cesta MSF_LOC na relativni k projektu.
 Vytvoren projekt arduino_serial 
-TODO: projekt arduino_analog kde bude steni a pocilani na seriovku, jako example analogSerial v arduino
+_TODO: projekt arduino_analog kde bude steni a pocilani na seriovku, jako example analogSerial v arduino
 a projekt pro analog write (pwm)    
-
-TODO: kontrola postupu pro vytvoreni debug config v navodu 
+  >pridano jako commentovane do serial examplu viz slozite vytvareni examplu
+  a staci takto aby bylo videt jak pouzit.
+_TODO: kontrola postupu pro vytvoreni debug config v navodu 
 
 7.11.2014
 Obnova prace na clanku s KDS verze 1.1.1
@@ -25,14 +86,7 @@ odstrnait uplne z msf_lite protoze KDS uz obsahuje v sobe CMSIS, nepouziva
 FSL headery a startup, ktery bych musel predelavat na CMSIS.
 (mozna i CW10.6, to jsem zazim nezkousel)
 
-TODO: cw navod a vzorove projekty odstranit k msf_lite - nema smysl podporovat
-pokud je zdarma KDS.
 
-TODO: v msf_config updatovat clock options podle noveho KDS souboru, jsou tam 4.
- >soubory jsou zmatene mezi verzemi templates... nutno pouzit ten s aktualniho projektu 
- kds v c:\dokumenty\kds1.1.1.workspaces.
- > v templates\kds mam ok verzi pro arduino - ta je z examplu blink arduino pro cw.
- 
 _TODO: Do navodu pridat vytvoreni debug config - v kds se nevytvori :(
 Nutno vybrat GDB PEMicro Interface a v Debugger tab vybrat OpenSDA Embedded debug + device name KL25Z128M4
 

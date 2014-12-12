@@ -6,21 +6,21 @@ Full manual setup
 1) Create new KDS project in for Kinetis L > MKL2x > KL25Z >  MKL25Z128xxx4 
  
  - Do not enable use of  Processor Expert in the wizard
- - Note that if you do not create the project in the default location, the wizard 
- will not create a folder for your project; it will place the files directly 
- into the selected folder.
-
+ 
 When the project is created, go to Processor Expert menu and select Hide Views to
 close the PE views which we will not use. 
  
 2) Create MSF folder in your project (in KDS by selecting the project and right-click
- + New > Folder)                                                       
-
+ + New > Folder)  
+ In the Advanced options select 'Folder is not located in the file system (Virtual Folder)'                                                     
+  
 3) Import the following folders to the project (to the MSF folder):
-  - Import > General > File System > Select each folder (checkbox will 
- select all the files). 
- AND in Advanced select "Link resources" (do not copy the files to your workspace)
- AND check the "Create top folder" so that the CMSIS folder is also created in your project.
+ Right-click the msf folder in your project and select Import from the context menu.
+  In Import > General > File System: Select the folder to import  (using the Browse button). 
+  Checkbox will select all the files in the folder. 
+ In the Options select "Create top folder".
+ AND in Advanced select "Create links in workspace" and the two sub-options.
+ Import these folders:
  - msf_lite\common
  - msf_lite\platform\kinetis
  - msf_lite\board\frdm_kl25z 
@@ -41,7 +41,7 @@ Go to C/C++ Build > Settings > ARM C compiler... > Includes and add these paths:
 "${MSF_LOC}/platform/kinetis/mkl25z"
 "${MSF_LOC}/board/frdm_kl25z"
 
-6) In the main file add these includes:
+6) In the main.c file add these includes:
 /* MSF configuration for this project */
 #include "msf_config.h"
 /* Include the core definitions - CMSIS <device>.h file etc.*/
