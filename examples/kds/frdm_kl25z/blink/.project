@@ -26,6 +26,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>msf</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
 			<name>msf/common</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>

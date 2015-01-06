@@ -5,12 +5,14 @@ Projekty examples staci .cproject a .project a slozka .settings jak mam ted - ov
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 ------------------------------------------------
 3.1.2015
-TODO: clock option 0 ktera asi v podstate je, zprovoznit
+Pokracuj: coniob test a pak uart1 a 2 test v sample "uart", ostatni projekty už ok.
+TODO: doxygen
+_TODO: clock option 0 ktera asi v podstate je, zprovoznit
  > nutno pro dc taky pridat viz error.
 
 TODO: do clanku info jak nastavit clock atd - neco jako configuring your project
-TODO: clock pro dalsi drivery apod kde je treba kontrola/zmena
-TODO: short delay pro 4 MHz.
+_TODO: clock pro dalsi drivery apod kde je treba kontrola/zmena
+_TODO: short delay pro 4 MHz.
 
 UART0 ok pro clock 4 MHz a bus 0.8 a 1 MHz.
 NOTE: pri tomto nastaveni, kdy je bus velmi maly nejde prakticky pouzit uart1 a 2, jen pro male baudrate,
@@ -29,7 +31,7 @@ clock pro 4 mhz pro pokusy s uart je podle 8 mhz, podle me je to 8 mhz ale
 komentar noveho cmsis rika 4 mhz. - protoze asi nastavuji core prescaler na 2
 a predtim byl na 1.
 
-TODO: nestaci jen F_CPU pro nastaveni, viz nove je 2x 4MHz a ruzne bus...
+_TODO: nestaci jen F_CPU pro nastaveni, viz nove je 2x 4MHz a ruzne bus...
 
 11.12.2014
 TODO: nutno predelat clock protoze prakticky mam support jen pro 48 MHZ, vsechny
@@ -45,12 +47,10 @@ msf cod = auto nastaveni f_cpu podle clock_option je nachylne na rozbiti pri zme
  > udìlat b, viz i u avr definuju rovnou F_CPU, tam to ani jinak nejde když nastavuji clock
  pomocí fuses.
 
-TODO: otestovat uart projekt ale až po zapracování zmìnìných clock options!
-
 TODO: cw navod a vzorove projekty odstranit k msf_lite - nema smysl podporovat
 pokud je zdarma KDS.
 
-TODO: v msf_config updatovat clock options podle noveho KDS souboru, jsou tam 4.
+_TODO: v msf_config updatovat clock options podle noveho KDS souboru, jsou tam 4.
  >soubory jsou zmatene mezi verzemi templates... nutno pouzit ten s aktualniho projektu 
  kds v c:\dokumenty\kds1.1.1.workspaces.
  > v templates\kds mam ok verzi pro arduino - ta je z examplu blink arduino pro cw.

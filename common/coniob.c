@@ -153,7 +153,7 @@ void coniob_putch(char c)
     	 * - it needs simple flat buffer.  */
     	//CONIOB_UART_DRIVER.Send(pStart, 1);
     	pData = &CBUF_Pop(coniob_txQ);
-    	CONIOB_UART_DRIVER.Send( pData, 1);		
+    	CONIOB_UART_DRIVER.Send( (const void*)pData, 1);
     }
 }
 
@@ -191,7 +191,7 @@ void coniob_puts(const char* str)
     	* - it needs simple flat buffer.  */
     	//CONIOB_UART_DRIVER.Send(pStart, 1);
     	pData = &CBUF_Pop(coniob_txQ);
-    	CONIOB_UART_DRIVER.Send( pData, 1);		
+    	CONIOB_UART_DRIVER.Send( (const void*)pData, 1);
     }
 }
 
@@ -273,7 +273,7 @@ void coniob_UART_SignalEvent(uint32_t event, uint32_t arg)
 		{
 			coniob_nowSending = 1;
 			pData = &CBUF_Pop(coniob_txQ);
-			CONIOB_UART_DRIVER.Send( pData, 1);					
+			CONIOB_UART_DRIVER.Send( (const void*)pData, 1);
 		}
 		else
 			coniob_nowSending = 0;

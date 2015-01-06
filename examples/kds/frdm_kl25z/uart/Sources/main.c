@@ -12,6 +12,8 @@
  * - UART0 driver in polled and interrupt-driven mode
  * - coniob MSF driver (using UART0) - this is buffered 'console' I/O driver
  * - UART1 and UART2 drivers
+ * You can test one of these modes at a time by calling one of the "test"
+ * functions from main.
  *
  */
 
@@ -57,10 +59,10 @@ int main(void)
 	/* Test the UART driver
 	 * Please un-comment one of the functions.
 	 */
-	polled_uart_test();
+	//polled_uart_test();
 	//interrupt_uart_simple_test();
 	//interrupt_uart_full_test();
-	//coniob_test();
+	coniob_test();
 	//uart12_test();
 
 	/* This for loop should be replaced. By default this loop allows a single stepping. */
@@ -75,7 +77,8 @@ int main(void)
 const char* str_115200 = "115200\n\r";
 const char* str_9600 = "9600\n\r";
 
-/* Test the UART driver in simple polled mode.
+/* polled_uart_test
+ * Test the UART driver in simple polled mode.
  * Prints text to serial line.
  * Send any char from terminal to display prompt for
  * changing baud rate. Then send 9 to use 9600 bd or 1 to use 115200 bd,
@@ -146,17 +149,19 @@ void polled_uart_test(void)
 
 
 /*------------------ Code for interrupt mode --------------------*/
-char g_buffer[32] = "String to send";
+char g_buffer[32] = "String to send\n\r";
 
 /* Test the UART driver in interrupt mode. */
-/* Simple test:
+/* interrupt_uart_simple_test
+ *
  * Test sending in background.
-	Place breakpoint on the if(Driver_UART0.GetTxCount() >= n) line below.
-	When it is hit, check the value of g_cnt.
-	It should count to, for example, 6000 during sending a string
-	with baudrate 9600. If you use baudrate 115200, it should count to lower number,
-	for example, 500.
-	In any case it counts, which means the program is not blocked in Driver_UART0.Send()
+	Place breakpoint into the if(Driver_UART0.GetTxCount() >= n) condition below.
+	When it is hit, check the value of cnt variable.
+	This value will indicate how many times the loop runned while the string was sent.
+	The value could be, for example, 6000 with baudrate 9600.
+	and about 280 if you use baudrate 115200.
+	In any, since the value is changing, it means the program is not blocked in
+	call to Driver_UART0.Send() but runs through the loop.
 */
 void interrupt_uart_simple_test(void)
 {
@@ -165,7 +170,7 @@ void interrupt_uart_simple_test(void)
 	/* Initialize the UART driver.
 	 * Note that we do not need to provide callback if we do not care
 	 * about the UART events */
-	Driver_UART0.Initialize(BD9600, null);
+	Driver_UART0.Initialize(BD115200, null);
 	/* go to interrupt driven mode */
 	Driver_UART0.Control(MSF_UART_INT_MODE, 0);
 
@@ -185,7 +190,7 @@ void interrupt_uart_simple_test(void)
 		{
 			// NOTE: we cannot use the MSF convenience functions in interrupt mode
 			// so we do not print here...
-			//msf_print("\n");
+			// msf_print("\n"); does not work!
 			sending = 0;
 			cnt = 0;
 			msf_delay_ms(2000);
@@ -247,7 +252,8 @@ void UART_SignalEvent(uint32_t event, uint32_t arg)
 
 }
 
-/* Full test of interrupt-driven mode of the UART driver.
+/* interrupt_uart_full_test
+ * Full test of interrupt-driven mode of the UART driver.
  * Sends back texts received through serial line. Receives 5 chars in a row.
  * As it is hard to synchronize the sends and receives to provide command line interface,
  * LEDs are used to show some states.
@@ -334,7 +340,9 @@ void interrupt_uart_full_test(void)
 
 /* coniob_test
  * Waits for some commands with at least 3 chars. When received, prints which command
- * it received. */
+ * it received.
+ * Uses the coniob high-level driver.
+ * */
 void coniob_test(void)
 {
 	uint32_t cnt, menu = 1;

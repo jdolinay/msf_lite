@@ -12,18 +12,43 @@
 #ifndef MSF_CONFIG_H
 	#define MSF_CONFIG_H
 
-/* OPTION 1: Define the CPU frequency.
- * To do this, look into Project_Settings\Startup_Code\system_MKL25Z4.c
+/*********************************************
+*    Define the CPU frequency and BUS frequency.
+********************************************/
+/* How? 
+ * Look into Project_Settings\Startup_Code\system_MKL25Z4.c
  * and set the CLOCK_SETUP macro there to select one of the available CPU
  * frequencies. Then define the F_CPU below to match the selected frequency.
  *
- * Note: These CLOCK_SETUP values are supported: (values as defined in KDS 1.1.1)
- * CLOCK_SETUP =  1 or 4.
- * */
-//#define F_CPU		(48000000)	/* CLOCK_SETUP = 1; default value in new project */
-#define F_CPU		(4000000)	/* CLOCK_SETUP = 3; TODO: test! */
+ * Note: These CLOCK_SETUP values 0 thru 4 are supported (values as defined in KDS 1.1.1)
+ */
 
-// TODO: Add support for 20970000 and 4 MHZ clock into MSF
+/* CLOCK_SETUP = 1; default value in new project
+ * CLOCK_SETUP = 4; */
+
+#define F_CPU		(48000000)
+#define	F_BUS		(24000000)
+
+
+/* CLOCK_SETUP = 2; */
+/*
+#define F_CPU		(4000000)
+#define	F_BUS		(800000)
+*/
+
+/* CLOCK_SETUP = 3; */
+/*
+#define F_CPU		(4000000)
+#define	F_BUS		(1000000)
+*/
+
+/* CLOCK_SETUP = 0; */
+/*
+#define F_CPU		(20970000)
+#define	F_BUS		(20970000)
+*/
+
+// ------------------------
 // Older values supported by MSF but not available in system_MKL25Z4.c anymore:
 // #define F_CPU == 20900000   /* BUS = 13,98 MHz */
 	/*The default clock if no clock init is performed. We can clock UART from PLLFLLCLK which is 20.9 MHz
@@ -46,7 +71,6 @@
          Core clock/Bus clock derived directly from an external crystal 8MHz with no multiplication
          Core clock = 8MHz, BusClock = 8MHz
 */
-
 
 /*********************************************
 *    Define the standard I/O channel 

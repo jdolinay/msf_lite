@@ -113,32 +113,10 @@
 /******************** End ADC driver options *************************/
 
 /* Check if there is valid F_CPU defined in msf-config.h */
-#if !( (F_CPU == 41943040) ||  (F_CPU == 48000000) || (F_CPU == 8000000) || (F_CPU == 20900000) || (F_CPU == 4000000))
+#if !( (F_CPU == 41943040) ||  (F_CPU == 48000000) || (F_CPU == 8000000) || (F_CPU == 20900000) || (F_CPU == 4000000)  || (F_CPU == 20970000))
 	#error Please define valid F_CPU in msf_config.h. It is possible that the clock speed is not supported.
 #endif
 
-/* TODO: remove the block below
- * User will define F_CPU directly in msf_config.h.
- * This way our code will not be broken if the MCU vendor changes the meaning of
- * the CLOCK_SETUP macro. */
-/* @note This constant is used internally by the MSF lite. It will be set
- * automatically based on the CLOCK_SETUP value in msf_config.h.
- * Do not change the F_CPU directly here! It will not actually change the
- * CPU settings!
-*/
-#if 0
-#if (CLOCK_SETUP == 0)
-	#define   F_CPU   (41943040)	/* clock option 0 in system_MKL25Z4.c */
-#elif (CLOCK_SETUP == 1)
-	#define   F_CPU   (48000000)	/* clock option 1 in system_MKL25Z4.c */
-#elif (CLOCK_SETUP == 2)
-	#define   F_CPU   (8000000)		/* clock option 2 in system_MKL25Z4.c */
-#elif (CLOCK_SETUP == 3)
-	#define   F_CPU   (20900000) 	/* clock option 3 in system_MKL25Z4.c */
-#else
-	#error Please define valid CLOCK_SPEED in msf_config.h
-#endif
-#endif
 
 
 #endif /* MSF_CONFIG_MKL25Z_H */

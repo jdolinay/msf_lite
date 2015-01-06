@@ -193,12 +193,11 @@ void msf_delay_us(uint32_t micros)
 		);
 
 #elif F_CPU == 4000000
-	/* TODO: modify for 4 MHZ, current code is for 8 MHz!!! */
 
-	/* There is about 3 us overhead at 8 MHz F_CPU for the function call */
-	if ( micros <= 3 )
+	/* There is about 6 us (?) overhead at 4 MHz F_CPU for the function call */
+	if ( micros <= 6 )
 		return;
-	micros -= 3;
+	micros -= 6;
 	 /* r0 register holds the input argument (micros) but
 	  * after any manipulation in C the result is in r3 */
 	/* ASM loop which takes 8 clocks, that is 1 us */

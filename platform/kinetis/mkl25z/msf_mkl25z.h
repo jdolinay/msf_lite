@@ -175,7 +175,7 @@ typedef enum
 	 Multipurpose Clock Generator (MCG) in Bypassed Low Power Internal (BLPI) mode.
 	 Core clock/Bus clock derived directly from an fast internal clock 4MHz with no multiplication
 	 Core clock = 4MHz, BusClock = 0.8MHz
-	 UART0 must be clocked from MCGIRCLK, UART0 clock is 4 MHz?
+	 UART0 must be clocked from MCGIRCLK, UART0 clock is 4 MHz
 	 */
 	 typedef enum
 	 {
@@ -225,6 +225,7 @@ typedef enum
    Default  part configuration.
    Reference clock source for MCG module is the slow internal clock source 32.768kHz
    Core clock = 20.97MHz, BusClock = 20.97MHz
+   UART0 clock is 20.97MHz
  */
   typedef enum
   {
@@ -337,7 +338,7 @@ typedef enum
 #if F_CPU == 41943040
 	#undef MSF_SYSTICK_VALINUS
 	#define MSF_SYSTICK_VALINUS		(42)	/* much better than value computed by F_CPU/x with integers */
-#elif F_CPU == 20900000
+#elif ((F_CPU == 20900000) || (F_CPU == 20970000))
 	#undef MSF_SYSTICK_VALINUS
 	#define MSF_SYSTICK_VALINUS		(21)	
 #endif 
@@ -346,7 +347,7 @@ typedef enum
 /** how many clocks there are in one microsecond 
  * NOTE that we need this as compile-time constant to make the error in msf_delay_us
  * as small as possible */
-#if F_CPU == 20900000
+#if ((F_CPU == 20900000) || (F_CPU == 20970000))
 	#define	MSF_CLOCKS_PER_US		(21)
 	#define	WMSF_DELAYUS_OVERHEAD	(6)
 #elif F_CPU == 41943040	
@@ -357,7 +358,7 @@ typedef enum
 	#define WMSF_DELAYUS_OVERHEAD  (2)
 #elif F_CPU == 4000000
 	#define	MSF_CLOCKS_PER_US		(4)
-	#define WMSF_DELAYUS_OVERHEAD  (20)	/* TODO: this is not tested! */
+	#define WMSF_DELAYUS_OVERHEAD  (30)	/* TODO: this is not tested! */
 #endif 
 
 /* -------------- End Main "system" timer definitions  --------------- */
@@ -452,7 +453,7 @@ typedef enum
  * ADC clock must be within max and min ADC clock range. We set it for <= 4 MHz */
 #if F_CPU == 48000000   /*  bus 24 MHz */
     #define WMSF_ADC_PRESCALER      (3)     /* presc = 8; ADC clock 3 MHz */        
-#elif F_CPU == 20900000     /* bus 20.9 MHz */
+#elif ((F_CPU == 20900000) || (F_CPU == 20970000))    /* bus 20.9 MHz */
     #define WMSF_ADC_PRESCALER      (3)     /* presc = 8; ADC clock 2.6 MHz */ 
 #elif  F_CPU == 8000000     /* bus 8 MHz */
     #define WMSF_ADC_PRESCALER      (1)     /* presc = 2; ADC clock 4 MHz */ 

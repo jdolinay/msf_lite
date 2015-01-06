@@ -43,10 +43,8 @@ typedef void (*MSF_TPM_Event_t) (uint32_t event, uint32_t arg);
  2		prescaler: 0=no change; 1=set according to arg value (arg=0-7 meaning prescaler 1-128 in powers of 2)
  3:4	signal TOF event: 0=no change; 1 =do not signal TOF; 2=signal TOF (timer overflow)
  5		set modulo (TOP) value: 0=no change; 1=set acording to arg
-   
- 
-  	
  */
+
 /* Defines for these positions*/
 #define		MSF_TPM_CLOCK_MODE_Pos	(0)
 #define		MSF_TPM_CLOCK_MODE_Mask	(0x03)

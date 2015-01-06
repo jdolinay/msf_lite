@@ -124,7 +124,7 @@ static void wtpm_enable_int(uint32_t irqno, uint32_t enable);
   \return      error code (0 = OK)
   \note         
   	  Initializes TPM timer: timer clocked from internal clock source (see MSF_TPM_CLKSEL
-  	  in msf_<device>.h for the values for given F_CPU); prescaler = 1, tof not signalled.
+  	  in msf_<device>.h for the values for given F_CPU); prescaler = 1, TOF not signaled.
 */
 static uint32_t  TPM_Initialize( MSF_TPM_Event_t event,  TPM_RESOURCES* tpm)
 {
@@ -683,21 +683,21 @@ void TPM_IRQHandler(TPM_RESOURCES* tpm)
 
 /* Interrupt handler for TPM0 */
 #if (MSF_DRIVER_TPM0) 
-void FTM0_IRQHandler(void)
+void TPM0_IRQHandler(void)
 {
 	TPM_IRQHandler(&TPM0_Resources);
 }
 #endif /* MSF_DRIVER_TPM1 */
 
 #if (MSF_DRIVER_TPM1) 
-void FTM1_IRQHandler(void)
+void TPM1_IRQHandler(void)
 {
 	TPM_IRQHandler(&TPM1_Resources);
 }
 #endif /* MSF_DRIVER_TPM1 */
 
 #if (MSF_DRIVER_TPM2) 
-void FTM2_IRQHandler(void)
+void TPM2_IRQHandler(void)
 {
 	TPM_IRQHandler(&TPM2_Resources);
 }

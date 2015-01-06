@@ -540,7 +540,7 @@ uint32_t UART_Send(const void* data, uint32_t cnt, UART_RESOURCES* uart)
 			/* Setup the internal data to start sending */
 			uart->info->txbuff = (void*)data;
 			uart->info->tx_total = cnt;
-			uart->info->tx_cnt = 0;		/* 1 because we send the 1st char here */
+			uart->info->tx_cnt = 0;
 			uart->info->status |= MSF_UART_STATUS_TXNOW;	/* now sending... */
 			if ( uart->reg )
 				uart->reg->C2 |= UART0_C2_TIE_MASK;
@@ -853,7 +853,10 @@ void UART0_handleIRQ( UART_RESOURCES* uart)
 			if ( uart->info->cb_event )
 				uart->info->cb_event(MSF_UART_EVENT_SEND_COMPLETE, 0);
 			/* Reset the Tx count */
-			uart->info->tx_cnt = 0;
+			/* If we reset here, the caller will not know we have sent all!
+			 * Will be reset in Send()
+			 * uart->info->tx_cnt = 0; */
+
 			/* Enable Transmit complete interrupt  - to generate event when line is idle */
 			uart->reg->C2 |= UART0_C2_TCIE_MASK;	
 		}	
