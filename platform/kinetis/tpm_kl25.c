@@ -123,7 +123,7 @@ static void wtpm_enable_int(uint32_t irqno, uint32_t enable);
   \param[in]   adc       Pointer to TPM resources
   \return      error code (0 = OK)
   \note         
-  	  Initialises TPM timer: timer clocked from internal clock source (see MSF_TPM_CLKSEL
+  	  Initializes TPM timer: timer clocked from internal clock source (see MSF_TPM_CLKSEL
   	  in msf_<device>.h for the values for given F_CPU); prescaler = 1, tof not signalled.
 */
 static uint32_t  TPM_Initialize( MSF_TPM_Event_t event,  TPM_RESOURCES* tpm)

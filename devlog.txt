@@ -4,6 +4,33 @@ Poznamka z AVR:
 Projekty examples staci .cproject a .project a slozka .settings jak mam ted - overeno v eclipse ze
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 ------------------------------------------------
+3.1.2015
+TODO: clock option 0 ktera asi v podstate je, zprovoznit
+ > nutno pro dc taky pridat viz error.
+
+TODO: do clanku info jak nastavit clock atd - neco jako configuring your project
+TODO: clock pro dalsi drivery apod kde je treba kontrola/zmena
+TODO: short delay pro 4 MHz.
+
+UART0 ok pro clock 4 MHz a bus 0.8 a 1 MHz.
+NOTE: pri tomto nastaveni, kdy je bus velmi maly nejde prakticky pouzit uart1 a 2, jen pro male baudrate,
+to je nevyhoda oproti stare verzi co byla v KDS drive :( .
+
+
+23.12.2014
+TEstování projektù pro zveøejnìní:
+Arduino blink - ok, jede i pro 4 MHz (clock 2) ok
+Arduino serial - nejede pro 4 MHz, ani pri nastaveni terminal na 1/2 baud, nutno pres xls vygenerovat
+  nastaveni pro F_CPU = 4 MHZ
+
+12.12.2014
+zprehlednena ukazka timer.
+clock pro 4 mhz pro pokusy s uart je podle 8 mhz, podle me je to 8 mhz ale
+komentar noveho cmsis rika 4 mhz. - protoze asi nastavuji core prescaler na 2
+a predtim byl na 1.
+
+TODO: nestaci jen F_CPU pro nastaveni, viz nove je 2x 4MHz a ruzne bus...
+
 11.12.2014
 TODO: nutno predelat clock protoze prakticky mam support jen pro 48 MHZ, vsechny
  >low prio, mozno uverejnit s podporou jen 48 mhz. 

@@ -127,7 +127,10 @@ typedef enum {
  * @{    
  */ 
 
-/*
+/* Clocks for UARTs:
+ * UART0 - the clock can be MCGIRCLK, OSCERCLK, MCGFLLCLK, MCGPLLCLK/2
+ * UART1, UART2 - the clock is always bus clock
+ *
  * Note that the baud rate is different for UART0 than for UART1/2
  * UART0 Baud rate is:
  * baud = uart_clock / ((OSR+1)xBR)
@@ -135,8 +138,8 @@ typedef enum {
  * OSR is oversampling set in UART_C4 register ( 4 - 32)
  * We define the enum value as the BD in lower 13-bits; OSR in bits 13-17 
  * and BR for or UART1/2 in bits 18-30, so that we can use the same enum for all UARTs
- * UART1/2 clock is BUS clock (24 MHz)
- * BR = BUSCLK / (16xBR) 
+ * UART1/2 clock is BUS clock (F_BUS)
+ * BR = BUSCLK / (16 x baud)
  * */
 /** macro which creates 32-bit value by combining OSR and BR values.
  * osr is the real OSR value; the register C4 stores osr-1 (value %11 (3) in OSR means real osr = 4) */
@@ -165,9 +168,86 @@ typedef enum
 /** The value of the UART0SRC bitfield in SIM_SOPT2 */
 #define	MSF_UART0_CLKSEL	(2) /* OSCERCLK as UART0 clock source */
  
+#elif F_CPU == 4000000
+ /* There are 2 options for 4 MHz F_CPU with different clock source and different F_BUS */
+ #if F_BUS == 800000
+	 /* CLOCK_SETUP = 2 in system_MKL25Z4.c (CMSIS);
+	 Multipurpose Clock Generator (MCG) in Bypassed Low Power Internal (BLPI) mode.
+	 Core clock/Bus clock derived directly from an fast internal clock 4MHz with no multiplication
+	 Core clock = 4MHz, BusClock = 0.8MHz
+	 UART0 must be clocked from MCGIRCLK, UART0 clock is 4 MHz?
+	 */
+	 typedef enum
+	 {
+		 BD_INVALID = 0,
+		 BD2400 = UART_MAKE_BDVAL(17, 98, 21),
+		 BD4800 = UART_MAKE_BDVAL(17, 49, 0),		/* BR for UART1: 10.42, Error 4.2% */
+		 BD9600 = UART_MAKE_BDVAL(16, 26, 0),		/* BR for UART1: 5.21, Error 4.2% */
+		 BD19200 = UART_MAKE_BDVAL(16, 13, 0),  	/* BR for UART1: 2.6 */
+		 BD38400 = UART_MAKE_BDVAL(8, 13, 0),  		/* BR for UART1: 1.3 */
+		 BD57600 = UART_MAKE_BDVAL(10, 7, 0), 	/* BR for UART1: ? */
+		 BD115200 = UART_MAKE_BDVAL(7, 5, 0), 	/* BR for UART1: 0.43 */
+	 } UART_baudrate_type;
+
+	 /** The value of the UART0SRC bitfield in SIM_SOPT2 */
+	 #define	MSF_UART0_CLKSEL	(3)	/* MCGIRCLK as UART0 clock source */
+
+  #elif F_BUS == 1000000
+	  /* CLOCK_SETUP = 3 in system_MKL25Z4.c (CMSIS);
+	  Multipurpose Clock Generator (MCG) in Bypassed Low Power External (BLPE) mode
+	  Core clock/Bus clock derived directly from the external crystal 8MHz with no multiplication
+	  The clock settings is ready for Very Low Power Run mode.
+	  Core clock = 4MHz, BusClock = 1MHz
+	  UART0 clock is 8 MHz (external crystal)
+	  */
+	  typedef enum
+	  {
+		 BD_INVALID = 0,
+		 BD2400 = UART_MAKE_BDVAL(14, 238, 26),
+		 BD4800 = UART_MAKE_BDVAL(14, 119, 13),
+		 BD9600 = UART_MAKE_BDVAL(13, 64, 0), /* BR for UART1: 6.51 */
+		 BD19200 = UART_MAKE_BDVAL(13, 32, 0), /* BR for UART1: 3.26 */
+		 BD38400 = UART_MAKE_BDVAL(13, 16, 0), /* BR for UART1: 1.63 */
+		 BD57600 = UART_MAKE_BDVAL(14, 10, 0), /* BR for UART1: 1.09, Error 10% */
+		 BD115200 = UART_MAKE_BDVAL(14, 5, 0), /* BR for UART1: 0.54 */
+	  } UART_baudrate_type;
+
+	  /** The value of the UART0SRC bitfield in SIM_SOPT2 */
+	  #define	MSF_UART0_CLKSEL	(2) /* OSCERCLK as UART0 clock source */
+
+ #else
+	#error The F_BUS clock for F_CPU 4 MHz is not supported.
+ #endif
+
+#elif F_CPU == 20970000
+/* CLOCK_SETUP = 0 in system_MKL25Z4.c (CMSIS);
+ * Multipurpose Clock Generator (MCG) in FLL Engaged Internal (FEI) mode
+   Default  part configuration.
+   Reference clock source for MCG module is the slow internal clock source 32.768kHz
+   Core clock = 20.97MHz, BusClock = 20.97MHz
+ */
+  typedef enum
+  {
+		 BD_INVALID = 0,
+		 BD2400 = UART_MAKE_BDVAL(18, 485, 546),
+		 BD4800 = UART_MAKE_BDVAL(18, 242, 273),
+		 BD9600 = UART_MAKE_BDVAL(11, 198, 137),
+		 BD19200 = UART_MAKE_BDVAL(11, 99, 68),
+		 BD38400 = UART_MAKE_BDVAL(17, 32, 34),
+		 BD57600 = UART_MAKE_BDVAL(11, 33, 23),
+		 BD115200 = UART_MAKE_BDVAL(13, 14, 0),	/* UART1 BR = 11.4 error is 3.6% with BR = 11*/
+  } UART_baudrate_type;
+
+  /** The value of the UART0SRC bitfield in SIM_SOPT2 */
+  #define	MSF_UART0_CLKSEL	(1)	/* PLLFLLCLK as UART0 clock source */
 
  
-#elif F_CPU == 20900000		/* default for frdm-kl25z */
+/* *******************************
+ * IMPORTANT NOTE:
+ * the F_CPU below were valid with CMSIS system_MKL25Z4.c file CLOCK_SETUP definitions
+ * provided with KDS/CodeWarrior earlier; in KDS 1.1.1 the settings for the clock options
+ * changed. The comments below with CLOCK_SETUP values are NOT valid for KDS 1.1.1 */
+#elif F_CPU == 2090000		/* default for frdm-kl25z */
 /* CLOCK_SETUP = 3 
  * The default clock if no clock init is performed. We can clock UART from PLLFLLCLK which is 20.9 MHz
  * Note that we assume PLLFLLSEL = 0 (MCGFLLCLK clock)!  
@@ -275,6 +355,9 @@ typedef enum
 #elif F_CPU == 48000000
 	#define	MSF_CLOCKS_PER_US		(48)
 	#define WMSF_DELAYUS_OVERHEAD  (2)
+#elif F_CPU == 4000000
+	#define	MSF_CLOCKS_PER_US		(4)
+	#define WMSF_DELAYUS_OVERHEAD  (20)	/* TODO: this is not tested! */
 #endif 
 
 /* -------------- End Main "system" timer definitions  --------------- */
@@ -373,6 +456,8 @@ typedef enum
     #define WMSF_ADC_PRESCALER      (3)     /* presc = 8; ADC clock 2.6 MHz */ 
 #elif  F_CPU == 8000000     /* bus 8 MHz */
     #define WMSF_ADC_PRESCALER      (1)     /* presc = 2; ADC clock 4 MHz */ 
+#elif  F_CPU == 4000000     /* bus 1 MHz */
+    #define WMSF_ADC_PRESCALER      (1)     /* presc = 2; ADC clock 0.5 MHz */
 #elif F_CPU == 41943040     /* bus 14 MHz */
     #define WMSF_ADC_PRESCALER      (2)     /* presc = 4; ADC clock 3.5 MHz */ 
 #endif

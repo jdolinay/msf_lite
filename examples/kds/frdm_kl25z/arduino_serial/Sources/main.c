@@ -15,6 +15,10 @@
  * x - will print sample integer in hex format
  * o - will print sample integer in octal format
  *
+ * IMPORTANT: For the floating point numbers to work, you need to add this flag:
+ * -u _printf_float
+ * to the Cross ARM C++ Linker settings > Miscellaneous > Other Linker Flags
+ * Without adding this flag, you will see no output for the float number.
  */
 #include "arduino.h"
 
@@ -30,6 +34,8 @@ void loop(void)
 {
 	char c;
 	int decplaces = 2;
+
+	delay(1000);
 
 	Serial.println("hello");
 	if ( Serial.available() > 0)

@@ -7,7 +7,6 @@
  * @note     This is simplified imitation od CMSIS driver which does not 
  *          exist for Kinetis(?). Should be used as a standard for MSF drivers.  
  *
- *	TODO: configuration for Tx Rx pins, now are hard-coded  
  *
  ******************************************************************************/
 #ifndef MSF_UART_K25_H

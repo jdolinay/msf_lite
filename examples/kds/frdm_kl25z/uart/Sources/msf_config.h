@@ -20,7 +20,8 @@
  * Note: These CLOCK_SETUP values are supported: (values as defined in KDS 1.1.1)
  * CLOCK_SETUP =  1 or 4.
  * */
-#define F_CPU		(48000000)	/* CLOCK_SETUP = 1; default value in new project */
+//#define F_CPU		(48000000)	/* CLOCK_SETUP = 1; default value in new project */
+#define F_CPU		(4000000)	/* CLOCK_SETUP = 3; TODO: test! */
 
 // TODO: Add support for 20970000 and 4 MHZ clock into MSF
 // Older values supported by MSF but not available in system_MKL25Z4.c anymore:

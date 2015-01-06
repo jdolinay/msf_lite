@@ -6,7 +6,7 @@
  *
  * @note    This is simplified imitation of CMSIS driver (which does not 
  *          exist for Kinetis(?)).
- *          UART1 and UART2 does not support all the baudrates as UART0.
+ *          UART1 and UART2 does not support all the baudrates supported by UART0.
  *          As the baudrate enum values are defined for all UARTs, it is not guaranteed that
  *          all available enum values will be really supported by UART1/2 for any F_CPU. 
  *          See the definition of the baudrate enum in msf_<device>.h.

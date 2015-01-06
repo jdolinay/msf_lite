@@ -98,7 +98,7 @@ void coniob_init(UART_speed_t baudrate)
 	coniob_nowSending = 0;
 	
 	/* We automatically start to receive data from serial line */
-	CONIOB_UART_DRIVER.Receive(CBUF_GetPushEntryPtr(coniob_rxQ), 1);
+	CONIOB_UART_DRIVER.Receive((void*)CBUF_GetPushEntryPtr(coniob_rxQ), 1);
 }
 
 /** @fn   char coniob_getch(void)    
@@ -130,7 +130,7 @@ uint32_t coniob_kbhit(void)
 void coniob_putch(char c)        
 {		
 	//uint8_t* pStart = CBUF_GetLastEntryPtr(coniob_txQ);
-	uint8_t* pData;
+	volatile uint8_t* pData;
 	
 	/* push to FIFO; if full, overwrites the oldest char 
 	 * TODO: would it be better to block the caller and wait for ISR to transmit some bytes? */
@@ -164,7 +164,7 @@ void coniob_putch(char c)
 void coniob_puts(const char* str)     
 {		
 	//uint8_t* pStart = CBUF_GetLastEntryPtr(coniob_txQ);
-	uint8_t* pData;
+	volatile uint8_t* pData;
 	
 	while(*str) 
     {	    	
@@ -262,7 +262,7 @@ void coniob_flush(void)
  * */
 void coniob_UART_SignalEvent(uint32_t event, uint32_t arg)
 {
-	uint8_t* pData;
+	volatile uint8_t* pData;
 	
 	switch( event) 
 	{
@@ -284,7 +284,7 @@ void coniob_UART_SignalEvent(uint32_t event, uint32_t arg)
 		CBUF_AdvancePushIdx(coniob_rxQ);	/* the new char is now available in FIFO (UART driver 
 			copied it there already, we just now update the FIFO index) */
 		/* Get next char */
-		CONIOB_UART_DRIVER.Receive(CBUF_GetPushEntryPtr(coniob_rxQ), 1);
+		CONIOB_UART_DRIVER.Receive((void*)CBUF_GetPushEntryPtr(coniob_rxQ), 1);
 		break;
 		
 		

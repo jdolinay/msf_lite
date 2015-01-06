@@ -191,6 +191,29 @@ void msf_delay_us(uint32_t micros)
 			: /* no outputs */ 
 			: "r" (micros)
 		);
+
+#elif F_CPU == 4000000
+	/* TODO: modify for 4 MHZ, current code is for 8 MHz!!! */
+
+	/* There is about 3 us overhead at 8 MHz F_CPU for the function call */
+	if ( micros <= 3 )
+		return;
+	micros -= 3;
+	 /* r0 register holds the input argument (micros) but
+	  * after any manipulation in C the result is in r3 */
+	/* ASM loop which takes 8 clocks, that is 1 us */
+	__asm__ __volatile__ (
+			//"a: nop" "\n\t" 	// 1 clock
+			"1: SUB %0, #1" "\n\t"	// 1 clock
+			"nop" "\n\t"
+			"nop" "\n\t"
+			"nop" "\n\t"
+			"nop" "\n\t"
+			"nop" "\n\t"
+			"BNE 1b"  				// 2 clocks if branches, 1 if not
+			: /* no outputs */
+			: "r" (micros)
+		);
 #else
 	#error msf_delay_us is not implemented for this F_CPU. 
 #endif
