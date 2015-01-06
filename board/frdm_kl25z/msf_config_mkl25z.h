@@ -113,7 +113,7 @@
 /******************** End ADC driver options *************************/
 
 /* Check if there is valid F_CPU defined in msf-config.h */
-#if !( (F_CPU == 41943040) ||  (F_CPU == 48000000) || (F_CPU == 8000000) || (F_CPU == 20900000) )
+#if !( (F_CPU == 41943040) ||  (F_CPU == 48000000) || (F_CPU == 8000000) || (F_CPU == 20900000) || (F_CPU == 4000000))
 	#error Please define valid F_CPU in msf_config.h. It is possible that the clock speed is not supported.
 #endif
 
