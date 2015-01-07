@@ -7,13 +7,14 @@
  * Use the Open SDA virtual serial port for communication. You can find the COM number
  * for this port on your computer in the Windows Device manager, but ONLY WHEN
  * the FRDM board is connected to your computer.
+ * The Open SDA serial port is connected to UART0.
  *
- * This file contains the code for following modes:
+ * This file contains the code for following tests:
  * - UART0 driver in polled and interrupt-driven mode
  * - coniob MSF driver (using UART0) - this is buffered 'console' I/O driver
  * - UART1 and UART2 drivers
- * You can test one of these modes at a time by calling one of the "test"
- * functions from main.
+ * You can test one of these at a time by calling one of the "test"
+ * functions from main().
  *
  */
 
@@ -62,8 +63,8 @@ int main(void)
 	//polled_uart_test();
 	//interrupt_uart_simple_test();
 	//interrupt_uart_full_test();
-	coniob_test();
-	//uart12_test();
+	//coniob_test();
+	uart12_test();
 
 	/* This for loop should be replaced. By default this loop allows a single stepping. */
     for (;;) {
@@ -342,6 +343,8 @@ void interrupt_uart_full_test(void)
  * Waits for some commands with at least 3 chars. When received, prints which command
  * it received.
  * Uses the coniob high-level driver.
+ * Baudrate is 19200. This chan be changed in msf_config.h, see
+ * the line: #define	 MSF_STDIO_BAUDRATE		(BD19200)
  * */
 void coniob_test(void)
 {
@@ -388,10 +391,27 @@ void coniob_test(void)
 /* uart12_test
  * UART1 is available on pins Arduino #14 (PTE0) Tx; #15 (PTE1) Rx
  * UART2 is available on pins Arduino #12 (PTD3) Tx; #11 Rx (PTD2)
- * Tested by connecting with another board (Arduino) which sends some
- * chars to UART and also reads the reply.
- * Another test was using the coniob_test() with the coniob using UART2
- * driver instead of UART0.
+ * There are also other optional pins available, see msf_config.h
+ *
+ * You can test this function by connecting with another board (Arduino)
+ * which sends some chars to UART and also reads the reply.
+ *
+ * Another option is to use the coniob_test() function with the coniob driver
+ * configured to use UART2 driver instead of UART0. This requires changing the
+ * UART driver used by coniob in coniob.c file, see:
+ * #define	 CONIO_UART_DRIVER	Driver_UART0
+ *
+ * Note that you need to connect your computer somehow to the appropriate pins on
+ * the FRDM board and use voltage level converter for the serial port on your
+ * computer.
+ *
+ * IMPORTANT: the baudrates available for UART1 and UART2 may be limited if you use
+ * other F_CPU than 48 MHz. see the msf_mkl25z.h file where the baudrate values are
+ * defined for various F_CPU,  as follows:
+ * BD2400 = UART_MAKE_BDVAL(14, 238, 625),
+ * if the last number in the definitio is 0, for example:
+ *  BD57600 = UART_MAKE_BDVAL(14, 10, 0),
+ * then this baudrate is not available for UART1 and UART2.
  */
 void uart12_test(void)
 {

@@ -4,8 +4,9 @@ Poznamka z AVR:
 Projekty examples staci .cproject a .project a slozka .settings jak mam ted - overeno v eclipse ze
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 ------------------------------------------------
+
 3.1.2015
-Pokracuj: coniob test a pak uart1 a 2 test v sample "uart", ostatni projekty už ok.
+_Pokracuj: coniob test a pak uart1 a 2 test v sample "uart", ostatni projekty už ok.
 TODO: doxygen
 _TODO: clock option 0 ktera asi v podstate je, zprovoznit
  > nutno pro dc taky pridat viz error.

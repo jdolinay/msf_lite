@@ -76,7 +76,7 @@
 *    Define the standard I/O channel 
 ********************************************/
 #define   MSF_USE_STDIO     1   /* Using conio driver (UART) for std output */
-/* To disable initialising UART in msf_init use:
+/* To disable initializing UART in msf_init use:
 #define   MSF_USE_STDIO     0 
 */
 /* Define the default baudrate used by console I/O (conio).
@@ -85,7 +85,7 @@
 
 /*********************************************
 *    Define whether we want to use analog inputs
-*    If nonzero; ADC is initialised. This means 
+*    If nonzero; ADC is initialized. This means
 *    little more power consumption, otherwise no
 *    harm is done by enabling the analog inputs even
 *    if not used 
@@ -130,9 +130,9 @@
 #define		MSF_UART1_TX_ALT	(3)
 
 /* UART2 pins */
-#define		MSF_UART2_RX_PIN	(GPIO_E1)	/* PTD2/3; PTD4/3; PTE23/4; */
+#define		MSF_UART2_RX_PIN	(GPIO_D2)	/* PTD2/3; PTD4/3; PTE23/4; */
 #define		MSF_UART2_RX_ALT	(3)
-#define		MSF_UART2_TX_PIN	(GPIO_E0)	/* PTD3/3; PTD5/3; PTE22/4; */
+#define		MSF_UART2_TX_PIN	(GPIO_D3)	/* PTD3/3; PTD5/3; PTE22/4; */
 #define		MSF_UART2_TX_ALT	(3)
 
 /*********************************************

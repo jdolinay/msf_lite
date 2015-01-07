@@ -218,45 +218,7 @@ void msf_delay_us(uint32_t micros)
 #endif
 	
 	
-	/*
-	register uint32_t steps;
-	
-	steps = micros;
-	while ( steps-- > 0 )
-		__NOP();*/
-	/* Note: the ARM manual does not recommend using nop for timing loops. */
-	/* Version 4 - experimental, no tunning
-	volatile uint32_t steps = micros * 2;
-	while ( steps-- > 0 )
-		MSF_RESET_WATCHDOG();
-	 */
-	   
-	/* Version 3 - not working right 
-	int cnt;
-	while( micros-- > 0 )
-	{
-		cnt = SysTick->VAL;
-		while(abs(cnt - SysTick->VAL) < MSF_SYSTICK_VALINUS )
-			;
-	}*/
 		
-	
-	/* Version 2 - not working good 
-	uint32_t cnt, n; 
-	while(micros-- > 0)
-	{
-		n	= MSF_SYSTICK_VALINUS;	// how many ticks in 1 us
-		// wait that many ticks...
-		while( n > 0)
-		{			
-			cnt = SysTick->VAL; // get systick counter, there are MSF_SYSTICK_VALINUS ticks in 1 us	  
-			while ( cnt == SysTick->VAL )
-				;
-			n--;	// one tick elapsed
-		}
-	}
-	*/
-	   	
 	
 	
 	/* Abandoned version with polling of SysTick timer. 
