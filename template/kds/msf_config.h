@@ -12,24 +12,66 @@
 #ifndef MSF_CONFIG_H
 	#define MSF_CONFIG_H
 
-/* OPTION 1: Define the clock speed you want to use in your application 
- * Note that only the options selected below are supported! 
- * */
-#define CLOCK_SETUP     1
+/*********************************************
+*    Define the CPU frequency and BUS frequency.
+********************************************/
+/* How? 
+ * Look into Project_Settings\Startup_Code\system_MKL25Z4.c
+ * and set the CLOCK_SETUP macro there to select one of the available CPU
+ * frequencies. Then define the F_CPU below to match the selected frequency.
+ *
+ * Note: These CLOCK_SETUP values 0 thru 4 are supported (values as defined in KDS 1.1.1)
+ */
 
-/* Predefined clock setups
-   0 ... Multipurpose Clock Generator (MCG) in FLL Engaged Internal (FEI) mode
-         Reference clock source for MCG module is the slow internal clock source 32.768kHz
-         Core clock = 41.94MHz, BusClock = 13.98MHz
-   1 ... Multipurpose Clock Generator (MCG) in PLL Engaged External (PEE) mode
-         Reference clock source for MCG module is an external crystal 8MHz
-         Core clock = 48MHz, BusClock = 24MHz
-   2 ... Multipurpose Clock Generator (MCG) in Bypassed Low Power External (BLPE) mode
+/* CLOCK_SETUP = 1; default value in new project
+ * CLOCK_SETUP = 4; */
+
+#define F_CPU		(48000000)
+#define	F_BUS		(24000000)
+
+
+/* CLOCK_SETUP = 2; */
+/*
+#define F_CPU		(4000000)
+#define	F_BUS		(800000)
+*/
+
+/* CLOCK_SETUP = 3; */
+/*
+#define F_CPU		(4000000)
+#define	F_BUS		(1000000)
+*/
+
+/* CLOCK_SETUP = 0; */
+/*
+#define F_CPU		(20970000)
+#define	F_BUS		(20970000)
+*/
+
+// ------------------------
+// Older values supported by MSF but not available in system_MKL25Z4.c anymore:
+// #define F_CPU == 20900000   /* BUS = 13,98 MHz */
+	/*The default clock if no clock init is performed. We can clock UART from PLLFLLCLK which is 20.9 MHz
+	 * Note that we assume PLLFLLSEL = 0 (MCGFLLCLK clock)!
+ 	 * BUS clock 13,98 MHz
+ 	 */
+//#define   F_CPU   (41943040) 	/* not available in CLOCK_SETUP in KDS 1.1.1 */
+	/* The F_CPU 41943040 was available before and is supported by MSF,
+	 * so I keep it here for possible use.
+	 * The settings were:
+	 * Multipurpose Clock Generator (MCG) in FLL Engaged Internal (FEI) mode
+       Reference clock source for MCG module is the slow internal clock source 32.768kHz
+       Core clock = 41.94MHz, BusClock = 13.98MHz
+	 */
+//#define #define   F_CPU   (8000000)	/* not available in CLOCK_SETUP in KDS 1.1.1 */
+/* The F_CPU 8000000 was available before and is supported by MSF,
+	 * so I keep it here for possible use.
+	 * The settings were:
+		Multipurpose Clock Generator (MCG) in Bypassed Low Power External (BLPE) mode
          Core clock/Bus clock derived directly from an external crystal 8MHz with no multiplication
          Core clock = 8MHz, BusClock = 8MHz
-   3 ... Default settings: internal clock source 32.768kHz and FLL mode
-   	   	 Core clock = 20.9MHz, BusClock = ?
 */
+
 
 /*********************************************
 *    Define the standard I/O channel 
