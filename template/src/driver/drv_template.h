@@ -11,7 +11,11 @@
  ******************************************************************************/
 #ifndef MSF_DRIVER_TEMPLATE_H
     #define MSF_DRIVER_TEMPLATE_H
-
+/** @defgroup group_DRIVER_template driver name
+ * @brief template file for device driver
+ * @{
+ */
+ 
 /* Make sure the base definitions are available */
 #ifndef MSF_MSF_H
 	#error Plese include msf.h before including this file. 
@@ -25,7 +29,7 @@ extern "C" {
 /** Version of this drivers API */
 #define     MSF_[MODULE]_VERSION    (1)
 
-/** Pointer to call back function for reporting events from the driver to
+/* Pointer to call back function for reporting events from the driver to
  * client application. Set in Initialize function */
 typedef void (*MSF_[MODULE]_Event_t) (uint32_t event, uint32_t arg);
 
@@ -33,7 +37,7 @@ typedef void (*MSF_[MODULE]_Event_t) (uint32_t event, uint32_t arg);
  * For KL25Z valid value is 0 thru 3 */
 #define		MSF_[MODULE]_INT_PRIORITY	(2)
 
-/** Flags (operations and parameters) for the Control function */
+/* Flags (operations and parameters) for the Control function */
 /* Positions and meaning of the bit-fields:
  EXAMPLE:
  Bit(s)  Meaning
@@ -99,5 +103,6 @@ typedef struct _MSF_DRIVER_TPM {
 #ifdef __cplusplus
 }
 #endif
+/**@}*/
 /* ----------- end of file -------------- */
 #endif /* MSF_DRIVER_TPM_H */

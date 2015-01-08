@@ -16,6 +16,9 @@
 
 #include "adc_kl25.h"
 
+/** @addtogroup group_adc  
+ * @{ 
+*/
 
 #if (MSF_DRIVER_ADC0)    
 /* Define the resource for each ADC available on the MCU */
@@ -39,9 +42,8 @@ static uint32_t adcx_calibrate(ADC_RESOURCES* adc);
 /* The driver API functions */
 
 /**
-  \fn          uint32_t  ADC_Initialize( MSF_ADC_Event_t event,  ADC_RESOURCES* adc)
   \brief       Initialize ADC  
-  \param[in]   cb_event  Pointer to ADC_Event function or null
+  \param[in]   event  Pointer to ADC_Event function or null
   \param[in]   adc       Pointer to ADC resources
   \return      error code (0 = OK)
   \note         Common function called by instance-specific function.
@@ -86,8 +88,7 @@ static int32_t UART1_Initialize (UART_Event_t pEvent) {
 }
 */
 
-/**
-  \fn          uint32_t  ADC_Uninitialize( void)
+/**  
   \brief       Uninitialize ADC 
   \param[in]   adc    Pointer to adc resources 
   \return      error code (0 = OK)
@@ -113,11 +114,10 @@ static uint32_t ADC0_Uninitialize (void)
 /**
   \brief       Initialize ADC Interface.
   \param[in]   state  The requested power state
-  \param[in]   uart    Pointer to UART resources
+  \param[in]   adc    Pointer to adc resources
   \return      error code (0 = OK)
-  \note        Common function called by instance-specific function.
-                Currently does nothing!
-                Note that the ADC automatically enters low power mode after conversion, see datasheet.
+  \note        Currently does nothing!
+               Note that the ADC automatically enters low power mode after conversion, see datasheet.
 */
 static uint32_t ADC_PowerControl(MSF_power_state state, ADC_RESOURCES* adc)
 {
@@ -134,7 +134,7 @@ static uint32_t ADC0_PowerControl(MSF_power_state state)
 
 /**
   \brief       Control various options of the ADC
-  \param[in]   control  Flags indicating which parameter(s) to set
+  \param[in]   control  Flags indicating which parameter(s) to set, see \ref group_adc_control_flags
   \param[in]   arg Optional argument for the command
   \param[in]   adc    Pointer to ADC resources
   \return      error code (0 = OK)
@@ -282,8 +282,7 @@ static uint32_t ADC0_Read(void)
 }
 #endif
 
-/**
-  \fn          uint32_t  ADC_SetChannel(uint32_t channel, ADC_RESOURCES* adc)
+/**  
   \brief       Select the channel used for conversions by ADC_Read
   \param[in]   channel Number of the chanel to select. 
   \param[in]   adc    Pointer to ADC resources 
@@ -425,7 +424,7 @@ static uint32_t adcx_calibrate(ADC_RESOURCES* adc)
 	  return 0;
 }
     	
-
+/**@}*/
 
 
 /* ----------- end of file -------------- */

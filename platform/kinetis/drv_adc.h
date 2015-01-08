@@ -23,6 +23,20 @@
 extern "C" {
 #endif
 
+/** @defgroup group_adc Analog-to-digital converter device driver 
+ * @{ 
+ * @brief CMSIS-like ADC driver for Kinetis  
+ * @details    This is driver for the ADC created in style 
+ * similar to ARM CMSIS. The CMSIS does not define ADC driver.
+ * @note The manual recommend putting CPU into sleep during conversion for best accuracy
+ *   but this driver does not support it.  
+ * 
+ * <b>Driver objects available in your program</b>
+ * - Driver_ADC0
+ * 
+ * There is only one ADC (ADC0) on KL25Z. 
+ */
+
 /** Version of this drivers API */
 #define     MSF_ADC_VERSION    (1)
 
@@ -30,7 +44,7 @@ extern "C" {
  * client application. Set in Initialize function */
 typedef void (*MSF_ADC_Event_t) (uint32_t event);   
 
-/** Flags (operations and parameters) for the Control function */
+/* Flags (operations and parameters) for the Control function */
 /* Positions and meaning of the bit-fields:
  Bit(s)  Meaning
  0:1	0=do not change settings; Single (1) or continuous (2) conversion mode
@@ -58,6 +72,8 @@ typedef void (*MSF_ADC_Event_t) (uint32_t event);
 #define		MSF_ADC_REFSEL_Mask		(0xC000)
 
 /* Definitions of the flags */
+/** @defgroup group_adc_control_flags Flags for the ADC driver Control function 
+ @{*/
 #define     MSF_ADC_CONV_SINGLE      (1UL << MSF_ADC_CONV_Pos)  /**< single-shot conversion */
 #define     MSF_ADC_CONV_CONTINUOUS  (2UL << MSF_ADC_CONV_Pos)  /**< continuous conversions */
 #define     MSF_ADC_MODE_POLLED      (1UL << MSF_ADC_MODE_Pos)  /**< no interrupt on conversion complete  */
@@ -75,7 +91,7 @@ typedef void (*MSF_ADC_Event_t) (uint32_t event);
 #define     MSF_ADC_ABSEL_B     	(2UL << MSF_ADC_ABSEL_Pos)    /**< Select ADC B */
 #define     MSF_ADC_REFSEL_DEFAULT  (1UL << MSF_ADC_REFSEL_Pos)    /**< Select VREF */
 #define     MSF_ADC_REFSEL_ALT     	(2UL << MSF_ADC_REFSEL_Pos)    /**< Select VALT */
-
+/**@}*/
 
 /**
 \brief Access structure of the ADC Driver.
@@ -100,6 +116,8 @@ typedef struct _MSF_DRIVER_ADC {
 #if (MSF_DRIVER_ADC0)
 	extern MSF_DRIVER_ADC Driver_ADC0;
 #endif	/* MSF_DRIVER_ADC0 */
+
+/**@}*/
 
 #ifdef __cplusplus
 }

@@ -21,7 +21,7 @@ extern "C" {
 /** @addtogroup group_coniob  
  * @{
 */
-/* Define which driver (instance of the UART) is used by us */
+/** Define which driver (instance of the UART) is used by us */
 #define	 CONIOB_UART_DRIVER	Driver_UART0
 
 /** Define the size of the buffer in bytes.
@@ -33,8 +33,10 @@ extern "C" {
 #define	 CONIOB_TXBUFFER_SIZE		(64)
 #define	 CONIOB_RXBUFFER_SIZE		(64)
 
-#define LF 0x0A						// Line Feed ASCII code
-#define CR 0x0D						// Carriage Return ASCII code
+/** Convenience definition for Line Feed ASCII code */
+#define LF 0x0A				
+/** Convenience definition for Carriage Return ASCII code */		 
+#define CR 0x0D		
 
 /* initialize console I/O */
 void coniob_init(UART_speed_t baudrate);  

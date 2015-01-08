@@ -4,12 +4,24 @@
  * @version  1
  * @date     20. May 2014
  *
- * @note     This is simplified imitation od CMSIS driver which does not 
- *          exist for Kinetis(?). Should be used as a standard for MSF drivers.  
- *          The driver does not implement any software buffer. It uses the Rx,Tx buffer
- *          of the MCU, if available. For KL25Z the buffer is just 1 B in size.  
  *
  ******************************************************************************/
+ 
+ /** @defgroup group_uart UART device driver 
+ * @{ 
+ * @brief CMSIS-like UART driver for Kinetis  
+ * @details    This is simplified imitation of UART driver as defined by ARM CMSIS. 
+ *  Official implementation for Kinetis does not exist.   
+ *  The driver does not implement any software buffer. It uses the Rx,Tx buffer
+ *  of the MCU, if available. For KL25Z the buffer is just 1 B in size.  
+ *  
+ * <b>Driver objects available in your program</b>
+ *  - Driver_UART0
+ *  - Driver_UART1
+ *  - Driver_UART2   
+ * 
+ */
+ 
 #ifndef MSF_DRIVER_UART_H
 #define MSF_DRIVER_UART_H
 
@@ -37,7 +49,7 @@ typedef void (*MSF_UART_Event_t) (uint32_t event, uint32_t arg);
 #define		MSF_UART12_INT_PRIORITY	(2) /* Priority for UART1 and UART2 */
 
 
-/** Flags (operations and parameters) for the Control function */
+/* Flags (operations and parameters) for the Control function */
 /* To allow changing only desired values in call to Control(), most flags use
  * at least 2 bits (i.e. possible values 0,1,2 meaning do not set, set to 0, set to 1). 
  * Positions and meaning of the bit-fields:
@@ -53,7 +65,6 @@ typedef void (*MSF_UART_Event_t) (uint32_t event, uint32_t arg);
  7		Reserved
  8:9	Set 1 or 2 stop bits; (0) = no change; (1) = 1 stop bit; (2) = 2 stop bits;
  10:12  Number of data bits; (0) = no change; (1) = 8 bits; (2) = 9 bits
- 
 */
 
 /* Defines for these positions*/
@@ -73,8 +84,10 @@ typedef void (*MSF_UART_Event_t) (uint32_t event, uint32_t arg);
 #define		MSF_UART_DATA_BITS_Mask	(0x1C00)
 
 
-/* Definitions of the flags for Control() */
-#define     MSF_UART_BAUD_SET    	(1UL << MSF_UART_BAUD_Pos)  /**< set the baudrate; rg = baudrate (one of the UART_speed_t values only!) */
+/* Definitions of the flags for the Control function */
+/** @defgroup group_uart_control_flags Flags for the UART Control function 
+ @{*/
+#define     MSF_UART_BAUD_SET    	(1UL << MSF_UART_BAUD_Pos)  /**< set the baudrate; arg = baudrate (one of the UART_speed_t values only!) */
 #define     MSF_UART_POLLED_MODE 	(1UL << MSF_UART_INTMODE_Pos)  /**< wait for each char to be sent/received in busy loop */
 #define     MSF_UART_INT_MODE      	(2UL << MSF_UART_INTMODE_Pos)  /**< use interrupts */
 #define     MSF_UART_ABORTTX     	(1UL << MSF_UART_ABORTTX_Pos)  /**< abort current transmit */
@@ -86,7 +99,7 @@ typedef void (*MSF_UART_Event_t) (uint32_t event, uint32_t arg);
 #define		MSF_UART_STOP_BITS_2	(2UL << MSF_UART_STOPBIT_Pos)	/**< 2 stop bits */
 #define 	MSF_UART_DATA_BITS_8    (1UL << MSF_UART_DATA_BITS_Pos)	/**< 8 data bits (default) */
 #define 	MSF_UART_DATA_BITS_9    (2UL << MSF_UART_DATA_BITS_Pos) /**< 9 data bits. NOTE: not supported by the driver except for parity + 8 data bits. */
-
+/**@}*/
 
 
 /** UART events (masks) 
@@ -147,5 +160,7 @@ typedef struct _MSF_DRIVER_USART {
 #ifdef __cplusplus
 }
 #endif
+/** @}*/
+
 /* ----------- end of file -------------- */
 #endif /* MSF_DRIVER_UART_H */

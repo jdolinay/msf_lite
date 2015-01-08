@@ -39,6 +39,11 @@ Comments
 
 4. Each function should have a heading comment as defined in the template files (see below).
 
+Doxygen comments
+Put doxygen comments into header files (document the function prototypes)
+Use doxygen comments in source files only for additional information (details)
+and/or for the functions of CMSIS-style drivers which are not declared in a header.
+
 
 Templates
 1. Templates for source and header files are provided in \template\src. 

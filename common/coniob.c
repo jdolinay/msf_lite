@@ -20,9 +20,13 @@
  *
  ******************************************************************************/
 
-/** @defgroup group_conio Console I/O driver 
- * @details MSF console I/O generic driver
- * @{
+/** @defgroup group_coniob coniob - buffered console I/O driver 
+ * @{ 
+ * @brief  Console I/O generic driver. Version with buffers for send and receive.
+ * @details Provides functions for reading from/writing to a serial interface (SCI, UART).
+ * After initialisation, the coniob driver receives characters from
+ *	serial line into internal buffer. The user can read them using coniob_getch or gets.
+ * 
  */
 
 /* Include user configuration */
@@ -125,7 +129,7 @@ uint32_t coniob_kbhit(void)
 }
 
 /** Send one character to SCI. If the char is '\n', send CR + LF
- * @param char to send
+ * @param c char to send
  **/
 void coniob_putch(char c)        
 {		
@@ -158,7 +162,7 @@ void coniob_putch(char c)
 }
 
 /** Send null-terminated string to SCI. 
- * @param pointer to string to send
+ * @param str pointer to string to send
  * @note If the string contains '\n', CR + LF are sent. 
  **/
 void coniob_puts(const char* str)     
@@ -253,13 +257,14 @@ void coniob_flush(void)
 /** @}*/
 
 /* ---------------------- Internal functions ------------------------------------------- */
-/* This function will be called by the UART driver in interrupt mode to report events,
+/* Internal use only!
+ * This function will be called by the UART driver in interrupt mode to report events,
  * such as sending completed, etc.
  * NOTE: this is called from ISR, so 
  * - do not spend much time here! 
  * - preferably do not send to UART from here!
  * - beware of loops, e.g. by sending text to UART in response to send complete event!
- * */
+ */
 void coniob_UART_SignalEvent(uint32_t event, uint32_t arg)
 {
 	volatile uint8_t* pData;

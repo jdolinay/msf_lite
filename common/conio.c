@@ -10,9 +10,11 @@
  *
  ******************************************************************************/
 
-/** @defgroup group_conio Console I/O driver 
- * @details MSF console I/O generic driver
- * @{
+/** @defgroup group_conio conio - console I/O driver 
+ * @{ 
+ * @brief  Console I/O generic driver. Version without buffers for send and receive.
+ * @details Provides functions for reading from/writing to a serial interface (SCI, UART).
+ * 
  */
 
 /* Include user configuration */
@@ -31,12 +33,13 @@
 /* Platform-specific UART driver */
 #include "drv_uart.h"	
 
-/* Define which driver (instance of the UART) is used by us */
+/** Define which low-level driver (instance of the UART) is used by the coniob */
 #define	 CONIO_UART_DRIVER	Driver_UART0
 
-
-#define LF 0x0A						// Line Feed ASCII code
-#define CR 0x0D						// Carriage Return ASCII code
+/** Convenience definition for Line Feed ASCII code */
+#define LF 0x0A				
+/** Convenience definition for Carriage Return ASCII code */		 
+#define CR 0x0D						
 
 /* -------- Prototypes of internal functions   -------- */
 
@@ -46,10 +49,6 @@
  **/
 void conio_init(void)               
 {
-    // TODO: howto specify speed?
-    // probably in msf_config user can select or we provide default in msf_defcfg.h
-    //uart_init(BD4800);
-    //uart_init(BD9600);
 	CONIO_UART_DRIVER.Initialize(BD9600, null);
     /* Note: if you get compiler error that the speed constant is not defined, check if
     for given F_CPU this speed is available; in msf_<device>.h file included into <platform>.h,
@@ -81,7 +80,7 @@ uint8_t conio_kbhit(void)
 }
 
 /** Send one character to SCI. If the char is '\n', send CR + LF
- * @param char to send
+ * @param c char to send
  **/
 void conio_putch(char c)        
 {
@@ -100,7 +99,7 @@ void conio_putch(char c)
 }
 
 /** Send null-terminated string to SCI. 
- * @param pointer to string to send
+ * @param str pointer to string to send
  * @note If the string contains '\n', CR + LF are sent. 
  **/
 void conio_puts(const char* str)     

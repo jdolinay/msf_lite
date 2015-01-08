@@ -16,7 +16,10 @@
 
 #include "[module]_[platform].h"
 
-
+/** @addtogroup group_DRIVER_template 
+ * @{
+ */
+ 
 /* Define the resource for each TPM available on the MCU */
 #if (MSF_DRIVER_[module]0)    
 /* runtime info for [module]0 */
@@ -52,8 +55,7 @@ static void w[module]_[function](uint32_t any, [module]_RESOURCES* mod);
 
 /* The driver API functions */
 
-/**
-  @fn          uint32_t  [module]_Initialize( MSF_TPM_Event_t event,  TPM_RESOURCES* tpm)
+/**  
   @brief       Initialize the module  
   @param[in]   cb_event  Pointer to [module]_Event function or null
   @param[in]   adc       Pointer to [module] resources
@@ -76,8 +78,7 @@ static uint32_t [module]0_Initialize (MSF_[module]_Event_t pEvent)
 
 
 
-/**
-  @fn          uint32_t  [module]Uninitialize( void)
+/**  
   @brief       Uninitialize the module 
   @param[in]   adc    Pointer to module resources 
   @return      error code (0 = OK)
@@ -123,12 +124,12 @@ static uint32_t [module]0_PowerControl(MSF_power_state state)
 #endif    /* MSF_DRIVER_[module]0 */
 
 /**
-  \brief       Control various options of the module
-  \param[in]   control  Flags indicating which parameter(s) to set
-  \param[in]   arg Optional argument for the command
-  \param[in]   tpm    Pointer to module resources
-  \return      error code (0 = OK)
-  \note        Common function called by instance-specific function.
+  @brief       Control various options of the module
+  @param[in]   control  Flags indicating which parameter(s) to set
+  @param[in]   arg Optional argument for the command
+  @param[in]   tpm    Pointer to module resources
+  @return      error code (0 = OK)
+  @note        Common function called by instance-specific function.
             
 */
 static uint32_t [module]_Control(uint32_t control, uint32_t arg, [module]_RESOURCES* mod)
@@ -193,7 +194,7 @@ MSF_DRIVER_[module] Driver_[module]0 = {
 };
 #endif	/* MSF_DRIVER_[module]0 */
 
-
+/**@}*/
 
 /***************************** Internal functions ***************************** */
 

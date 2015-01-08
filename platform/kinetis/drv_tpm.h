@@ -7,14 +7,27 @@
  * @note     This is driver in CMSIS style, but CMSIS does not define timer driver.
  *   Should be used as a standard for MSF drivers.    
  *   
- *   The TPM timer has up to 6 channels which can be configured independently to 
- *   input capture/output compare/pwm mode. Of course they are not too independent
- *   as they share the same counter and other timer settings.
  *
  ******************************************************************************/
 #ifndef MSF_DRIVER_TPM_H
 #define MSF_DRIVER_TPM_H
 
+/** @defgroup group_tpm TPM timer device driver 
+ * @{ 
+ * @brief CMSIS-like TPM timer driver for Kinetis  
+ * @details    This is driver for the TPM timer created in style 
+ * similar to ARM CMSIS. The CMSIS does not define timer driver.
+ * The TPM timer has up to 6 channels which can be configured independently to 
+ * input capture/output compare/pwm mode. Of course they are not too independent
+ * as they share the same counter and other timer settings.
+ * 
+ * <b>Driver objects available in your program</b>
+ * - Driver_TPM0
+ * - Driver_TPM1
+ * - Driver_TPM2      
+ * 
+ */
+ 
 /* Make sure the base definitions are available */
 #ifndef MSF_MSF_H
 	#error Plese include msf.h before including this file. 
@@ -36,7 +49,7 @@ typedef void (*MSF_TPM_Event_t) (uint32_t event, uint32_t arg);
  * For KL25Z valid value is 0 thru 3 */
 #define		MSF_TPM_INT_PRIORITY	(2)
 
-/** Flags (operations and parameters) for the Control function */
+/* Flags (operations and parameters) for the Control function */
 /* Positions and meaning of the bit-fields:
  Bit(s)  Meaning
  0:1	clock source: 0=do not change settings; 1=disable counter, 2=internal clock, 3=external clock
@@ -56,6 +69,8 @@ typedef void (*MSF_TPM_Event_t) (uint32_t event, uint32_t arg);
 #define		MSF_TPM_MOD_Mask		(0x20)
 
 /* Definitions of the flags for Control */
+/** @defgroup group_tpm_control_flags Flags for the TPM driver Control function 
+ @{*/
 #define     MSF_TPM_CLOCK_NONE  	(1UL << MSF_TPM_CLOCK_MODE_Pos)  /**< disable counter */
 #define     MSF_TPM_CLOCK_INTERNAL  (2UL << MSF_TPM_CLOCK_MODE_Pos)  /**< use internal clock (see SIM->SOPT2) */
 #define     MSF_TPM_CLOCK_EXTERNAL  (3UL << MSF_TPM_CLOCK_MODE_Pos)  /**< use external clock LPTPM_EXTCLK */
@@ -64,15 +79,16 @@ typedef void (*MSF_TPM_Event_t) (uint32_t event, uint32_t arg);
 #define		MSF_TPM_TOF_SIGNAL		(2UL << MSF_TPM_TOF_Pos)  		/**< signal timer overflow event to user */
 #define		MSF_TPM_MOD_VALUE		(1UL << MSF_TPM_MOD_Pos)  		/**< set TOP value for counter (MOD register); arg = the value (16-bit) */
 
-/** Helper values for Arg parameter in Control() */
-#define		MSF_TPM_PRESCALER_1		(0)
-#define		MSF_TPM_PRESCALER_2		(1)
+/* Helper values for Arg parameter in Control() */
+#define		MSF_TPM_PRESCALER_1		(0)   /**< Arg value for the Control function to set prescaler to 1 */
+#define		MSF_TPM_PRESCALER_2		(1)   /**< Arg value for the control function to set prescaler to 2 */
 #define		MSF_TPM_PRESCALER_4		(2)
 #define		MSF_TPM_PRESCALER_8		(3)
 #define		MSF_TPM_PRESCALER_16	(4)
 #define		MSF_TPM_PRESCALER_32	(5)
 #define		MSF_TPM_PRESCALER_64	(6)
 #define		MSF_TPM_PRESCALER_128	(7)
+/** @}*/
 
 
 /** TPM events (masks) 
@@ -166,8 +182,11 @@ typedef struct _MSF_DRIVER_TPM {
 	extern MSF_DRIVER_TPM Driver_TPM2;
 #endif	/* MSF_DRIVER_TPM2 */
 
+
 #ifdef __cplusplus
 }
 #endif
+
+/** @}*/
 /* ----------- end of file -------------- */
 #endif /* MSF_DRIVER_TPM_H */

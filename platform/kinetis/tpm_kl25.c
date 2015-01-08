@@ -9,6 +9,9 @@
  *  timer modes.
  *
  ******************************************************************************/
+/** @addtogroup group_tpm  
+ * @{ 
+ */ 
 /* MSF includes */
 #include "msf_config.h"
 
@@ -24,7 +27,7 @@
 /* runtime info for TPM0 */
 static TPM_INFO TPM0_Info;    
 
-/* The pins for TPM0 
+/** The pins for TPM0 
  * The pins are user-configurable through msf_config.h file.
  * Each is defined by pin-code (see msf_<device>.h) and the number of the alternate
  * function (ALTn) which is the timer channel function for this pin. 
@@ -117,10 +120,9 @@ static void wtpm_enable_int(uint32_t irqno, uint32_t enable);
 /* The driver API functions */
 
 /**
-  \fn          uint32_t  TPM_Initialize( MSF_TPM_Event_t event,  TPM_RESOURCES* tpm)
   \brief       Initialize timer  
-  \param[in]   cb_event  Pointer to TPM_Event function or null
-  \param[in]   adc       Pointer to TPM resources
+  \param[in]   event  Pointer to TPM_Event function or 0 (null)
+  \param[in]   tpm The resources for the driver (driver instance)
   \return      error code (0 = OK)
   \note         
   	  Initializes TPM timer: timer clocked from internal clock source (see MSF_TPM_CLKSEL
@@ -183,10 +185,9 @@ static uint32_t TPM2_Initialize (MSF_TPM_Event_t pEvent)
 #endif
 
 
-/**
-  \fn          uint32_t  TPM_Uninitialize( void)
+/**  
   \brief       Uninitialize timer 
-  \param[in]   adc    Pointer to timer resources 
+  \param[in]   tpm The resources for the driver (driver instance) 
   \return      error code (0 = OK)
   \note        Common function called by instance-specific function.
 */
@@ -235,11 +236,9 @@ static uint32_t TPM2_Uninitialize (void)
 /**
   \brief       Change power mode for the timer
   \param[in]   state  The requested power state
-  \param[in]   tpm    Pointer to TPM resources
+  \param[in]   tpm The resources for the driver (driver instance)
   \return      error code (0 = OK)
-  \note        Common function called by instance-specific function.
-                Currently does nothing!
-                Note that the ADC automatically enters low power mode after conversion, see datasheet.
+  \note        Currently does nothing!               
 */
 static uint32_t TPM_PowerControl(MSF_power_state state, TPM_RESOURCES* tpm)
 {
@@ -272,9 +271,9 @@ static uint32_t TPM2_PowerControl(MSF_power_state state)
 
 /**
   \brief       Control various options of the TPM
-  \param[in]   control  Flags indicating which parameter(s) to set
-  \param[in]   arg Optional argument for the command
-  \param[in]   tpm    Pointer to TPM resources
+  \param[in]   control  Flags indicating which parameter(s) to set, see \ref group_tpm_control_flags.
+  \param[in]   arg Optional argument for the command  
+  \param[in]   tpm The resources for the driver (driver instance)
   \return      error code (0 = OK)
   \note        Common function called by instance-specific function.
             
@@ -398,6 +397,7 @@ static uint32_t TPM2_Control(uint32_t control, uint32_t arg)
   \param[in]   channel The number of the channel to set (0-5) but depends on TPMn module!
   \param[in]   mode The mode to set. One of the enum values defined in drv_tpm.h!
   \param[in]   args Optional other options for the mode;
+  \param[in]   tpm The resources for the driver (driver instance)
   \return      error code (0 = OK)
   \note   
   Information for the modes:
@@ -585,6 +585,7 @@ static uint32_t TPM2_ChannelSetMode(uint32_t channel, TMP_channel_mode_t mode, u
   \brief       Write value to the channel register (e.g. duty in pwm mode)
   \param[in]   channel The number of the channel to set (0-5) but depends on TPMn module!
   \param[in]   value The value to write. Only 16-bit value is supported by TPM timers.
+  \param[in]   tpm The resources for the driver (driver instance)
   \return      error code (0 = OK)
   \note                      
 */
@@ -620,7 +621,7 @@ static uint32_t TPM2_ChannelWrite(uint32_t channel, uint16_t value)
 /**
   \brief       Read value from the channel register (used in input capture mode)
   \param[in]   channel The number of the channel to set (0-5) but depends on TPMn module!
-  \param[in]   value The value to write
+  \param[in]   tpm The resources for the driver (driver instance) 
   \return      The 16-bit value from the CnV register or error code 0xffffffff.
   \note                      
 */
@@ -779,5 +780,5 @@ static void wtpm_enable_int(uint32_t irqno, uint32_t enable)
 		NVIC_DisableIRQ(irqno);	
 	}
 }
-
+/**@}*/
 /* ----------- end of file -------------- */

@@ -10,6 +10,11 @@
 #ifndef MSF_TEMPLATE_H
     #define MSF_TEMPLATE_H
 
+/** @addtogroup group_template 
+ * @details Source code template file
+ * @{
+ */
+ 
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22,12 +27,23 @@ extern "C" {
 
 /* Function Prototype Section
 * Add prototypes for all public functions.
+* Write doxygen comments here!
 *
 ***************************************************/ 
+
+/** 
+ * @brief Short description of the function
+ * @param[in] param1 description of param1
+ * @return none
+ * @note  
+ *  
+ * Created by: JD   
+ **/
 
 #ifdef __cplusplus
 }
 #endif
 
+/**@}*/
 /* ----------- end of file -------------- */
 #endif /* MSF_TEMPLATE_H */

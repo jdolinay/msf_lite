@@ -37,6 +37,9 @@
 extern "C" {
 #endif
 
+/** @addtogroup group_adc  
+ * @{ 
+*/
 
 /* ADC Run-time information*/
 typedef struct _ADC_INFO {
@@ -57,6 +60,7 @@ typedef struct {
 } const ADC_RESOURCES;
 
 
+/**@}*/
 
 #ifdef __cplusplus
 }

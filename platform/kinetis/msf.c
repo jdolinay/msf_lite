@@ -41,13 +41,11 @@
 volatile uint32_t   gmsf_systime;
 volatile uint32_t   gmsf_delaycnt;
 
-/** @brief Init the "system" timer which will be used by delay, millis etc. functions
- * @param TODO: some options if needed
- * @return 0 if init was ok; error code otherwise. For now it always returns OK.
- * @note It uses CMSIS SysTick. The CMSIS implementation must be provided by
- * the silicone vendor. 
- *  
- **/
+/** @addtogroup group_globals  
+* @{ 
+*/
+
+/* Initialize the MSF */
 uint8_t msf_init(uint32_t param)
 {
     uint8_t err = MSF_ERROR_OK;
@@ -80,11 +78,6 @@ uint8_t msf_init(uint32_t param)
   
 }
 
-/** Stop the execution for given number of milliseconds using busy-wait loop.
- * @param  millis number of milliseconds for which the program should wait
- * @return none
- * @note We rely on the CMSIS SysTick service 
- **/
 void msf_delay_ms(uint32_t millis)
 {
     gmsf_delaycnt = millis;
@@ -94,21 +87,13 @@ void msf_delay_ms(uint32_t millis)
         MSF_RESET_WATCHDOG();   
 }
 
-/* Get the number of milliseconds that elapsed since the CPU started.
- * @param none
- * @return number of milliseconds as 32-bit unsigned integer.
- * @note The value overflows in about 49.7 days. (2^32 milliseconds)
- **/
+
 uint32_t msf_millis()
 {
     return gmsf_systime;
 }
 
-/* Get the number of microseconds that elapsed since the CPU started
- * @param none
- * @return number of microseconds as 32-bit unsigned integer.
- * @note  The value overflows in about 71.5 minutes.
- **/
+
 uint32_t msf_micros()
 {   
 	uint32_t fraction = (SysTick->LOAD - SysTick->VAL) / MSF_SYSTICK_VALINUS;
@@ -123,10 +108,8 @@ uint32_t msf_micros()
     return (msf_millis() * 1000u + fraction);
 }
 
-/* Stop the execution for given number of microseconds using busy-wait loop.
- * @param  number of microseconds for which the program should wait
- * @return none
- * @note There are some limitations:
+/**
+ *  @note There are some limitations:
  * 	- The function works reliably from certain minimal value (depending on F_CPU) - about 6 us 
  * 	 for F_CPU 8 and 21 MHz, about 2 us for 48 MHz.
  * 	- The results are better for F_CPU in exact MHz, e.g. 48 MHz  is better than 41.9 MHz - see clock options. 
@@ -140,7 +123,7 @@ uint32_t msf_micros()
  *  - When testing this function note the overhead in measuring the time with msf_micros() which is
  *  about 26 us! (as of May 2014 version). 
  *  
- **/
+ */
 void msf_delay_us(uint32_t micros)
 {
 	/* convert us to clock cycles and divide by 3 as the loop below
@@ -264,6 +247,7 @@ void msf_delay_us(uint32_t micros)
 	
 }
 
+/** @}*/
 
 /* Handler for the SysTick interrupt.
 The name of the function is pre-defined by CMSIS */

@@ -21,19 +21,9 @@
 /* Define which driver (instance of the ADC) is used by us */
 #define	 MSF_ANALOG_DRIVER	Driver_ADC0
 
-/** Read analog value from given analog pin
-* @param apin analog pin
- * @note The analog pins are defined in msf_<device>.h. In future this definition
- * may allow mapping the pin to ADC module number but currently we support only
- * one ADC module for analog inputs.
- * Note: Not all analog input pins are available in every configuration of the ADC.
- * The function will use the ADC driver Control function to switch between ADC "a" and "b" channels
- * to get the reading from the requested pin. This will slow down the reading a little if
- * you use pins which require this switching (SExa or SExb only). All SEx pins (without a or b at the end)
- * do not require any switching. 
- * See the Analog_pin_t enum in msf_<device>.h for the analog pin definitions   
- **/
+
 #if (MSF_USE_ANALOG)
+    /* Read analog value from given analog pin */
  uint16_t msf_analog_read(Analog_pin_t apin)
  {
     /* future: use MSF_PIN2ADC() macro to obtain ADC module number (for MCUs 

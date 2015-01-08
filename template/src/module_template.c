@@ -8,7 +8,7 @@
  *      
  ******************************************************************************/
 
-/** @defgroup group_template Template module 
+/** @addtogroup group_template 
  * @details Source code template file
  * @{
  */
@@ -78,13 +78,6 @@ void wconiob_update_txfifo(void);
 ***************************************************/  
 /* -------- Implementation of public functions   -------- */
 
-/** @fn   void function(type param1) 
- * @brief Short description of the function
- * @param[in] param1 description of param1
- * @return none
- * @note  
- *  
- * Created by: JD   
- **/
- 
+
+/** @}*/ 
  

@@ -15,6 +15,9 @@
 extern "C" {
 #endif
 
+/** @addtogroup group_globals  
+* @{ 
+*/
 
 /** Convenience inline functions for very short busy-loop waiting
  * IMPORTANT: the results will be incorrect if compiler optimizations are not enabled.
@@ -216,7 +219,7 @@ extern "C" {
 #else
     #warning Short delay functions not defined for current F_CPU. 
 #endif 
-
+/** @}*/
 
 #ifdef __cplusplus
 }

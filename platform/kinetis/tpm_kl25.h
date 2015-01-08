@@ -23,6 +23,9 @@
 extern "C" {
 #endif
 
+/** @addtogroup group_tpm  
+ * @{ 
+*/ 
 
 /* TPM Run-time information*/
 typedef struct _TPM_INFO {
@@ -65,6 +68,8 @@ typedef struct {
 #define	MSF_TPM_GETNVIC_IRQn(tpm_adr)	((TPM_Type*)tpm_adr == TPM0) ? TPM0_IRQn : \
 										((TPM_Type*)tpm_adr == TPM1) ? TPM1_IRQn : \
 										((TPM_Type*)tpm_adr == TPM2) ? TPM2_IRQn : -1
+
+/**@}*/
 
 #ifdef __cplusplus
 }

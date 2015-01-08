@@ -1,5 +1,7 @@
 #ignore output directory
 bin/
+#ignore doxygen output
+doc/doxygen
 
 # ignore build output files
 *.o

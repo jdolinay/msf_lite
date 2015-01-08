@@ -12,6 +12,10 @@
 #ifndef MSF_UART_K25_H
 #define MSF_UART_K25_H
 
+/** @addtogroup group_uart  
+ * @{
+*/
+
 /* Make sure the definitions of baudrate constants etc. are available */
 #ifndef MSF_MSF_H
 	#error Plese include msf.h before including this file. 
@@ -26,7 +30,7 @@ extern "C" {
 #endif
 
 
-/* UART Run-time information*/
+/** UART Run-time information*/
 typedef struct _UART_INFO {
   MSF_UART_Event_t cb_event;          // Event Callback
   uint32_t  status;              // Status flags 
@@ -45,7 +49,7 @@ typedef struct _UART_PIN {
 	uint8_t		alt_num; /* the number of alt function for the given pin, for example, 2 for ALT2, etc. */
 } UART_PIN;
 
-/* UART information about the pins used by one instance of UART driver
+/** UART information about the pins used by one instance of UART driver
  * This is the Tx and Rx pin */
 typedef struct _UART_PINS {
 	UART_PIN rxpin;
@@ -53,10 +57,11 @@ typedef struct _UART_PINS {
 } UART_PINS;
 
 
-/* The data for one instance of the driver - the "resource" */
-/* Note: for K25 the UART0 is different than UART1 and UART2 which have different 
+/** The data for one instance of the driver - the "resource" 
+@note: for K25 the UART0 is different than UART1 and UART2 which have different 
 overlay struct. There will always be only 1 instance of the UART0;
-there could be 1 or 2 instances of UART driver for UART1 and UART2. */
+there could be 1 or 2 instances of UART driver for UART1 and UART2. 
+*/
 typedef struct {
         UART0_Type  *reg;  		// UART0 peripheral register interface, CMSIS
         UART_Type	*reg1;		// UART1 and UART2 registers, CMSIS
@@ -73,5 +78,7 @@ typedef struct {
 #ifdef __cplusplus
 }
 #endif
+/** @}*/
+
 /* ----------- end of file -------------- */
 #endif /* MSF_UART_K25_H */

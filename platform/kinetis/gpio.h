@@ -27,9 +27,14 @@ the platform header includes the device specific files as selected in msf_config
 extern "C" {
 #endif
 
-/* MCU_pin_t 
+/** @addtogroup group_msf_digitalIO  
+* @{ 
+*/
+
+/** MCU_pin_t 
  @brief The data type for MCU pin.
  @note This is the type expected by the GPIO functions for the pin paremeter.
+ The MCU_pin_type is defined in msf_lite/platform/kinetis/mkl25z/msf_mkl25z.h.
 */
 typedef MCU_pin_type  MCU_pin_t;
 
@@ -56,13 +61,16 @@ typedef MCU_pin_type  MCU_pin_t;
 #define		GPIO_CLEAR_REG(pin)		GPIO_GPIO_OBJECT(pin)->PCOR
 #define		GPIO_DATAIN_REG(pin)	GPIO_GPIO_OBJECT(pin)->PDIR
 
-/* Directions for GPIO pins */
-/* NOTE: only supported modes should be defined. */
+/** @brief Directions for GPIO pins 
+ @note only supported modes should be defined. 
+ */
 typedef enum {
   input = 0,
   output = 1,  
 } GPIO_pin_direction;
 
+/** @brief Options for pull-up/pull-down resistors 
+*/
 typedef enum {
   pull_none,
   pull_up,
@@ -70,8 +78,7 @@ typedef enum {
 } GPIO_pin_pullup;
 
 
-/** 
- * Initialises the GPIO ports.
+/** @brief Initialises the GPIO ports.
  * It enables the clock to GPIO ports.
  */
 static inline void gpio_init()
@@ -221,7 +228,7 @@ static void gpio_toggle(MCU_pin_t pin)
     GPIO_TOGGLE_REG(pin) |= GPIO_PIN_MASK(pin);
 }
 
-
+/** @}*/
 
 #ifdef __cplusplus
 }

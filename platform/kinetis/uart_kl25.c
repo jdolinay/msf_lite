@@ -14,6 +14,16 @@
  *          baudrate.              
  *
  ******************************************************************************/
+/** @addtogroup group_uart  
+ * @{
+ * @note UART1 and UART2 does not support all the baudrates supported by UART0.
+ * As the baudrate enum values are defined for all UARTs, it is not guaranteed that
+ * all available enum values will be really supported by UART1/2 for any F_CPU. 
+ * See the definition of the baudrate enum in msf_[device].h.
+ * The UART_Initialize will return MSF_ERROR_ARGUMENT if called with unsupported 
+ * baudrate.               
+*/
+
 /* MSF includes */
 #include "msf_config.h"
 
@@ -109,10 +119,9 @@ static void uart1_intconfig(uint32_t enable, UART_RESOURCES* uart);
 /* The driver API functions */
 
 /**
-  \fn          uint32_t  UART_Initialize( UART_Event_t event,  UART_RESOURCES* uart)
   \brief       Initialize UART Interface.
   \param[in]   baudrate  baudrate constant as defined in msf_<device>.h
-  \param[in]   cb_event  Pointer to UART_Event function or null
+  \param[in]   event  Pointer to UART_Event function or null
   \param[in]   uart       Pointer to UART resources
   \return      error code (0 = OK). May return MSF_ERROR_ARGUMENT if baudrate is not supported.
   \note			            	  
@@ -208,7 +217,6 @@ static uint32_t UART2_Initialize(UART_speed_t baudrate, MSF_UART_Event_t pEvent)
 
 
 /**
-  \fn          uint32_t  UART_Uninitialize( void)
   \brief       Uninitialize UART Interface. 
   \param[in]   uart    Pointer to UART resources 
   \return      error code (0 = OK)
@@ -275,8 +283,8 @@ static uint32_t UART2_PowerControl(MSF_power_state state)
 }
 
 /**
-  \brief       Initialize UART Interface.
-  \param[in]   control  Flags indicating what parameter(s) to set
+  \brief       Control the UART driver.
+  \param[in]   control  Flags indicating what parameter(s) to set. See \ref group_uart_control_flags
   \param[in]   arg Optional argument for the command
   \param[in]   uart    Pointer to UART resources
   \return      error code (0 = OK);	
@@ -739,7 +747,6 @@ static uint32_t UART2_GetTxCount(void)
 }
 
 /**
-  \fn          uint32_t  UART_DataAvailable( void)
   \brief       Check is there is some byte received
   \param[in]   uart    Pointer to UART resources 
   \return      number of bytes available (0 or 1 as we do not have any buffer)
@@ -1172,7 +1179,5 @@ static void uart1_intconfig(uint32_t enable, UART_RESOURCES* uart)
  }
 #endif
  
- 
- 
- 
+/** @}*/          
 /* ----------- end of file -------------- */

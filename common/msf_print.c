@@ -19,26 +19,19 @@
 #include <stdio.h> /* for sprintf */
 
 
-/** print line of text.
- * @note Supports printing new line is "\n" is in the string.
- *   msf_init should be called before using any of the msf_print 
- *   functions. 
- **/
+/* print string */
 void msf_print(const char* str)    // print string
 {
     coniob_puts(str);
 } 
 
-/** print single character
- * @param c char to print
- * */
+/* print single character */
 void msf_print_char(char c)	
 {
 	coniob_putch(c);
 }
 
-/** Print simple integer (as with sprintf %d) 
-**/
+/* Print simple integer (as with sprintf %d) */
 void msf_printnum(uint32_t number) 
 {
     char buffer[12];
@@ -46,8 +39,7 @@ void msf_printnum(uint32_t number)
     coniob_puts(buffer);    
 }
 
-/** Print simple integer as hexadecimal number (as with sprintf %x)
-**/
+/*Print simple integer as hexadecimal number (as with sprintf %x) */
 void msf_printhex(uint32_t number)
 {
     char buffer[9];
@@ -55,12 +47,7 @@ void msf_printhex(uint32_t number)
     coniob_puts(buffer);         
 }
 
-
-
-/** print string with one formatted 16-bit number 
-* @note he number converted to string must not exceed 8 characters!
-*  For example "1234" is OK; "123456789" is NOT OK.
-**/
+/* print string with one formatted 16-bit number */
 void msf_printf_16(const char* str, const char* format, uint16_t data)  
 {
     char buffer[9];
@@ -69,9 +56,8 @@ void msf_printf_16(const char* str, const char* format, uint16_t data)
     coniob_putch(' ');
     coniob_puts(buffer);    
 }
-/** print string with one formatted 32-bit number 
-* @note The number converted to string must not exceed 11 characters!
-**/
+
+/* print string with one formatted 32-bit number */ 
 void msf_printf32(const char* str, const char* format, uint32_t data)  
 {
     char buffer[12];
@@ -81,9 +67,7 @@ void msf_printf32(const char* str, const char* format, uint32_t data)
     coniob_puts(buffer);    
 } 
 
-/** print string with one real number (float) 
-* @note The number converted to string must not exceed 11 characters!
-**/
+/* print string with one real number (float) */ 
 void msf_printf_real(const char* str, const char* format, double data)  
 {
     char buffer[12];
@@ -94,14 +78,13 @@ void msf_printf_real(const char* str, const char* format, double data)
 } 
 
 
-/** Read character from serial interface. 
- * @return 0 if no char is available */
+/* Read character from serial interface. */
 char msf_read_char(void)
 {
     return coniob_getch();    
 }
 
-/** Check if character was received through serial line */
+/* Check if character was received through serial line */
 bool msf_char_available(void)
 {
     return (coniob_kbhit() > 0);

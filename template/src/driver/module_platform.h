@@ -11,6 +11,10 @@
 #ifndef MSF_[module]_[platform]_H
     #define MSF_[module]_[platform]_H
 
+/** @addtogroup group_DRIVER_template 
+ * @{
+ */
+
 /* Make sure basic definitions are available */
 #ifndef MSF_MSF_H
 	#error Plese include msf.h before including this file. 
@@ -61,6 +65,6 @@ typedef struct {
 #ifdef __cplusplus
 }
 #endif
-
+/**@}*/
 /* ----------- end of file -------------- */
 #endif /* MSF_[module]_[platform]_H */
