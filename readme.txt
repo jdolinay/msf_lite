@@ -25,10 +25,10 @@ platfrom 	- code specific for given platform, for example Kinetis MCUs.
 	<platform>	- contains source and headers for given platform
 	 	<device> - header with definitions for one device from this platform         	
 template	- template files for user-created projects and for extending MSF. 
-    cw  - template files for CodeWarrior projects. For example the configuration
-        file (msf_config.h) or startup code file modified for MSF.
+    kds  - template files for Kinetis Design Studio projects. For example the configuration
+        file (msf_config.h).
     src - template files for extending MSF - template for a new module and driver.    			
-vendor		- code provided by the MCU vendor, for example CMSIS code.
+
 
 
 Supported boards
