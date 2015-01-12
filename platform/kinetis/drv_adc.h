@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-/** @defgroup group_adc Analog-to-digital converter device driver 
+/** @defgroup group_adc ADC (Analog-to-digital converter) device driver 
  * @{ 
  * @brief CMSIS-like ADC driver for Kinetis  
  * @details    This is driver for the ADC created in style 
