@@ -60,11 +60,11 @@ int main(void)
 	/* Test the UART driver
 	 * Please un-comment one of the functions.
 	 */
-	//polled_uart_test();
+	polled_uart_test();
 	//interrupt_uart_simple_test();
 	//interrupt_uart_full_test();
 	//coniob_test();
-	uart12_test();
+	//uart12_test();
 
 	/* This for loop should be replaced. By default this loop allows a single stepping. */
     for (;;) {

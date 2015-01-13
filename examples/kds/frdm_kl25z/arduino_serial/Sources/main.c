@@ -2,6 +2,7 @@
  * Sample program for Arduino-compatibility layer in MSF lite
  *
  * This sample demonstrates the Serial functions.
+ * BAUD: 115200
  * Note that the implementation is limited compared to the Arduino serial class,
  * there is no "general" function for printing any variable type; just several
  * functions, each to print specific type - see the code.
@@ -15,10 +16,19 @@
  * x - will print sample integer in hex format
  * o - will print sample integer in octal format
  *
+ * IMPORTANT To communicate with the program from your computer, you will need
+ * Terminal emulator, for example Tera Term or Putty.
+ * Use the Open SDA virtual serial port for communication.
+ * You can find the COM number for this port on your computer
+ * in the Windows Device manager, but ONLY WHEN the FRDM board is connected
+ * to your computer.
+ * For this example set baudrate 115200.
+ *
  * IMPORTANT: For the floating point numbers to work, you need to add this flag:
  * -u _printf_float
  * to the Cross ARM C++ Linker settings > Miscellaneous > Other Linker Flags
  * Without adding this flag, you will see no output for the float number.
+ *
  */
 #include "arduino.h"
 

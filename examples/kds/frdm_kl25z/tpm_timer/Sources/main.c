@@ -142,10 +142,14 @@ void tpm_tof_test(void)
 	// (which means the LED will be toggled twice per second, blinking once
 	// per second):
 	// MOD = 8000000 / (2*128) - 1 = 31249
+
+	// Set the prescaler
 	Driver_TPM0.Control(MSF_TPM_PRESCALER_SET, MSF_TPM_PRESCALER_128);
+
+	// Set the modulus value and enable TOF event signal
 	Driver_TPM0.Control(MSF_TPM_MOD_VALUE | MSF_TPM_TOF_SIGNAL, 31249);
 
-	// Now just wait. The TPM0_SignalEvent function will handle the LED blinking
+	// Now just wait. The TPM0_SignalEvent function will handle the LED
 	while(1)
 		i++;
 }

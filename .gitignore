@@ -11,3 +11,5 @@ doc/doxygen
 *.lss
 *.elf
 *.epp
+*.d
+
