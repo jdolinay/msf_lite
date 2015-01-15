@@ -5,6 +5,10 @@ Projekty examples staci .cproject a .project a slozka .settings jak mam ted - ov
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 ------------------------------------------------
 
+15.1.2015
+Pokraèovat asi slouèením msf_lite do msf, tak aby msf bylo už jediným vyvýjeným projektem a msf_lite zaniklo, ve smyslu
+že msf_lite je jako "branch" ktera se ted slouèi s "master" = msf.
+
 3.1.2015
 _Pokracuj: coniob test a pak uart1 a 2 test v sample "uart", ostatni projekty už ok.
 TODO: doxygen
