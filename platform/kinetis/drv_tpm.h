@@ -132,20 +132,20 @@ typedef void (*MSF_TPM_Event_t) (uint32_t event, uint32_t arg);
  * mode or disabled, because the counter is counting up+down which is not compatible with any
  * other mode than center-aligned PWM.  */
 typedef enum _MSF_DRIVER_CHANNEL_MODES {
-	Disabled,
-	SWcompare,
-	InCapture_rising_edge,
-	InCapture_falling_edge,
-	InCapture_both_edges,
-	OutCompare_toggle,
-	OutCompare_clear,
-	OutCompare_set,
-	OutCompare_pulselow,
-	OutCompare_pulsehigh,
-	PWM_edge_hightrue,	/**< set output at the start of the period */
-	PWM_edge_lowtrue,	/**< clear output at the start of the period */
-	PWM_center_hightrue,
-	PWM_center_lowtrue,
+	Disabled,	/**< timer is disabled */
+	SWcompare, /**< . */
+	InCapture_rising_edge, /**< capture on rising edge of input */
+	InCapture_falling_edge,  /**< capture on falling edge of input */
+	InCapture_both_edges,	 /**< capture on both rising and falling edge of input */
+	OutCompare_toggle,		 /**< toggle output on compare match */
+	OutCompare_clear,		/**< clear output (LOW) on compare match */
+	OutCompare_set,			/**< set output (HIGH) on compare match */
+	OutCompare_pulselow,	/**< . */
+	OutCompare_pulsehigh,	/**< . */
+	PWM_edge_hightrue,		/**< set output at the start of the period */
+	PWM_edge_lowtrue,		/**< clear output at the start of the period */
+	PWM_center_hightrue, 	/**< . */
+	PWM_center_lowtrue,		/**< . */
 	
 } TMP_channel_mode_t;
 

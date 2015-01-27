@@ -23,7 +23,7 @@
 #if CW_10
 	/* The HW registers of the MCU, etc. 
     For Kinetis we use our own "derivative.h" file located in each project 
-    which includes the CMSIS <device>.h fole for the actual MCU */
+    which includes the CMSIS <device>.h for the actual MCU */
     #include "derivative.h"
 	
     /* The  CMSIS <device>.h file includes "core" components such as stdint.h  in itself */	
