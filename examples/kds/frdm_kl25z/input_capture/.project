@@ -76,6 +76,16 @@
 			<locationURI>PARENT-4-PROJECT_LOC/common/msf_print.c</locationURI>
 		</link>
 		<link>
+			<name>msf/common/wavein.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/common/wavein.c</locationURI>
+		</link>
+		<link>
+			<name>msf/common/wavein.h</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/common/wavein.h</locationURI>
+		</link>
+		<link>
 			<name>msf/frdm_kl25z/arduino.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/board/frdm_kl25z/arduino.c</locationURI>
