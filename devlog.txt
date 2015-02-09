@@ -8,6 +8,11 @@ po importu jako existing project into workspace ( bez kopirovani do workspace) j
 15.1.2015
 Pokraèovat asi slouèením msf_lite do msf, tak aby msf bylo už jediným vyvýjeným projektem a msf_lite zaniklo, ve smyslu
 že msf_lite je jako "branch" ktera se ted slouèi s "master" = msf.
+ >toto se mi nezdá moc reálné s ohledem na support msf_lite publikované na codeproject.
+
+TODO: v coniob.h jsou nastavení jako instance UART driveru, ktere by mìly byt v msf_config! nemùže to být pøepisováno
+v knihovním .h driveru které ovlivní všechny projekty!
+
 
 3.1.2015
 _Pokracuj: coniob test a pak uart1 a 2 test v sample "uart", ostatni projekty už ok.

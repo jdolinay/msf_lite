@@ -232,14 +232,14 @@
 
 /* Timer TPM2 pins (only 2 channels on KL25) */
 // Timer 2, channel 0
-#define		MSF_TPM2_CH0_PIN	(GPIO_B2)	// Arduino pin 18  /*B18/3; PTA1/3; PTB2/3; PTE22/3*/
+#define		MSF_TPM2_CH0_PIN	(GPIO_B2)	// Arduino pin A2 = D16  /*B18/3; PTA1/3; PTB2/3; PTE22/3*/
 #define		MSF_TPM2_CH0_ALT	(3)
 /*
 #define		MSF_TPM2_CH0_PIN	(GPIO_A1)	// Arduino pin 0
 #define		MSF_TPM2_CH0_ALT	(3)
 */
 // Timer 2, channel 1
-#define		MSF_TPM2_CH1_PIN	(GPIO_B3)  // Arduino pin 19  /*B19/3; PTA2/3; PTB3/3; PTE22/3*/
+#define		MSF_TPM2_CH1_PIN	(GPIO_B3)  // Arduino pin A3 = D17  /*B19/3; PTA2/3; PTB3/3; PTE22/3*/
 #define		MSF_TPM2_CH1_ALT	(3)
 /*
 #define		MSF_TPM2_CH1_PIN	(GPIO_A2)  // Arduino pin 1
