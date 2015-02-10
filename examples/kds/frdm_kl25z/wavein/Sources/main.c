@@ -8,10 +8,14 @@
  * This project contains several example use-cases in separate functions.
  * Uncomment one of the functions at a time to test it.
  *
- * You can see the output of the program in terminal program (for example Tera Term),
- * if you connect to the OpenSDA COM port; The baud rate is 19200.
+ * Testing the program:
+ * - open terminal emulator on your PC (for example, Tera Term or Putty)
+ *  and open the OpenSDA COM port and set baudrate to 19200
+ * - run this example project
+ * - connect input signal to the selected pin of your FRDM board (see below)
+ * You should see the output of the program in your terminal window.
  *
- * The examples were tested using TPM0, the RC example also with TPM1 and TPM2.
+ *
  * The wavein driver supports all the clock options available as of KDS 1.1.1
  * and automatically sets the timer to 1 MHz clock and returns values in
  * microseconds (us).
