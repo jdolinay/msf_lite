@@ -69,6 +69,7 @@ void test_wavein_driver_pulse(void);
 void test_wavein_driver_multichannel(void);
 void display_channel(uint8_t channel);
 void test_wavein_driver_rc(void);
+void test_wavein_driver_sonar(void);
 
 
 // Globals
@@ -92,7 +93,8 @@ int main(void)
 	//test_wavein_driver_wave();
 	//test_wavein_driver_pulse();
 	//test_wavein_driver_multichannel();
-	test_wavein_driver_rc();
+	//test_wavein_driver_rc();
+	test_wavein_driver_sonar();
 
 
 	// Initialize LEDs
@@ -472,7 +474,7 @@ void test_wavein_driver_rc(void)
 	uint8_t channel;
 	uint16_t a, b;
 
-	// Use case 1 - measure wave signal
+	// Initialize the wavein driver
 	wavein_init();
 
 	// Connect the channels
@@ -544,6 +546,56 @@ void test_wavein_driver_rc(void)
 		msf_print("\n");
 		msf_delay_ms(1000);
 
+	}
+
+}
+
+/* test_wavein_driver_sonar
+ * Show how to use the Parallax Ping ultrasonic sensor.
+ * To start measurement, send 5 us pulse.
+ * After 750 ms the sensor will respond with pulse with lenght
+ * proportional to distance. The pulse is 115 us to 18.5 ms long.
+ *
+ * Uses MCU pin PTD0 (Arduino pin 10), which is also channel 0 for wavein driver.
+ *
+ * */
+void test_wavein_driver_sonar(void)
+{
+	uint16_t a;
+
+	// Initialize the wavein driver
+	wavein_init();
+
+	while(1)
+	{
+		// Generate start pin
+		msf_pin_direction(GPIO_D0, output);
+		msf_pin_write(GPIO_D0, true);
+		msf_delay_us(5);
+		msf_pin_write(GPIO_D0, false);
+
+		// measure the pulse
+		wavein_channel_attach(0);
+		a = wavein_channel_pulse_wait(0, 200);
+		if (a == 0)
+			msf_print("Timeout.\n");
+		else
+		{
+			msf_printnum(a);
+			msf_print(" us, ");
+			// print also distance in cm and inches
+			// The speed of sound is 340 m/s or 29 microseconds per centimeter.
+			// The ping travels out and back, so to find the distance of the
+			// object we take half of the distance traveled.
+			msf_printnum(a/29/2);
+			msf_print(" cm, ");
+			// 73.746 microseconds per inch...
+			msf_printnum(a/74/2);
+			msf_print(" inches \n");
+		}
+		wavein_channel_detach(0);
+
+		msf_delay_ms(1000);
 	}
 
 }
