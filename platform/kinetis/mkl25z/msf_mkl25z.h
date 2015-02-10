@@ -486,12 +486,14 @@ typedef enum
   
 /** Source of the internal clock for timer TPMn 
  * The value of the TPMSRC bit field in SIM_SOPT2  - internal clock for timers TPMn
- * The clock for F_CPU is:
- * F_CPU		TPM clock
- * 48 MHz 	- 8 MHz
- * 20.9 MHz - 20.9 MHz 
- * 8 MHz 	- 8 MHz
- * 41.9 MHz -  41943040 Hz 
+ * The clock for given F_CPU is:
+ * F_CPU				TPM clock
+ * 48 MHz 		 		8 MHz
+ * 20.9 MHz				20.9 MHz
+ * 8 MHz 				8 MHz
+ * 4 MHz,F_BUS=0.8 MHz	4 MHz
+ * 4 MHZ,F_BUS=1 MHz	8 MHz
+ * 41.9 MHz				41943040 Hz
  * */ 
 #define	MSF_TPM_CLKSEL		MSF_UART0_CLKSEL	/* use the same value as UART0 */
 
