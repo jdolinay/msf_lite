@@ -283,6 +283,9 @@ void on_edge(uint16_t arg)
  * The driver can be used with either TPM0, TPM1 or TPM2 low-level driver,
  * see wavein.h.
  * The examples were tested using TPM0, the RC example also with TPM1 and TPM2.
+ * The wavein driver supports all the clock options available as of KDS 1.1.1
+ * and automatically sets the timer to 1 MHz clock and returns values in
+ * microseconds (us).
  *
 */
 

@@ -33,9 +33,6 @@
 * Add all internally used #defines here
 *
 ***************************************************/
-/** Number of channels available in the driver*/
-#define	WAVEIN_NUM_CHANNELS		(6)
-
 
 /* Variables section
 * Add all global variables here
@@ -49,11 +46,7 @@ volatile uint8_t gwavein_channel_mask;
 volatile uint32_t gwavein_overflow_cnt;
 /* */
 
-/** How many milliseconds it takes before the counter overflows.
- * The counter is 16-bit.
- * For timer clock 1 MHz it overflows about 15 times per second.
- * The time between overflows is abount 65.5 ms */
-#define	WAVEIN_OVERFLOW_UNITMS	(66)
+
 
 /* The states for the input channel */
 typedef enum
@@ -90,9 +83,8 @@ void wavein_on_edge(uint32_t timestamp, uint8_t channel);
 ***************************************************/  
 /* -------- Implementation of public functions   -------- */
 
-/**
+/*
  * initialize the driver.
- * @note
  *
  **/
 void wavein_init(void)
@@ -111,16 +103,14 @@ void wavein_init(void)
 	}
 
 	WAVEIN_TIMER_DRIVER.Initialize(wavein_timer0_event);
-	// Set the speed of the timer counter
+	// Set the speed of the timer counter to achieve 1 MHz (if possible)
 	// The timer clock speed depends on F_CPU, see MSF_TPM_CLKSEL in msf_mkl25z.h
-	// It is 8 MHz in default clock setup (48 MHz F_CPU)
-	// Our desired speed will depend on the purpose.
-	WAVEIN_TIMER_DRIVER.Control(MSF_TPM_PRESCALER_SET | MSF_TPM_TOF_SIGNAL, MSF_TPM_PRESCALER_8);
+	// and in wavein.h we set the WMSF_WAVEIN_PRESCALER to obtain 1 MHz.
+	WAVEIN_TIMER_DRIVER.Control(MSF_TPM_PRESCALER_SET | MSF_TPM_TOF_SIGNAL, WMSF_WAVEIN_PRESCALER);
 }
 
-/**
+/*
  * un-initialize the driver.
- * @note
  *
  **/
 void wavein_uninit(void)
@@ -149,8 +139,8 @@ uint8_t wavein_channel_attach(uint8_t channel)
 
 /**
  *
- * @note It is not needed to do anything. The pin can be configured
- * to e.g. GPIO mode without the need to disable it in timer.
+ * @note This function may do nothing. The pin can be configured
+ * to e.g. GPIO mode without the need to disconnect it from the timer first.
  *
  **/
 void wavein_channel_detach(uint8_t channel)
@@ -188,10 +178,9 @@ void wavein_channel_stop(uint8_t channel)
 	}
 }
 
-/**
+/*
  * Read the values captured for given channel
  *
- * @note
  **/
 uint8_t wavein_channel_read(uint8_t channel, uint16_t* pulseA, uint16_t* pulseB  )
 {
@@ -248,11 +237,15 @@ uint8_t wavein_channel_read(uint8_t channel, uint16_t* pulseA, uint16_t* pulseB 
 	if ( (*pulseA == 0) && (*pulseB == 0) )
 		return WAVEIN_ERROR_NOINPUT;
 
+	// Account for different clock than 1 MHz
+	*pulseA = (uint16_t)(((uint32_t)*pulseA * WAVEIN_MULT_FACTOR)/WAVEIN_DIV_FACTOR);
+	*pulseB = (uint16_t)(((uint32_t)*pulseB * WAVEIN_MULT_FACTOR)/WAVEIN_DIV_FACTOR);
+
 	return WAVEIN_NO_ERROR;
 
 }
 
-/**
+/*
  * Wait for pulse on given input channel (pin)
  */
 uint16_t wavein_channel_pulse_wait(uint8_t channel, uint32_t timeout )
@@ -297,7 +290,11 @@ uint16_t wavein_channel_pulse_wait(uint8_t channel, uint32_t timeout )
 			return 0;	// timeout occurred
 	}
 
-	return gwavein_data[channel].vals[0];
+	// Account for different clock than 1 MHz
+	// using endtime for temporary storage!
+	endtime = (((uint32_t)gwavein_data[channel].vals[0] * WAVEIN_MULT_FACTOR)/WAVEIN_DIV_FACTOR);
+
+	return (uint16_t)endtime;
 }
 
 
@@ -308,7 +305,7 @@ uint16_t wavein_channel_pulse_wait(uint8_t channel, uint32_t timeout )
  */
 
 /* Called from timer event handler to process the event.
- * TODO: it could be better to just save the time stamps here and calculate the lenght only
+ * ? it could be better to just save the time stamps here and calculate the lenght only
  * when needed - in read function. But:
  * - the overflow of timer would be harder to take into account
  * - more data for each channel would be needed (3 timestamps instead of 2 length)

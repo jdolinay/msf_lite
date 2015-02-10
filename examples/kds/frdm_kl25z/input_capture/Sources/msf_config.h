@@ -23,7 +23,7 @@
  * Note: These CLOCK_SETUP values 0 thru 4 are supported (values as defined in KDS 1.1.1)
  */
 
-/* CLOCK_SETUP = 1; default value in new project
+/* CLOCK_SETUP = 1;
  * CLOCK_SETUP = 4; */
 
 #define F_CPU		(48000000)
@@ -42,7 +42,7 @@
 #define	F_BUS		(1000000)
 */
 
-/* CLOCK_SETUP = 0; */
+/* CLOCK_SETUP = 0; default value in new project */
 /*
 #define F_CPU		(20970000)
 #define	F_BUS		(20970000)
@@ -77,7 +77,7 @@
 *    Define the standard I/O channel 
 ********************************************/
 #define   MSF_USE_STDIO     1   /* Using conio driver (UART) for std output */
-/* To disable initialising UART in msf_init use:
+/* To disable initializing UART in msf_init use:
 #define   MSF_USE_STDIO     0 
 */
 /* Define the default baudrate used by console I/O (conio).
@@ -86,7 +86,7 @@
 
 /*********************************************
 *    Define whether we want to use analog inputs
-*    If nonzero; ADC is initialised. This means 
+*    If nonzero; ADC is initialized. This means
 *    little more power consumption, otherwise no
 *    harm is done by enabling the analog inputs even
 *    if not used 
@@ -96,7 +96,7 @@
 /*********************************************
 *    Define which drivers should be created (used) 
 *    It may save some memory to define drivers which 
-*    your applicaiton will not use with 0.
+*    your application will not use with 0.
 ********************************************/
 #define MSF_DRIVER_UART0    1   /* Use UART0 driver (create UART0 driver instance) */
 #define	MSF_DRIVER_UART1	1	/* Use UART1 driver */
@@ -245,6 +245,19 @@
 #define		MSF_TPM2_CH1_PIN	(GPIO_A2)  // Arduino pin 1
 #define		MSF_TPM2_CH1_ALT	(3)
 */
+
+/*********************************************
+*   Define which timer is used by the wavein driver.
+*   This determines which pins are available as inputs for the wavein driver.
+*   For example, if TPM0 is selected, the pins (channels) of TPM0 timer are the inpu channels
+*   for the wavein driver.
+*   Note that the wavein code uses direct mapping of channels:
+*   channel 0 in wavein driver is always channel 0 of the underlying TPM driver.
+*   For details see wavein.h
+********************************************/
+#define	WAVEIN_TIMER_DRIVER	Driver_TPM0
+//#define	WAVEIN_TIMER_DRIVER	Driver_TPM1
+//#define	WAVEIN_TIMER_DRIVER	Driver_TPM2
 
 
  /* Include the header file for our board */
