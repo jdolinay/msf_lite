@@ -271,7 +271,7 @@ void on_edge(uint16_t arg)
 
 /* handler for the non-maskable (NMI) interrupt.
  * The PTA4 pin (Arduino pin 4) is by default used as NMI input and
- * connecting low signal to this pin causes NMI interrupt - the defualt handler
+ * connecting low signal to this pin causes NMI interrupt - the default handler
  * is just endless loop. This is no problem if we use the PTA4 pin, because we
  * configure it to a different mode than NMI and all works fine.
  * However, if we by mistake connect the signal to this pin while it is not used

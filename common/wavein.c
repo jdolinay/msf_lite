@@ -41,15 +41,15 @@
 /*---------- Internal variables ---------------- */
 /* Mask of active (started) channels.
  * bit 0 is channel 1; value 1 means measuring now.*/
-volatile uint8_t gwavein_channel_mask;
+static volatile uint8_t gwavein_channel_mask;
 /* Counter incremented when timer counter overflows. */
-volatile uint32_t gwavein_overflow_cnt;
+static volatile uint32_t gwavein_overflow_cnt;
 /* */
 
 
 
 /* The states for the input channel */
-typedef enum
+typedef enum wwavein_input_state
 {
 	wavein_idle,
 	wavein_1st_edge,	/* 1st edge WAS detected */
@@ -59,14 +59,14 @@ typedef enum
 } wavein_input_state;
 
 /* Data for one input channel */
-typedef struct
+typedef struct _wavein_channel_data
 {
 	uint16_t start;		// time stamp for 1st detected edge (start of the period)
 	uint16_t vals[2];	// lengths of 1st and second parts of the wave
 	wavein_input_state status;		// status of the measurement
 } wavein_channel_data;
 
-volatile wavein_channel_data gwavein_data[WAVEIN_NUM_CHANNELS];
+static volatile wavein_channel_data gwavein_data[WAVEIN_NUM_CHANNELS];
 
 /* Function Prototype Section
 * Add prototypes for all functions called by this
@@ -74,8 +74,8 @@ volatile wavein_channel_data gwavein_data[WAVEIN_NUM_CHANNELS];
 *
 ***************************************************/   
 /* -------- Prototypes of internal functions   -------- */
-void wavein_timer0_event(uint32_t event, uint32_t arg);
-void wavein_on_edge(uint32_t timestamp, uint8_t channel);
+static void wavein_timer0_event(uint32_t event, uint32_t arg);
+static void wavein_on_edge(uint32_t timestamp, uint8_t channel);
 
 /* Code section 
 * Add the code for this module.
@@ -103,7 +103,7 @@ void wavein_init(void)
 	}
 
 	WAVEIN_TIMER_DRIVER.Initialize(wavein_timer0_event);
-	// Set the speed of the timer counter to achieve 1 MHz (if possible)
+	// Set the speed of the timer counter to achieve 1 MHz
 	// The timer clock speed depends on F_CPU, see MSF_TPM_CLKSEL in msf_mkl25z.h
 	// and in wavein.h we set the WMSF_WAVEIN_PRESCALER to obtain 1 MHz.
 	WAVEIN_TIMER_DRIVER.Control(MSF_TPM_PRESCALER_SET | MSF_TPM_TOF_SIGNAL, WMSF_WAVEIN_PRESCALER);
@@ -310,7 +310,7 @@ uint16_t wavein_channel_pulse_wait(uint8_t channel, uint32_t timeout )
  * - the overflow of timer would be harder to take into account
  * - more data for each channel would be needed (3 timestamps instead of 2 length)
  * */
-void wavein_on_edge(uint32_t timestamp, uint8_t channel)
+static void wavein_on_edge(uint32_t timestamp, uint8_t channel)
 {
 	switch( gwavein_data[channel].status )
 	{
@@ -344,7 +344,7 @@ void wavein_on_edge(uint32_t timestamp, uint8_t channel)
 }
 
 /* Handler for the timer low-level driver events */
-void wavein_timer0_event(uint32_t event, uint32_t arg)
+static void wavein_timer0_event(uint32_t event, uint32_t arg)
 {
 	switch ( event )
 	{

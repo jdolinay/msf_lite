@@ -47,7 +47,7 @@ typedef void (*MSF_TPM_Event_t) (uint32_t event, uint32_t arg);
 
 /* The priority of the TPM interrupts; lower number means higher priority.
  * For KL25Z valid value is 0 thru 3 */
-#define		MSF_TPM_INT_PRIORITY	(2)
+#define		MSF_TPM_INT_PRIORITY	(1)
 
 /* Flags (operations and parameters) for the Control function */
 /* Positions and meaning of the bit-fields:
@@ -133,7 +133,7 @@ typedef void (*MSF_TPM_Event_t) (uint32_t event, uint32_t arg);
  * other mode than center-aligned PWM.  */
 typedef enum _MSF_DRIVER_CHANNEL_MODES {
 	Disabled,	/**< timer is disabled */
-	SWcompare, /**< . */
+	SWcompare, /**< output pins not used */
 	InCapture_rising_edge, /**< capture on rising edge of input */
 	InCapture_falling_edge,  /**< capture on falling edge of input */
 	InCapture_both_edges,	 /**< capture on both rising and falling edge of input */

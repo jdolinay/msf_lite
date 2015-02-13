@@ -454,7 +454,7 @@ static uint32_t TPM_ChannelSetMode(uint32_t channel, TMP_channel_mode_t mode, ui
 		/* the channel is disabled above... */
 		break;
 		
-	case SWcompare:	/* TODO: what is this mode? */
+	case SWcompare:	/* no input/output pins connected */
 		tpm->reg->CONTROLS[channel].CnSC |= TPM_CnSC_MSB_MASK;	
 		break;
 
@@ -591,7 +591,8 @@ static uint32_t TPM2_ChannelSetMode(uint32_t channel, TMP_channel_mode_t mode, u
 */
 static uint32_t TPM_ChannelWrite(uint32_t channel, uint16_t value, TPM_RESOURCES* tpm) 
 {
-	if ( channel > 5 )
+	/* Check if the channel is valid for given instance of TPM (TPM1 and 2 only have 2 channels) */
+	if ( channel >= tpm->nchannels )
 		return MSF_ERROR_ARGUMENT;
 	tpm->reg->CONTROLS[channel].CnV = value;
 	return MSF_ERROR_OK;
@@ -627,7 +628,7 @@ static uint32_t TPM2_ChannelWrite(uint32_t channel, uint16_t value)
 */
 static uint32_t TPM_ChannelRead(uint32_t channel, TPM_RESOURCES* tpm) 
 {
-	if ( channel > 5 )
+	if ( channel >= tpm->nchannels )
 		return MSF_ERROR_MAXDWORD;
 	return tpm->reg->CONTROLS[channel].CnV;	
 }
