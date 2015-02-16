@@ -502,6 +502,9 @@ typedef enum
 
 /* -------------- waveio driver definitions  --------------- */
 
+ /** @addtogroup waveio_driver
+ * @{
+ */
 /** @brief Definition of the waveio channels available for this MCU.
  * @note Number of channels depends on the number of the TPM timer modules and their
  * channels in the MCU. For KL25Z there are 3 TPM modules: TPM0, TPM1, TPM2.
@@ -510,21 +513,21 @@ typedef enum
  * Mapping of the "logical" channels defined here to MCU pins is determined by
  * the pin configuration of the respective TPM timer channels. This is defined
  * in msf_config.h, see, for example, MSF_TPM0_CH0_PIN.
- * Default configuration:
- * * waveout channel    timer channel   default pin (see msf_config.h)
- * 0				TPM0 channel 0	D0  (Arduino 10)
- * 1				TPM0 channel 1	A4	(Arduino 4 )
- * 2				TPM0 channel 2	A5	(Arduino 5)
- * 3				TPM0 channel 3	D3	(Arduino 12)
- * 4				TPM0 channel 4	D4	(Arduino 2)
- * 5				TPM0 channel 5	C9	(Arduino 7)
- * 6				TPM1 channel 0  A12	(Arduino 3)
- * 7				TPM1 channel 1  A13	(Arduino 8)
- * 8				TPM2 channel 0  B2	(Arduino 16 (A2))
- * 9				TPM2 channel 1  B3	(Arduino 17 (A3))
- *
+ * Default configuration:<br>
+ * * waveout channel    timer channel   default pin (see msf_config.h)<br>
+ * WAVEIO_C0			TPM0 channel 0	D0  (Arduino 10)<br>
+ * WAVEIO_C1			TPM0 channel 1	A4	(Arduino 4 )<br>
+ * WAVEIO_C2			TPM0 channel 2	A5	(Arduino 5)<br>
+ * WAVEIO_C3			TPM0 channel 3	D3	(Arduino 12)<br>
+ * WAVEIO_C4			TPM0 channel 4	D4	(Arduino 2)<br>
+ * WAVEIO_C5			TPM0 channel 5	C9	(Arduino 7)<br>
+ * WAVEIO_C6			TPM1 channel 0  A12	(Arduino 3)<br>
+ * WAVEIO_C7			TPM1 channel 1  A13	(Arduino 8)<br>
+ * WAVEIO_C8			TPM2 channel 0  B2	(Arduino 16 (A2))<br>
+ * WAVEIO_C9			TPM2 channel 1  B3	(Arduino 17 (A3))<br>
+ *<br>
  * Waveio code currently assumes the channels are simple numbers 0 thru max. channel.
- * And the mapping is simple:
+ * And the mapping is simple:<br>
  * channels 0 thru 5 are TPM0, channels 6 and 7 TPM1 and 8 and 9 TPM2.
  * In future the values in this enum could encode the TPM module number/address etc.
  * and the mapping could be any..
@@ -564,8 +567,7 @@ typedef enum wmsf_waveio_channels
 /** Number of TPM drivers which can be used by waveio driver. */
 #define		WAVEIO_MAX_DRIVERS	(3)
 
-
-
+/** @}*/
 /* -------------- END waveio driver definitions  --------------- */
 
 #ifdef __cplusplus

@@ -21,8 +21,8 @@
  * the underlying timer driver(s), see msf_config.h.
  * Map of this driver's channels to TPM timer channels:
  * waveout channel  timer channel   default pin (msf_config.h)
- * Map of this driver's channels to TPM timer channels:
- * waveout channel  timer channel   default pin (msf_config.h)
+ * Map of this driver's channels to TPM timer channels:<br>
+ * waveout channel  timer channel   default pin (msf_config.h)<br>
  * <b>TPM0:</b><br>
  * WAVEIO_C0		TPM0 channel 0	D0  (Arduino 10)<br>
  * WAVEIO_C1		TPM0 channel 1	A4	(Arduino 4 )<br>
@@ -44,23 +44,34 @@
  * WAVEIO_C0. These are defined in msf_mkl25z.h.<br>
  * <br>
  * <b>Howto use the driver</b><br>
- * 1) Initialize: WAVEIO_init();<br>
- * 2) Start generating on given channel(s): WAVEIO_channel_start(channel, half-wave1, halfwave2);<br>
+ * To generate output:<br>
+ * 1) Initialize: waveio_init(range of used inputs);<br>
+ * 2) Start generating on given channel(s): waveio_out_start(channel, half-wave1, halfwave2);<br>
  * You specify the lengths of the half-waves in microseconds.<br>
+ * <br>
+ * To measure input signal<br>
+ * 1) Initialize: waveio_init(range of used inputs);<br>
+ * 2) Attach channel(s) you want to measure: waveio_in_attach(channel);<br>
+ * 3) Read the values of the half-waves detected on the input(s): <br>
+ * waveio_in_read(channel, half-wave1, half-vave2);<br>
+ * OR<br>
+ * Wait for a pulse on the input: waveio_in_pulse_wait(channel, timeout);<br>
+ * You specify the lengths of the half-waves in microseconds.<br>
+
  *
- * <b>Useful equations</b>
- * frequency_in_kHz = 1 000 / period_in_us<br>
- * period_in_us = 1 000 / frequency_in_kHz<br><br>
+ * <b>Useful equations</b><br>
+ * Frequency_in_kHz = 1 000 / period_in_us<br>
+ * Period_in_us = 1 000 / frequency_in_kHz<br><br>
  *
- * <b>Important limits</b>
- * Maximum frequency of the signal if only 1 channel is used for 48 MHz CPU clock:<br>
+ * <b>Important limits</b><br>
+ * Maximum frequency of generated signal if only 1 channel is used for 48 MHz CPU clock:<br>
  * Fmax = 35 kHz for channels 0 thru 5 (TPM0). <br>
  * Fmax = 45 kHz for channels 6 thru 9 (TPM1 and TPM2)<br>
  * If more channels are used, the maximum frequency is proportionally lower.<br>
  * For example, if 2 channels are used, the Fmax is half of the Fmax for single channel.
  * If 3 channels are used, Fmax is 1/3rd, etc.<br>
  * If lower CPU clock is used, the values are proportionally lower.<br><br>
- * Notes<br>
+ * <b>Notes</b><br>
  * If multiple channels are used, it seems that the real Fmax can be little higher than
  * Fmax for single channel / number of channels.<br>
  * For example when using 5 channels, 0 thru 4, at the same frequency, the maximum frequency
@@ -69,7 +80,8 @@
  * The lower Fmax for TPM0 is due to more channels available in TPM0 (6) which requires
  * more processing time in the ISR.<br>
  *
- * The waveio driver uses the timer in output compare mode with pin toggle on compare match.
+ * For generating the output signal, waveio driver uses the timer in output compare mode
+ * with pin toggle on compare match.
  * It would be possible to achieve higher maximum frequencies using PWM mode of the timer,
  * but the PWM mode requires that the period of the signal is tied to the value at
  * which the timer counter overflows. So all the channels of one physical
@@ -85,13 +97,13 @@
  * <br>
  * Discussion about the performance<br>
  *
- * Limit by the resolution of the timer:
+ * Limit by the resolution of the timer:<br>
  * We enter the lengths of the half-waves in timer counter units, which are microseconds.
  * It probably makes little sense to use half-wave lengths smaller than say, 2. Lets assume
  * the shortest period of the signal is 5 us which means the frequency is 200 kHz, BUT this
  * is not reachable due to CPU performance. So the timer resolution is not limiting.
  * <br>
- * Limit by CPU computing power:
+ * Limit by CPU computing power:<br>
  * Generating the signal requires 2 interrupts per period for each channel.
  * Assuming the ISR takes about 500 CPU cycles to execute (just an estimate), if the
  * CPU runs at 1 MHz, it can handle 2000 ISRs per second - leaving no time for the main program to execute.
@@ -108,7 +120,7 @@
  * In general, to obtain shortest possible half-wave for 1 channel:<br>
  * half_wave_MIN = ISR_clocks/CPU_clock_MHz  [result in us]<br>
  * Experimental results show that the ISR takes in about 500 clock cycles, so <br>
- * half_wave_MIN = 500/CPU_clock_MHz
+ * half_wave_MIN = 500/CPU_clock_MHz. <br>
  * Thus the shortest pulse we can generate with the maximum CPU speed 48 MHz is about 11 us.
  * <br>
  *
@@ -230,22 +242,6 @@ void waveio_init(uint32_t channel_mask);
  **/
 void waveio_uninit(void);
 
-/** 
- * @brief Connect given channel to the driver.
- * @param channel the channel to attach.
- * @return WAVEIN_NO_ERROR (0) if OK; error code otherwise, see wavein.h
- * @note  This configures the pin for underlying timer channel into timer mode.
- *  
- */
-//uint8_t waveio_channel_attach(uint8_t channel);
-
-/**
- * @brief Disconnect given channel from the driver.
- * @param channel the channel to detach.
- * @note This disconnects the pin from the timer.
- *
- */
-//void waveio_channel_detach(uint8_t channel);
 
 /**
  * @brief Start generating signal on given channel (pin).
@@ -301,6 +297,7 @@ uint8_t waveio_out_start(WAVEIO_channel iochannel, uint16_t half1, uint16_t half
 uint8_t waveio_out_servo(WAVEIO_channel iochannel, uint8_t angle);
 
 /**
+ * @brief Start generating signal on given channel for RC servo. Pulse length given in microseconds.
  * @param us the pulse width which should be between 1000 and 2000.
  * The function does not check for validity except for us < 19 ms; the
  * period of the signal will always be 20 ms.
@@ -389,10 +386,11 @@ uint8_t waveio_in_read(WAVEIO_channel iochannel, uint16_t* pulseA, uint16_t* pul
 uint16_t waveio_in_pulse_wait(WAVEIO_channel iochannel, uint32_t timeout );
 
 /**
- * @brief Convenient wrapper for waveio_in_read to read input from RC receiver.
+ * @brief Read input from an RC receiver on given channel.
  * @param channel the channel for which we want to read the input.
  * @return the length of the pulse in microseconds or 0 on error.
- * @note The function will handle checking the correct length of the pulse
+ * @note This is convenient wrapper for waveio_in_read.
+ * The function will handle checking the correct length of the pulse
  * and return only values between 500 and 2500 us. This is broader range than
  * typically needed. Typical RC signal is 1000 to 2000 us.
 */
