@@ -246,18 +246,7 @@
 #define		MSF_TPM2_CH1_ALT	(3)
 */
 
-/*********************************************
-*   Define which timer is used by the wavein driver.
-*   This determines which pins are available as inputs for the wavein driver.
-*   For example, if TPM0 is selected, the pins (channels) of TPM0 timer are the inpu channels
-*   for the wavein driver.
-*   Note that the wavein code uses direct mapping of channels:
-*   channel 0 in wavein driver is always channel 0 of the underlying TPM driver.
-*   For details see wavein.h
-********************************************/
-#define	WAVEIN_TIMER_DRIVER	Driver_TPM0
-//#define	WAVEIN_TIMER_DRIVER	Driver_TPM1
-//#define	WAVEIN_TIMER_DRIVER	Driver_TPM2
+
 
 
  /* Include the header file for our board */
