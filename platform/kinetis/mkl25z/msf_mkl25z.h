@@ -499,6 +499,75 @@ typedef enum
 
 /* -------------- End TPM timer definitions  --------------- */
 
+
+/* -------------- waveio driver definitions  --------------- */
+
+/** @brief Definition of the waveio channels available for this MCU.
+ * @note Number of channels depends on the number of the TPM timer modules and their
+ * channels in the MCU. For KL25Z there are 3 TPM modules: TPM0, TPM1, TPM2.
+ * TPM0 has 6 channels, TPM1 and TPM2 have 2 channels each. Total 10 channels
+ * are available for waveio driver.
+ * Mapping of the "logical" channels defined here to MCU pins is determined by
+ * the pin configuration of the respective TPM timer channels. This is defined
+ * in msf_config.h, see, for example, MSF_TPM0_CH0_PIN.
+ * Default configuration:
+ * * waveout channel    timer channel   default pin (see msf_config.h)
+ * 0				TPM0 channel 0	D0  (Arduino 10)
+ * 1				TPM0 channel 1	A4	(Arduino 4 )
+ * 2				TPM0 channel 2	A5	(Arduino 5)
+ * 3				TPM0 channel 3	D3	(Arduino 12)
+ * 4				TPM0 channel 4	D4	(Arduino 2)
+ * 5				TPM0 channel 5	C9	(Arduino 7)
+ * 6				TPM1 channel 0  A12	(Arduino 3)
+ * 7				TPM1 channel 1  A13	(Arduino 8)
+ * 8				TPM2 channel 0  B2	(Arduino 16 (A2))
+ * 9				TPM2 channel 1  B3	(Arduino 17 (A3))
+ *
+ * Waveio code currently assumes the channels are simple numbers 0 thru max. channel.
+ * And the mapping is simple:
+ * channels 0 thru 5 are TPM0, channels 6 and 7 TPM1 and 8 and 9 TPM2.
+ * In future the values in this enum could encode the TPM module number/address etc.
+ * and the mapping could be any..
+*/
+typedef enum wmsf_waveio_channels
+{
+	WAVEIO_C_INVALID = 0xff,
+	WAVEIO_C0 = 0,
+	WAVEIO_C1 = 1,
+	WAVEIO_C2 = 2,
+	WAVEIO_C3 = 3,
+	WAVEIO_C4 = 4,
+	WAVEIO_C5 = 5,
+	WAVEIO_C6 = 6,
+	WAVEIO_C7 = 7,
+	WAVEIO_C8 = 8,
+	WAVEIO_C9 = 9,
+	WAVEIO_C10 = 10,
+} WAVEIO_channel;
+
+/* Helper macro to create mask for channel number n */
+#define		WAVEIO_CH_MASK(n) ((uint32_t)1 << n)
+
+/** Masks for waveio_init() to define which channels the user wants to use.
+ *  Based on this information, the waveout driver initializes the underlying
+ *  TPM timer driver(s).
+ *  For the KL25Z there are 3 timers available:
+ *  TPM0 thru TPM2. The waveio driver can use any or all of
+ *  them depending on which channels (pins) are needed. */
+#define		WAVEIO_RANGE_0_5	(WAVEIO_CH_MASK(0) | WAVEIO_CH_MASK(1) | WAVEIO_CH_MASK(2) | WAVEIO_CH_MASK(3) | WAVEIO_CH_MASK(4) | WAVEIO_CH_MASK(5) )
+#define		WAVEIO_RANGE_6_7	(WAVEIO_CH_MASK(6) | WAVEIO_CH_MASK(7))
+#define		WAVEIO_RANGE_8_9	(WAVEIO_CH_MASK(8) | WAVEIO_CH_MASK(9))
+
+/** Number of the channels available in waveio*/
+#define		WAVEIO_NUM_CHANNELS	(10)
+
+/** Number of TPM drivers which can be used by waveio driver. */
+#define		WAVEIO_MAX_DRIVERS	(3)
+
+
+
+/* -------------- END waveio driver definitions  --------------- */
+
 #ifdef __cplusplus
 }
 #endif

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>waveout</name>
+	<name>waveio</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -76,16 +76,6 @@
 			<locationURI>PARENT-4-PROJECT_LOC/common/msf_print.c</locationURI>
 		</link>
 		<link>
-			<name>msf/common/wavein.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/common/wavein.c</locationURI>
-		</link>
-		<link>
-			<name>msf/common/wavein.h</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/common/wavein.h</locationURI>
-		</link>
-		<link>
 			<name>msf/common/waveio.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/common/waveio.c</locationURI>
@@ -94,16 +84,6 @@
 			<name>msf/common/waveio.h</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/common/waveio.h</locationURI>
-		</link>
-		<link>
-			<name>msf/common/waveout.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/common/waveout.c</locationURI>
-		</link>
-		<link>
-			<name>msf/common/waveout.h</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/common/waveout.h</locationURI>
 		</link>
 		<link>
 			<name>msf/frdm_kl25z/arduino.c</name>
@@ -204,6 +184,11 @@
 			<name>msf/kinetis/tpm_kl25.h</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/tpm_kl25.h</locationURI>
+		</link>
+		<link>
+			<name>msf/kinetis/uart.c.unused</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/platform/kinetis/uart.c.unused</locationURI>
 		</link>
 		<link>
 			<name>msf/kinetis/uart_kl25.c</name>

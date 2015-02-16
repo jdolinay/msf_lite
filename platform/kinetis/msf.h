@@ -57,6 +57,7 @@ extern "C" {
 #define     MSF_ERROR_ARGUMENT      (6)     /**< invalid input argument for a function */
 #define     MSF_ERROR_NOINIT        (7)     /**< device was not properly initialized */
 #define     MSF_ERROR_CONFIG        (8)     /**< driver not properly configured; e.g. invalid pins defined in msf_config.h */
+#define     MSF_ERROR_TIMEOUT       (9)     /**< the operation timed out */
 
 #define		MSF_ERROR_LAST			(100)	/**< helper constant; the last error code used by MSF globally. */
 

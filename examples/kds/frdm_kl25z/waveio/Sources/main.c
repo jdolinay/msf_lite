@@ -1,19 +1,26 @@
-/* waveout example.
+/* waveio example.
  *
- * Demonstrate usage of the waveout high-level driver for generating signals.
+ * Demonstrate usage of the waveio high-level driver for measuring and generating signals.
  *
  * The driver can be used with any or all of the TPM0, TPM1 or TPM2 low-level timer drivers.
  *
- * This project contains several example use-cases in separate functions.
- * Uncomment one of the functions at a time to test it.
+ * This project contains several example use-ceses in separate functions.
+ * Un-comment one of the functions at a time to test it.
  *
  * Testing the program:
  * - run the example program
  * - measure the signal on the selected output pin with oscilloscope or multi-meter
  * with frequency and duty measurement.
+ * - or connect the input signal to selected pins and see the output of the program
+ * to the OpenSDA serial port in a terminal:
+ *		- open terminal emulator on your PC (for example, Tera Term or Putty)
+ *		and open the OpenSDA COM port and set baudrate to 19200
+ *		- run example program
+ *		- connect input signal to the selected pin of your FRDM board (see below)
+ *		You should see the output of the program in your terminal window.
  *
  *
- * The waveout driver supports all the clock options available as of KDS 1.1.1
+ * The waveio driver supports all the clock options available as of KDS 1.1.1
  * and automatically sets the timer to 1 MHz clock so that the time-values used
  * are in microseconds (us).
  *
@@ -30,21 +37,22 @@
  * WAVEIO_C8		TPM2 channel 0  B2	(Arduino 16 (A2))
  * WAVEIO_C9		TPM2 channel 1  B3	(Arduino 17 (A3))
  *
- * Notes about the usage of the waveout driver:
- * The values given to waveout_channel_start are length of the half-waves
- * of the signal we want to generate in microseconds (us).
+ * Notes about the usage of the waveio driver:
+ * The values given to/read from the driver are length of the half-waves
+ * of the signal in microseconds (us).
  * Example: 1 and 1 means wave length 2 us (signal period = 2 us)
  * frequency_in_Hz = 1/period_in_second = 1 000 000 / period_in_us
  *  frequency_in_kHz = 1 000 / period_in_us
  *  period_in_us = 1 000 / frequency_in_kHz
  *	 Example:
- *	want to obtain 10 kHz: period = 1000/10=100
+ *	We want to obtain 10 kHz output:
+ *	period = 1000/10 = 100
  *	For square wave signal the half-wave values are 50 and 50
- * Experimental: (48 MHz CPU)
+ * The limits for the signal are described in the waveio header.
+ * For output (48 MHz CPU)
  * TPM0 max frequency about 35 KHz (half-waves: 14,14) for 1 channel active
- *		for 5 channels max 10 kHz
+ *		for 5 channels max. about 10 kHz
  * TPM1 or TPM2 max frequency about 45 KHz (half-waves: 11,11)
- *
  *
  */
 
@@ -54,8 +62,7 @@
 #include "coredef.h"
 #include "msf.h"
 
-//#include "waveout.h"	// waveout driver
-#include "waveio.h"	// waveio driver
+#include "waveio.h"		/* The waveio driver */
 
 /* Defines for handling LEDs easier
 LED connections:
@@ -70,19 +77,14 @@ LED connections:
 void test_waveio_driver_single(void);
 void test_waveio_driver_all(void);
 void test_waveio_driver_servo(void);
-
 void test_waveio_driver_wave(void);
 void test_waveio_driver_pulse(void);
 void test_waveio_driver_multichannel(void);
 void test_waveio_driver_rc(void);
 void test_waveio_driver_sonar(void);
 void display_channel(uint8_t channel);
+void test_waveio_rc_follow(void);
 
-/*
-void test_waveout_driver_single(void);
-void test_waveout_driver_all(void);
-void test_waveout_driver_servo(void);
-*/
 
 static int gi = 0;
 
@@ -98,21 +100,25 @@ int main(void)
 	msf_pin_write(RED_LED, true);
 	msf_pin_write(GREEN_LED, true);
 
+
+	//
 	// Uncomment one of these functions at a time...
-	//test_waveio_driver_servo();
+	//
+	// outputs:
 	//test_waveio_driver_single();
 	//test_waveio_driver_all();
-
+	//test_waveio_driver_servo();
+	//
+	// inputs:
 	//test_waveio_driver_wave();
 	//test_waveio_driver_pulse();
-	test_waveio_driver_multichannel();
-	//test_waveio_driver_rc();
+	//test_waveio_driver_multichannel();
+	test_waveio_driver_rc();
 	//test_waveio_driver_sonar();
+	//
+	// input and output together:
+	//test_waveio_rc_follow();
 
-	// Uncomment one of these functions at a time...
-	//test_waveout_driver_single();
-	//test_waveout_driver_all();
-	//test_waveout_driver_servo();
 
 
     /* This for loop should be replaced. By default this loop allows a single stepping. */
@@ -126,7 +132,10 @@ int main(void)
 /* test_waveio_driver_single
  * Generate signal on single output pin (single waveio channel).
  * Start the program and connect oscilloscope or multimeter to the output pin.
- * You should see 1 kHz signal on this pin.
+ * You should see 1 kHz signal on this pin while the green LED is on.
+ * While the red LED is on, there should be no signal.
+ *
+ * Channel used: WAVEIO_C0 = pin PTD0 (Arduino pin 10).
  * */
 void test_waveio_driver_single(void)
 {
@@ -135,24 +144,29 @@ void test_waveio_driver_single(void)
 	// - the TPM timer modules which are TPM0 with 6 channels, TPM1 and TPM2 each
 	// with 2 channels.
 	// See also the pin table at the top of this file.
-	waveio_init(WAVEIO_RANGE_0_5);
+	waveio_init(WAVEIO_RANGE_0_5);	// | WAVEIO_RANGE_6_7 | WAVEIO_RANGE_8_9);
 
 
 	while(1)
 	{
 		// Start generating the signal
 		// Note that the function does not block; the program continues execution!
-		waveio_out_start(0, 500, 500);
+		// You can generate signal or multiple channels (pins).
+		// 500 us high and 500 us low > 1 kHz square wave signal.
+		waveio_out_start(WAVEIO_C0, 500, 500);
 
+		// Generate the signal for 10 seconds, then pause for 5 seconds
+		//and generate again for 10 s, and so on...
 		msf_pin_write(RED_LED, true);		// red off
 		msf_pin_write(GREEN_LED, false);	// green on
 
 		msf_delay_ms(10000);
 
-		msf_pin_write(GREEN_LED, true);	// green off
+		msf_pin_write(GREEN_LED, true);		// green off
 		msf_pin_write(RED_LED, false);		// red on
 
-		waveio_out_stop(0);
+		// Stop the signal
+		waveio_out_stop(WAVEIO_C0);
 
 		msf_delay_ms(5000);
 	}
@@ -169,20 +183,21 @@ void test_waveio_driver_all(void)
 {
 	int i;
 
-	// Initialize waveout driver telling it which channel(s) we will use
+	// Initialize waveio driver telling it which channel(s) we will use.
+	// In this case we initialize for all channels ( 0 thru 9).
 	waveio_init(WAVEIO_RANGE_0_5 | WAVEIO_RANGE_6_7 | WAVEIO_RANGE_8_9);
 
 	// Start generating the signal
-	waveio_out_start(0, 500, 500);	// 1 kHz, 50% duty; D0  (Arduino 10)
-	waveio_out_start(1, 100, 900);	// 1 kHz, 10% duty; A4	(Arduino 4)
-	waveio_out_start(2, 900, 100);	// 1 kHz, 90% duty; A5	(Arduino 5 )
-	waveio_out_start(3, 250, 250);	// 2 kHz, 50% duty; D3	(Arduino 12)
-	waveio_out_start(4, 5000, 5000);	// 100 Hz, 50% duty; D4	(Arduino 2)
-	waveio_out_start(5, 1500, 18500);	// servo, 50 Hz, 1.5 ms pulse; C9	(Arduino 7)
-	waveio_out_start(6, 250, 750);	// A12	(Arduino 3)
-	waveio_out_start(7, 500, 500);	// A13	(Arduino 8)
-	waveio_out_start(8, 750, 250);	// B2  (Arduino 16 (A2))
-	waveio_out_start(9, 600, 400);	// B3	(Arduino 17 (A3))
+	waveio_out_start(WAVEIO_C0, 500, 500);	// 1 kHz, 50% duty; D0  (Arduino 10)
+	waveio_out_start(WAVEIO_C1, 100, 900);	// 1 kHz, 10% duty; A4	(Arduino 4)
+	waveio_out_start(WAVEIO_C2, 900, 100);	// 1 kHz, 90% duty; A5	(Arduino 5 )
+	waveio_out_start(WAVEIO_C3, 250, 250);	// 2 kHz, 50% duty; D3	(Arduino 12)
+	waveio_out_start(WAVEIO_C4, 5000, 5000);	// 100 Hz, 50% duty; D4	(Arduino 2)
+	waveio_out_start(WAVEIO_C5, 1500, 18500);	// servo, 50 Hz, 1.5 ms pulse; C9	(Arduino 7)
+	waveio_out_start(WAVEIO_C6, 250, 750);	// A12	(Arduino 3)
+	waveio_out_start(WAVEIO_C7, 500, 500);	// A13	(Arduino 8)
+	waveio_out_start(WAVEIO_C8, 750, 250);	// B2  (Arduino 16 (A2))
+	waveio_out_start(WAVEIO_C9, 600, 400);	// B3	(Arduino 17 (A3))
 
 	// Do not leave this function.
 	// Note that the waveout_channel_start does not block the caller.
@@ -193,7 +208,12 @@ void test_waveio_driver_all(void)
 
 /* test_waveio_driver_servo
  * Demonstrate control of a RC servo motor.
- * Sweep the servo from one end position to the other
+ * Sweep the servo from one end position to the other.
+ *
+ * Channels used:
+ * WAVEIO_C0 = pin PTD0 (Arduino pin 10).
+ * WAVEIO_C1 = pin PTA4 (Arduino pin 4).
+ * WAVEIO_C2 = pin PTA5 (Arduino pin 5).
  * */
 void test_waveio_driver_servo(void)
 {
@@ -208,50 +228,26 @@ void test_waveio_driver_servo(void)
 		for ( angle = 0; angle < 180; angle++ )
 		{
 			// generate servo signal on channel 0 = pin D0 (arduino pin 10)
-			waveio_out_servo(0, angle);
-			waveio_out_servo(1, angle);
-			waveio_out_servo(2, angle);
+			waveio_out_servo(WAVEIO_C0, angle);
+			waveio_out_servo(WAVEIO_C1, angle);
+			waveio_out_servo(WAVEIO_C2, angle);
 			msf_delay_ms(20);
 		}
 
 		for ( angle = 180; angle > 0; angle-- )
 		{
 			// generate servo signal on channel 0 = pin D0 (arduino pin 10)
-			waveio_out_servo(0, angle);
-			waveio_out_servo(1, angle);
-			waveio_out_servo(2, angle);
+			waveio_out_servo(WAVEIO_C0, angle);
+			waveio_out_servo(WAVEIO_C1, angle);
+			waveio_out_servo(WAVEIO_C2, angle);
 			msf_delay_ms(20);
 		}
-
-		/*
-		if ( direction )
-		{
-			angle +=1;
-			if ( angle >= 180 )
-			{
-				direction = 0;
-				angle = 180;
-			}
-		}
-		else
-		{
-			if (angle >= 1)
-			{
-				angle -= 1;
-			}
-			else
-			{
-				angle = 0;
-				direction = 1;
-			}
-		}*/
-
 	}
 
 }
 
-// Define the channel for test_wavein_driver_wave() and test_wavein_driver_pulse().
-#define		INPUT_CHANNEL	(WAVEIO_C0)
+
+
 
 /* test_waveio_driver_wave
  * Measure the half-waves of the signal.
@@ -260,6 +256,9 @@ void test_waveio_driver_servo(void)
  * Start the program and connect to the OpenSDA port with terminal. (baud 19200).
  * You should see the lengths of the half-waves of the signal.
  * */
+// Define the channel for test_wavein_driver_wave() and test_wavein_driver_pulse().
+#define		INPUT_CHANNEL	(WAVEIO_C0)
+
 void test_waveio_driver_wave(void)
 {
 	uint16_t a, b;
@@ -334,7 +333,8 @@ void test_waveio_driver_pulse(void)
 
 /* test_waveio_driver_multichannel
  * Measure the half-waves of the signal on multiple pins at once.
- * Connect the input signal to one or more of the supported pins (see table above).
+ * Connect the input signal to one or more of the supported pins
+ * (see table at the top of this file).
  * Start the program and connect to the OpenSDA port with terminal. (baud 19200).
  * You should see the lengths of half-waves detected on each of the active pins.
  * For unconnected pins the output will say Error 102, which means no signal.
@@ -348,13 +348,17 @@ void test_waveio_driver_multichannel(void)
 	// Initialize the waveio driver
 	waveio_init(WAVEIO_RANGE_0_5 | WAVEIO_RANGE_6_7 | WAVEIO_RANGE_8_9);
 
-	// Connect the channels
+	// Connect the channels - all available channels.
 	waveio_in_attach(WAVEIO_C0);
 	waveio_in_attach(WAVEIO_C1);
 	waveio_in_attach(WAVEIO_C2);
 	waveio_in_attach(WAVEIO_C3);
 	waveio_in_attach(WAVEIO_C4);
 	waveio_in_attach(WAVEIO_C5);
+	waveio_in_attach(WAVEIO_C6);
+	waveio_in_attach(WAVEIO_C7);
+	waveio_in_attach(WAVEIO_C8);
+	waveio_in_attach(WAVEIO_C9);
 
 	// Start measuring on these channels
 	waveio_in_start(WAVEIO_C0);
@@ -363,14 +367,18 @@ void test_waveio_driver_multichannel(void)
 	waveio_in_start(WAVEIO_C3);
 	waveio_in_start(WAVEIO_C4);
 	waveio_in_start(WAVEIO_C5);
+	waveio_in_start(WAVEIO_C6);
+	waveio_in_start(WAVEIO_C7);
+	waveio_in_start(WAVEIO_C8);
+	waveio_in_start(WAVEIO_C9);
 
 	while(1)
 	{
 		// Read values from all channels
-		for ( i = 0; i<6; i++ )
+		for ( i = 0; i<10; i++ )
 		{
 			display_channel(i);
-			msf_delay_ms(100);	// delay needed so that the transmit buffer
+			msf_delay_ms(50);	// delay needed so that the transmit buffer
 			// for serial line does not overflow.
 		}
 
@@ -397,7 +405,7 @@ void display_channel(uint8_t channel)
 
 		msf_print(": Half-wave 1: ");
 		msf_printnum(a);
-		msf_print(" us Half-wave 2: ");
+		msf_print(" us, 2: ");
 		msf_printnum(b);
 		msf_print("\n");
 	}
@@ -411,34 +419,44 @@ void display_channel(uint8_t channel)
 }
 
 
-/* test_wavein_driver_rc
+/* test_waveio_driver_rc
  * Show how to use the wavein driver for processing input from
  * RC receiver (radio controlled models).
  * The signal is a pulse between 1 and 2 ms repeating every 20 ms.
  * */
-#define		RC_NUM_CHANNELS	(6)		// up to 6 for TPM0; max. 2 for TPM1 or TPM2
+
+/* array with the used channels. Thanks to this array we can use loops to
+ * work with the channels and still use the channel names rather than simple
+ * numbers, for example we use WAVEIO_C2 instead of 2. */
+WAVEIO_channel channels[] = {
+		WAVEIO_C0, WAVEIO_C1, WAVEIO_C2, WAVEIO_C3,
+		/* WAVEIO_C4, WAVEIO_C5, WAVEIO_C6, WAVEIO_C7,*/
+		/* WAVEIO_C8, WAVEIO_C9,*/
+		WAVEIO_C_INVALID /* keep this as the last value in the array! */};
 
 void test_waveio_driver_rc(void)
 {
-	uint16_t inputs[RC_NUM_CHANNELS];	// values for the pulse on each channel
+	uint16_t inputs[10];	// values for the pulse on each channel
 	uint16_t pulse;
+	uint_fast8_t i;
 
-	uint8_t channel;
+	WAVEIO_channel channel;
 	uint16_t a, b;
 
-	// Initialize the wavein driver
-	waveio_init(WAVEIO_RANGE_0_5);
+	// Initialize the wavein driver - for using 6 channels: 0 thru 5
+	waveio_init(WAVEIO_RANGE_0_5 | WAVEIO_RANGE_6_7 | WAVEIO_RANGE_8_9);
 
-	// Connect the channels
-	for ( channel = 0; channel < RC_NUM_CHANNELS; channel++ )
+	// Connect the channels we will need now
+	for ( i=0; channels[i] != WAVEIO_C_INVALID; i++ )
 	{
-		waveio_in_attach(channel);
+		waveio_in_attach(channels[i]);
 	}
 
+
 	// Start measuring on these channels
-	for ( channel = 0; channel < RC_NUM_CHANNELS; channel++ )
+	for ( i=0; channels[i] != WAVEIO_C_INVALID; i++ )
 	{
-		waveio_in_start(channel);
+		waveio_in_start(channels[i]);
 	}
 
 	while(1)
@@ -446,14 +464,24 @@ void test_waveio_driver_rc(void)
 		//
 		// 1) read the inputs
 		//
-		// do not need to check for error, the measured results
-		// are guaranteed to be 0 in case of error
-		for ( channel = 0; channel < RC_NUM_CHANNELS; channel++ )
+		// We do not need to check for return value of error waveio_in_read,
+		// measured results are guaranteed to be 0 in case of error.
+		for ( i = 0; channels[i] != WAVEIO_C_INVALID; i++ )
 		{
-			inputs[channel] = 0;	// preset invalid pulse value
+			inputs[i] = 0;	// preset invalid pulse value
 
-			waveio_in_read(channel, &a, &b);
+			// Version A:
+			// Using convenience function waveio_in_servo_read_us
+			// which is also available in the waveio driver.
+			a = waveio_in_servo_read_us(channels[i]);
+			if ( a > 0 )
+				inputs[i] = a;
 
+			// Version B:
+			// Processing the input from receiver using general
+			// purpose function waveio_in_read:
+			/*
+			waveio_in_read(channels[i], &a, &b);
 			if ( a != 0 && b != 0 )
 			{
 				// Note that we do not know which part of the wave is the
@@ -465,24 +493,24 @@ void test_waveio_driver_rc(void)
 				// Check if the pulse length is valid
 				if ( pulse > 800 && pulse < 2200 )
 				{
-					inputs[channel] = pulse;
+					inputs[i] = pulse;
 				}
 
-			}
+			}*/
 		}
 
 
 		//
 		// 2) Display the inputs
 		//
-		for ( channel = 0; channel < RC_NUM_CHANNELS; channel++ )
+		for ( i = 0; channels[i] != WAVEIO_C_INVALID; i++ )
 		{
 			msf_print("CH ");
-			msf_printnum(channel);
-			if ( inputs[channel] != 0 )
+			msf_printnum(i);
+			if ( inputs[i] != 0 )
 			{
 				msf_print(": ");
-				msf_printnum(inputs[channel]);
+				msf_printnum(inputs[i]);
 				msf_print(" us \n");
 			}
 			else
@@ -502,13 +530,23 @@ void test_waveio_driver_rc(void)
 
 }
 
-/* test_wavein_driver_sonar
+/* test_waveio_driver_sonar
  * Show how to use the Parallax Ping ultrasonic sensor.
- * To start measurement, send 5 us pulse.
- * After 750 ms the sensor will respond with pulse with lenght
- * proportional to distance. The pulse is 115 us to 18.5 ms long.
+ * The sensor uses one pin both for starting the measurement and for returning
+ * the result.
+ * To start measurement, send 5 us pulse on the pin.
+ * After 750 us the sensor will respond with pulse on the same pin.
+ * The pulse has length proportional to distance the sound travelled
+ * to and from the obstacle.
+ * The pulse is 115 us to 18.5 ms long.
  *
- * Uses MCU pin PTD0 (Arduino pin 10), which is also channel 0 for wavein driver.
+ * This example uses MCU pin PTD0 (Arduino pin 10), which is
+ * channel WAVEIO_C0 for waveio driver.
+ *
+ * Connect the PING sensor SIG pin to PTD0 (Arduino pin 10) on the FRDM board.
+ * Connect the PING GND to FRDM GND and the PING 5V to the +5V pin of FRDM.
+ * Start the program and connect to the OpenSDA port with terminal. (baud 19200).
+ * You should see the distance returned by the Ping sensor.
  *
  * */
 void test_waveio_driver_sonar(void)
@@ -520,15 +558,15 @@ void test_waveio_driver_sonar(void)
 
 	while(1)
 	{
-		// Generate start pin
+		// Generate start pulse - 5 us high level on the pin
 		msf_pin_direction(GPIO_D0, output);
 		msf_pin_write(GPIO_D0, true);
 		msf_delay_us(5);
 		msf_pin_write(GPIO_D0, false);
 
-		// measure the pulse
-		waveio_in_attach(0);
-		a = waveio_in_pulse_wait(0, 200);
+		// Measure the pulse
+		waveio_in_attach(WAVEIO_C0);
+		a = waveio_in_pulse_wait(WAVEIO_C0, 200);	// 200 ms timeout
 		if (a == 0)
 			msf_print("Timeout.\n");
 		else
@@ -545,157 +583,57 @@ void test_waveio_driver_sonar(void)
 			msf_printnum(a/74/2);
 			msf_print(" inches \n");
 		}
-		waveio_in_detach(0);
+
+		// detach the channel from waveio driver so that it can be used in
+		// GPIO mode to generate new start pulse.
+		waveio_in_detach(WAVEIO_C0);
 
 		msf_delay_ms(1000);
 	}
 
 }
 
-
-
-
-/* waveout */
-#if 0
-/* test_waveout_driver_single
- * Generate signal on single output pin (single waveout channel).
- * Start the program and connect oscilloscope or multimeter to the output pin.
- * You should see 1 kHz signal on this pin.
- * */
-void test_waveout_driver_single(void)
-{
-	// Initialize waveout driver telling it which channel(s) we will use.
-	// The channels are given in ranges as follows from the hardware underneath
-	// - the TPM timer modules which are TPM0 with 6 channels, TPM1 and TPM2 each
-	// with 2 channels.
-	// See also the pin table at the top of this file.
-	waveout_init(WAVEOUT_RANGE_0_5);
-
-	// Attach the channel (pin) we will use
-	//waveout_channel_attach(0);
-
-
-
-	while(1)
-	{
-		// Start generating the signal
-		// Note that the function does not block; the program continues execution!
-		waveout_channel_start(0, 500, 500);
-
-		msf_pin_write(RED_LED, true);		// red off
-		msf_pin_write(GREEN_LED, false);	// green on
-
-		msf_delay_ms(10000);
-
-		msf_pin_write(GREEN_LED, true);	// green off
-		msf_pin_write(RED_LED, false);		// red on
-
-		waveout_channel_stop(0);
-
-		msf_delay_ms(5000);
-	}
-}
-
-
-
-/* test_waveout_driver_all
- * Generate signal on all output channels at once.
- * Start the program and connect oscilloscope or multimeter to
- * any of the supported output pins - see the pin table at the top of this file.
- * You should see signals with various frequency and duty, see the code.
+/* test_waveio_rc_follow
+ * Demonstrate reading input from RC receiver and controlling servo.
+ * Connect output from RC receiver to pin PTD0 (channel WAVEIO_C0).
+ * Connect servo to pin PTA4 (WAVEIO_C1).
+ * The servo should respond to the signal from the receiver in the same
+ * was as if connected directly.
  *
- * */
-void test_waveout_driver_all(void)
+ * Channels used:
+ * WAVEIO_C0 = pin PTD0 (Arduino pin 10) - input from receiver (PPM)
+ * WAVEIO_C1 = pin PTA4 (Arduino pin 4). - output for servo
+ */
+void test_waveio_rc_follow(void)
 {
-	int i;
+	uint16_t input;
 
-	// Initialize waveout driver telling it which channel(s) we will use
-	waveout_init(WAVEOUT_RANGE_0_5 | WAVEOUT_RANGE_6_7 | WAVEOUT_RANGE_8_9);
+	// Initialize the wavein driver - for using 6 channels: 0 thru 5
+	waveio_init(WAVEIO_RANGE_0_5);	// | WAVEIO_RANGE_6_7 | WAVEIO_RANGE_8_9);
 
-	// Attach the channels (switch pin to timer mode)
-	/*for (i=0; i<10; i++ )
+	// Connect the channel we will need now - only for inputs.
+	// Outputs do not need to be connected.
+	waveio_in_attach(WAVEIO_C0);
+
+	// Start measuring on the channel
+	waveio_in_start(WAVEIO_C0);
+
+	// Set the servo to the middle for now (1500 us pulses)
+	waveio_out_servo_us(WAVEIO_C1, 1500);
+
+	while (1)
 	{
-		waveout_channel_attach(i);
-	}*/
+		input = waveio_in_servo_read_us(WAVEIO_C0);
+		if ( input > 0 )
+			waveio_out_servo_us(WAVEIO_C1, input);
 
-	// Start generating the signal
-	waveout_channel_start(0, 500, 500);	// 1 kHz, 50% duty; D0  (Arduino 10)
-	waveout_channel_start(1, 100, 900);	// 1 kHz, 10% duty; A4	(Arduino 4)
-	waveout_channel_start(2, 900, 100);	// 1 kHz, 90% duty; A5	(Arduino 5 )
-	waveout_channel_start(3, 250, 250);	// 2 kHz, 50% duty; D3	(Arduino 12)
-	waveout_channel_start(4, 5000, 5000);	// 100 Hz, 50% duty; D4	(Arduino 2)
-	waveout_channel_start(5, 1500, 18500);	// servo, 50 Hz, 1.5 ms pulse; C9	(Arduino 7)
-	waveout_channel_start(6, 250, 750);	// A12	(Arduino 3)
-	waveout_channel_start(7, 500, 500);	// A13	(Arduino 8)
-	waveout_channel_start(8, 750, 250);	// B2  (Arduino 16 (A2))
-	waveout_channel_start(9, 600, 400);	// B3	(Arduino 17 (A3))
-
-	// Do not leave this function.
-	// Note that the waveout_channel_start does not block the caller.
-	for (;;) {
-	     i++;
-	}
-}
-
-/* test_waveout_driver_servo
- * Demonstrate control of a RC servo motor.
- * Sweep the servo from one end position to the other
- * */
-void test_waveout_driver_servo(void)
-{
-	uint16_t angle = 0;
-	int direction = 1;
-
-	// Initialize waveout driver telling it which channel(s) we will use
-	waveout_init(WAVEOUT_RANGE_0_5 );	// | WAVEOUT_RANGE_6_7 | WAVEOUT_RANGE_8_9);
-
-	while(1)
-	{
-		for ( angle = 0; angle < 180; angle++ )
-		{
-			// generate servo signal on channel 0 = pin D0 (arduino pin 10)
-			waveout_servo(0, angle);
-			waveout_servo(1, angle);
-			waveout_servo(2, angle);
-			msf_delay_ms(20);
-		}
-
-		for ( angle = 180; angle > 0; angle-- )
-		{
-			// generate servo signal on channel 0 = pin D0 (arduino pin 10)
-			waveout_servo(0, angle);
-			waveout_servo(1, angle);
-			waveout_servo(2, angle);
-			msf_delay_ms(20);
-		}
-
-		/*
-		if ( direction )
-		{
-			angle +=1;
-			if ( angle >= 180 )
-			{
-				direction = 0;
-				angle = 180;
-			}
-		}
-		else
-		{
-			if (angle >= 1)
-			{
-				angle -= 1;
-			}
-			else
-			{
-				angle = 0;
-				direction = 1;
-			}
-		}*/
-
+		msf_delay_ms(100);
 	}
 
+
+
 }
-#endif
+
 
 /* handler for the non-maskable (NMI) interrupt.
  * The PTA4 pin (Arduino pin 4) is by default used as NMI input and
