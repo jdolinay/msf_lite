@@ -188,7 +188,6 @@ void wavein_init(void);
  **/
 void wavein_uninit(void);
 
-// NOTE: attach and detach are not needed.
 /** 
  * @brief Connect given channel to the driver.
  * @param channel the channel to attach.
@@ -196,7 +195,7 @@ void wavein_uninit(void);
  * @note  This configures the pin for underlying timer channel into timer mode.
  *  
  */
-//uint8_t wavein_channel_attach(uint8_t channel);
+uint8_t wavein_channel_attach(uint8_t channel);
 
 /**
  * @brief Disconnect given channel from the driver.
@@ -204,7 +203,7 @@ void wavein_uninit(void);
  * @note This disconnects the pin from the timer.
  *
  */
-//void wavein_channel_detach(uint8_t channel);
+void wavein_channel_detach(uint8_t channel);
 
 /**
  * @brief Start capturing the input for given channel.

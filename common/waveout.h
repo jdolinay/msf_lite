@@ -14,10 +14,11 @@
  * @{
  * @brief High-level driver for generating output signals
  * @details
- * The driver has several output channels, depending on the timer driver
- * you configure in WAVEOUT_TIMER_DRIVER.
+ * The driver has several output channels. You have to specify which channel(s)
+ * you will use in your application in call to waveout_init, so that this
+ * driver can initialize the underlying timer (TPM) driver(s).
  * The MCU pins corresponding to each channel depends on configuration of
- * the underlying timer driver, see msf_config.h.
+ * the underlying timer driver(s), see msf_config.h.
  * Map of this driver's channels to TPM timer channels:
  * waveout channel  timer channel   default pin (msf_config.h)
  * <b>TPM0:</b><br>
@@ -135,35 +136,6 @@ extern "C" {
 #define		WAVEOUT_RANGE_8_9	(WAVEOUT_CH_MASK(8) | WAVEOUT_CH_MASK(9))
 
 
-/** Low-level timer driver to be used by the waveout driver.
- * This is defined in msf_config.h. Just in case it is not
- * defined, define it here defaulting to TPM0.
- * Note that the code assumes direct mapping of channels: channel 0 in this
- * driver is always channel 0 in underlying TPM driver.
- * Also note that only on timer driver at a time can be used. It would be
- * pretty easy to support all the drivers at the same time, but not done so far...
- * In general, the best choice may be timer TPM0, which has 6 channels. The other
- * TPM timers only have 2 channels. Use them if you need to use pin(s) which are not
- * connected to TPM0 and/or if you do not need more than 2 inputs and can use the TPM0
- * for other purposes.
- *
- * */
-#ifndef WAVEOUT_TIMER_DRIVER
-	#define	WAVEOUT_TIMER_DRIVER	Driver_TPM0
-#endif
-//#define	WAVEOUT_TIMER_DRIVER	Driver_TPM1
-//#define	WAVEOUT_TIMER_DRIVER	Driver_TPM2
-
-/* Number of channels available in the driver*/
-#if	WAVEOUT_TIMER_DRIVER == Driver_TPM0
-	#define	WAVEIN_NUM_CHANNELS		(6)
-#elif WAVEOUT_TIMER_DRIVER == Driver_TPM1
-	#define	WAVEIN_NUM_CHANNELS		(2)
-#elif WAVEOUT_TIMER_DRIVER == Driver_TPM2
-	#define	WAVEIN_NUM_CHANNELS		(2)
-#else
-	#error Selected timer driver is not supported by waveout driver
-#endif
 
 
 /* WMSF_WAVEOUT_PRESCALER
@@ -255,6 +227,7 @@ void waveout_init(uint32_t channel_mask);
  **/
 void waveout_uninit(void);
 
+// NOTE: attach and detach are not needed.
 /** 
  * @brief Connect given channel to the driver.
  * @param channel the channel to attach.
@@ -262,7 +235,7 @@ void waveout_uninit(void);
  * @note  This configures the pin for underlying timer channel into timer mode.
  *  
  */
-uint8_t waveout_channel_attach(uint8_t channel);
+//uint8_t waveout_channel_attach(uint8_t channel);
 
 /**
  * @brief Disconnect given channel from the driver.
@@ -270,7 +243,7 @@ uint8_t waveout_channel_attach(uint8_t channel);
  * @note This disconnects the pin from the timer.
  *
  */
-void waveout_channel_detach(uint8_t channel);
+//void waveout_channel_detach(uint8_t channel);
 
 /**
  * @brief Start generating signal on given channel (pin).
