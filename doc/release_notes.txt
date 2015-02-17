@@ -8,6 +8,9 @@ What is new
 Version 2/2015
  - Added waveio driver for generating/measuring periodic signal nad pulses.
  - Added example project waveio for the waveio driver. 
+ - Added example project input_capture which demonstrates use of the low-level 
+ TPM timer in input capture mode. This approach can be used if more specific features
+ are required than provided by the waveio high-level driver.
 
 
 Version 1/2015
