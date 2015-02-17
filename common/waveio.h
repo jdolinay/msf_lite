@@ -90,7 +90,7 @@
  * Longest half-wave length is:<br>
  *	65535 for the CPU clock options which allow obtaining 1 MHz timer clock.
  *	About 48500 for the other CPU clock options.
- *	See the clock #if in waveio.h (this file). If the WAVEIO_MULT_FACTOR is not 1,
+ *	See the clock conditions in waveio.h (this file). If the WAVEIO_MULT_FACTOR is not 1,
  *	the clock for timer is higher than 1 MHz and the longest half-vave value is
  *	lower than 65535. This is because the timer registers are 16 bits and the value must
  *	fit into the registers even after adjusting it from us to actual counter "ticks".
@@ -245,7 +245,7 @@ void waveio_uninit(void);
 
 /**
  * @brief Start generating signal on given channel (pin).
- * @param channel the channel to generate the signal on.
+ * @param iochannel the channel to generate the signal on.
  * @param half1 length of the 1st part of the wave in microseconds (us)
  * @param half2 length of the 2nd part of the wave in microseconds (us)
  * @return WAVEIO_NO_ERROR (0) if OK, or WAVEIO_ERROR_INVALID_CHANNEL if the channel
@@ -277,7 +277,7 @@ void waveio_uninit(void);
  *	Longest half-wave length is:
  *	65535 for the CPU clock options which allow obtaining 1 MHz timer clock.
  *	About 48500 for the other CPU clock options.
- *	See the clock #if in waveio.h (this file). If the WAVEIO_MULT_FACTOR is not 1,
+ *	See the clock "#if" in waveio.h (this file). If the WAVEIO_MULT_FACTOR is not 1,
  *	the clock for timer is higher than 1 MHz and the longest half-vave value is
  *	lower than 65535. This is because the timer registers are 16 bits and the value must
  *	fit into the registers even after adjusting it from us to actual counter "ticks".
@@ -288,7 +288,7 @@ uint8_t waveio_out_start(WAVEIO_channel iochannel, uint16_t half1, uint16_t half
 
 /**
  * @brief Start generating signal on given channel for RC servo.
- * @param channel the channel to generate the signal on.
+ * @param iochannel the channel to generate the signal on.
  * @param angle the angle between 0 and 180
  * @note this is convenience function for controlling the commonly used servo motor
  * used in Radio controlled models.
@@ -298,6 +298,7 @@ uint8_t waveio_out_servo(WAVEIO_channel iochannel, uint8_t angle);
 
 /**
  * @brief Start generating signal on given channel for RC servo. Pulse length given in microseconds.
+ * @param iochannel The channel to generate the signal on.
  * @param us the pulse width which should be between 1000 and 2000.
  * The function does not check for validity except for us < 19 ms; the
  * period of the signal will always be 20 ms.
@@ -308,7 +309,7 @@ uint8_t waveio_out_servo_us(WAVEIO_channel iochannel, uint16_t us);
 
 /**
  * @brief Stop generating the output for given channel.
- * @param channel the channel to stop generating output to.
+ * @param iochannel the channel to stop generating output to.
  * @return WAVEIO_NO_ERROR (0) if OK; error code otherwise, see waveout.h
  * @note The function will wait for the pin to become low before it returns so
  * it may block the caller up to the half2 microseconds of the current signal.
@@ -319,7 +320,7 @@ uint8_t waveio_out_stop(WAVEIO_channel iochannel);
 
 /**
  * @brief Connect given channel to the driver as input.
- * @param channel the channel to attach.
+ * @param iochannel the channel to attach.
  * @return WAVEIO_NO_ERROR (0) if OK; error code otherwise, see waveio.h
  * @note  This configures the pin for underlying timer channel into timer mode.
  */
@@ -327,7 +328,7 @@ uint8_t waveio_in_attach(WAVEIO_channel iochannel);
 
 /**
  * @brief Disconnect given input channel from the driver.
- * @param channel the channel to detach.
+ * @param iochannel the channel to detach.
  * @note This disconnects the pin from the timer.
  *
  */
@@ -335,7 +336,7 @@ void waveio_in_detach(WAVEIO_channel iochannel);
 
 /**
  * @brief Start capturing the input for given channel.
- * @param channel the channel to capture.
+ * @param iochannel the channel to capture.
  * @note  This starts updating the values for the given channel.
  *
  */
@@ -343,7 +344,7 @@ uint8_t waveio_in_start(WAVEIO_channel iochannel);
 
 /**
  * @brief Stop capturing the input for given channel.
- * @param channel the channel to stop capturing.
+ * @param iochannel the channel to stop capturing.
  * @return WAVEIN_NO_ERROR (0) if OK; error code otherwise, see wavein.h
  * @note  This stops updating the values for the given channel. Use this when the data
  *  from the channel are needed for some time (but will be needed later, so it is not
@@ -355,7 +356,7 @@ uint8_t waveio_in_stop(WAVEIO_channel iochannel);
 
 /**
  * @brief Read the values captured for given channel
- * @param channel the channel for which we want to read
+ * @param iochannel the channel for which we want to read
  * @param pulseA pointer to user-provided variable which receives the length
  * of the 1st part of the wave (the "pulse"). In microseconds (us).
  * @param pulseB pointer to user-provided variable which receives the length
@@ -372,7 +373,7 @@ uint8_t waveio_in_read(WAVEIO_channel iochannel, uint16_t* pulseA, uint16_t* pul
 
 /**
  * @brief Wait for a pulse (2 edges) on given channel.
- * @param channel the channel for which we want to wait.
+ * @param iochannel the channel for which we want to wait.
  * @param timeout maximum time in milliseconds to wait. If 0 is specified, wait infinitely.
  *  Note that the timeout measurement is "rough", about 66 ms for 1 MHZ timer clock,
  *  see WAVEIN_OVERFLOW_UNITMS.
@@ -387,7 +388,7 @@ uint16_t waveio_in_pulse_wait(WAVEIO_channel iochannel, uint32_t timeout );
 
 /**
  * @brief Read input from an RC receiver on given channel.
- * @param channel the channel for which we want to read the input.
+ * @param iochannel the channel for which we want to read the input.
  * @return the length of the pulse in microseconds or 0 on error.
  * @note This is convenient wrapper for waveio_in_read.
  * The function will handle checking the correct length of the pulse

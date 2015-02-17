@@ -12,8 +12,6 @@ as Arduino can be considered the closes thing to common microcontroller API out 
 License
 The files located in this package are licensed under GNU LESSER GENERAL PUBLIC LICENSE
 unless otherwise noted in the file itself.
-Some files in this package may be covered by other licenses, especially the files
-in the \vendor directory.  
 
 
 Directory structure
@@ -33,3 +31,6 @@ template	- template files for user-created projects and for extending MSF.
 
 Supported boards
 Freescale FRDM-KL25Z
+
+
+For further information please see the doc directory.

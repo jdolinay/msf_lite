@@ -5,7 +5,7 @@
  * @date     22. Apr 2014
  *
  * @note     These functions rely on UART hardware driver.
- * 
+ * 			IMPORTANT: This driver is deprecated. Use coniob instead.
  *      
  *
  ******************************************************************************/

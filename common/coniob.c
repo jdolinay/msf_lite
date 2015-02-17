@@ -20,15 +20,10 @@
  *
  ******************************************************************************/
 
-/** @defgroup group_coniob coniob - buffered console I/O driver 
- * @{ 
- * @brief  Console I/O generic driver. Version with buffers for send and receive.
- * @details Provides functions for reading from/writing to a serial interface (SCI, UART).
- * After initialisation, the coniob driver receives characters from
- *	serial line into internal buffer. The user can read them using coniob_getch or gets.
- * 
- */
 
+/** @addtogroup group_coniob
+ * @{
+*/
 /* Include user configuration */
 #include "msf_config.h"
 
@@ -75,18 +70,13 @@ volatile uint32_t coniob_nowSending;
 
 
 /* -------- Prototypes of internal functions   -------- */
-void coniob_UART_SignalEvent(uint32_t event, uint32_t arg);
+static void coniob_UART_SignalEvent(uint32_t event, uint32_t arg);
 //void wconiob_update_rxfifo(void);
 //void wconiob_update_txfifo(void);
 
 /* -------- Implementation of public functions   -------- */
 
-/** @fn   void coniob_init(UART_speed_t baudrate) 
- * @brief Initialize the console I/O driver
- * @param[in] baudrate the communication speed; one of the enum values!
- * @return none
- * @note    
- **/
+/* initialize console I/O */
 void coniob_init(UART_speed_t baudrate)               
 {
     CONIOB_UART_DRIVER.Initialize(baudrate, coniob_UART_SignalEvent);
@@ -105,11 +95,7 @@ void coniob_init(UART_speed_t baudrate)
 	CONIOB_UART_DRIVER.Receive((void*)CBUF_GetPushEntryPtr(coniob_rxQ), 1);
 }
 
-/** @fn   char coniob_getch(void)    
- * @brief Read one character from SCI.
- * @return the character read or 0 if there is no character available.
- * @note    
- **/
+/* read one character. return 0 if no character is available */
 char coniob_getch(void)               
 {	
 	if ( CBUF_IsEmpty( coniob_rxQ ) )
@@ -119,18 +105,13 @@ char coniob_getch(void)
 	
 }
 
-/** Check if data are available for reading
- * @return 0 if there are no data (call to getch would block the caller;
- *  or the number of characters available in input buffer. 
- **/
+/* Return number of characters available in input buffer */
 uint32_t coniob_kbhit(void)
 {
 	return CBUF_Len(coniob_rxQ);
 }
 
-/** Send one character to SCI. If the char is '\n', send CR + LF
- * @param c char to send
- **/
+/* send one character to console */
 void coniob_putch(char c)        
 {		
 	//uint8_t* pStart = CBUF_GetLastEntryPtr(coniob_txQ);
@@ -161,10 +142,7 @@ void coniob_putch(char c)
     }
 }
 
-/** Send null-terminated string to SCI. 
- * @param str pointer to string to send
- * @note If the string contains '\n', CR + LF are sent. 
- **/
+/* send null-terminated string */
 void coniob_puts(const char* str)     
 {		
 	//uint8_t* pStart = CBUF_GetLastEntryPtr(coniob_txQ);
@@ -200,22 +178,8 @@ void coniob_puts(const char* str)
 }
 
 
-/** Read string from console (from buffer). Does not block the caller. 
- * @note The possible results are:
- * 1) string with max_chars valid characters .
- * 2) string up to terminator character
- * 3) string with all the chars from buffer (which may be empty string if buffer is empty) 
- *  
- * The resulting string is null-terminated (valid C-language string) in all cases.   
- * The terminator character in not included in the resulting string.
- *
- * @param str [out] buffer provided by the user to receive the string
- * @param max_chars [in] maximum character (not including terminating 0) to 
- *  receive.
- * @param terminator [in] character which means the end of the string. Can be 0 if not needed.
- * @return number of characters actually written to the string str; not including 
- * the ending 0.      
- **/
+
+/* read string from console. */
 uint32_t coniob_gets(char* str, uint32_t max_chars, char terminator)
 {
     char c;
@@ -265,7 +229,7 @@ void coniob_flush(void)
  * - preferably do not send to UART from here!
  * - beware of loops, e.g. by sending text to UART in response to send complete event!
  */
-void coniob_UART_SignalEvent(uint32_t event, uint32_t arg)
+static void coniob_UART_SignalEvent(uint32_t event, uint32_t arg)
 {
 	volatile uint8_t* pData;
 	

@@ -140,12 +140,12 @@ typedef enum _MSF_DRIVER_CHANNEL_MODES {
 	OutCompare_toggle,		 /**< toggle output on compare match */
 	OutCompare_clear,		/**< clear output (LOW) on compare match */
 	OutCompare_set,			/**< set output (HIGH) on compare match */
-	OutCompare_pulselow,	/**< . */
-	OutCompare_pulsehigh,	/**< . */
+	OutCompare_pulselow,	/**< pulse the pin low for 1 timer clock */
+	OutCompare_pulsehigh,	/**< pulse the pin low for 1 timer clock */
 	PWM_edge_hightrue,		/**< set output at the start of the period */
 	PWM_edge_lowtrue,		/**< clear output at the start of the period */
-	PWM_center_hightrue, 	/**< . */
-	PWM_center_lowtrue,		/**< . */
+	PWM_center_hightrue, 	/**< center-aligned PWM */
+	PWM_center_lowtrue,		/**< center-aligned PWM */
 	
 } TMP_channel_mode_t;
 

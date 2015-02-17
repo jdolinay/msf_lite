@@ -10,9 +10,12 @@
 #ifndef MSF_TEMPLATE_H
     #define MSF_TEMPLATE_H
 
-/** @addtogroup group_template 
- * @details Source code template file
+/** @defgroup waveio_driver waveio Driver
  * @{
+ * @brief module description...
+ * @details Details about the module....
+ * 
+ * 
  */
  
 #ifdef __cplusplus
@@ -37,8 +40,7 @@ extern "C" {
  * @return none
  * @note  
  *  
- * Created by: JD   
- **/
+ */
 
 #ifdef __cplusplus
 }

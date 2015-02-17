@@ -9,7 +9,6 @@
  ******************************************************************************/
 
 /** @addtogroup group_template 
- * @details Source code template file
  * @{
  */
 
@@ -33,9 +32,8 @@
 * Add all internally used #defines here
 *
 ***************************************************/
-/* The name of the size for the buffer must match this pattern */
-#define coniob_txQ_SIZE    CONIOB_TXBUFFER_SIZE
-#define coniob_rxQ_SIZE    CONIOB_RXBUFFER_SIZE
+/* description */
+#define SOMETHING  (1)
 
 
 /* Variables section
@@ -43,22 +41,6 @@
 *
 ***************************************************/
 /*---------- Internal variables ---------------- */
-volatile struct
-{
-	uint8_t     m_getIdx;
-    uint8_t     m_putIdx;
-    uint8_t     m_entry[ coniob_txQ_SIZE ];
-} coniob_txQ;
-
-volatile struct
-{
-	uint8_t     m_getIdx;
-    uint8_t     m_putIdx;
-    uint8_t     m_entry[ coniob_rxQ_SIZE ];
-} coniob_rxQ;
-
-/* the number of read bytes last time we updated the Rx FIFO */
-volatile uint32_t coniob_nowSending;
 
 
 /* Function Prototype Section
@@ -67,9 +49,7 @@ volatile uint32_t coniob_nowSending;
 *
 ***************************************************/   
 /* -------- Prototypes of internal functions   -------- */
-void coniob_UART_SignalEvent(uint32_t event, uint32_t arg);
-void wconiob_update_rxfifo(void);
-void wconiob_update_txfifo(void);
+static void module_function(void);	
 
 
 /* Code section 

@@ -1,0 +1,25 @@
+MSF-Lite Microcontroller Software Framework 
+Created by Jan Dolinay, 2014
+
+Release Notes
+
+What is new
+------------
+Version 2/2015
+ - Added waveio driver for generating/measuring periodic signal nad pulses.
+ - Added example project waveio for the waveio driver. 
+
+
+Version 1/2015
+ - First public release. 
+
+
+Supported boards:
+-----------------
+FRDM-KL25Z
+
+
+Supported development tools
+----------------------------
+Kinetis Design Studio (KDS), version 1.1.1
+

@@ -4,6 +4,11 @@ Poznamka z AVR:
 Projekty examples staci .cproject a .project a slozka .settings jak mam ted - overeno v eclipse ze
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 ------------------------------------------------
+17.2.2015
+Dokonèen waveio driver pro mìøení a generování signálù, napø. pro servo.
+Pøipraveno na release nové verze na codeproject.
+Ohlednì sluèování s MSF spíš vidím na pøidání avr (arduino uno) do msf_lite jako
+další desky jako perspektivnìjší.
 
 15.1.2015
 Pokraèovat asi slouèením msf_lite do msf, tak aby msf bylo už jediným vyvýjeným projektem a msf_lite zaniklo, ve smyslu
