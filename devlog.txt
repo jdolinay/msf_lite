@@ -5,6 +5,10 @@ Projekty examples staci .cproject a .project a slozka .settings jak mam ted - ov
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 ------------------------------------------------
 17.2.2015
+
+TIP: waveio: pro pin v režimu TPM input jde použít souèasnì i gpio interrupt viz doc o použití TPM 
+pro emulaci UART v mcu/dokumentace/freescale/doc.
+
 Dokonèen waveio driver pro mìøení a generování signálù, napø. pro servo.
 Pøipraveno na release nové verze na codeproject.
 Ohlednì sluèování s MSF spíš vidím na pøidání avr (arduino uno) do msf_lite jako
