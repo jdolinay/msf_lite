@@ -1,0 +1,125 @@
+Howto create projects for MSF lite in Kinetis Design Studio 3.0.0
+
+------------------
+Full manual setup
+------------------
+1) Create new KDS project in for Kinetis L > MKL2x > KL25Z >  MKL25Z128xxx4 
+ 
+ - Do not enable use of  Processor Expert in the wizard and do not enable Kinetis SDK.
+ 
+If Processor Expert views are displayed after the project is created, go to 
+Processor Expert menu and select Hide Views option. 
+ 
+2) Go to KDS main menu Window and select Preferences. In the Preferences open 
+General > Workspace > Linked Resources.
+Use the New... button on the right to create new path variable.
+Name this variable MSF_LOC and using the Folder button point it to the root
+folder of msf_lite, for example, D:\msf_lite.
+Close this and the PReferences windows to return back to KDS.
+
+NOTE: This only needs to be doe once per workspace. When creating another project in the 
+same workspace, you do not need to create this variable.
+ 
+3) Right-click the project in Project Explorer and select New > Folder.
+In the New Folder window expand the Advanced options.
+Select Link to alternate location (Linked Folder) option.
+Click the Variables button below. 
+You shoud see a list of variables including the MSF_LOC we created earlier.
+Select the MSF_LOC variable and click Extend... button.
+You will see the subfolders of the msf_lite folder.
+Select common subfolder and click OK. 
+Now the text box should show the path as: MSF_LOC/common.
+Click Finish to close the New Folder window.
+You should now see folder "common" under your project in KDS.
+
+4) Repeat previous step for folders  platform\kinetis and board\frdm_kl25z.
+You should have the following three folders linked in your project now:
+- msf_lite\common
+- msf_lite\platform\kinetis
+- msf_lite\board\frdm_kl25z  
+
+5) Right-click the project in Project Explorer and select Properties. 
+Go to C/C++ Build > Settings > ARM C compiler... > Includes and add these paths to Include Paths:
+"${workspace_loc:/${ProjName}/common}"
+"${workspace_loc:/${ProjName}/kinetis}"
+"${workspace_loc:/${ProjName}/kinetis/mkl25z}"
+"${workspace_loc:/${ProjName}/frdm_kl25z}"
+Use the Add.. button at top righ of the list. Then click Woskspace... button in the
+Add directory path window, expand your project and select the folder, for example, common.
+We are actually selecting the linked folders in our project, which point to the msf_lite folders.
+
+6) Open main.c file (from Sources sub-folder of your project) and add the following includes
+below the #include "MKL25Z4.h" line:
+
+/* MSF configuration for this project */
+#include "msf_config.h"
+/* Include the core definitions - CMSIS <device>.h file etc.*/
+#include "coredef.h"
+#include "msf.h"
+
+7) Copy msf_config.h and derivative.h files from [msf_lite root path]\template\kds to [your project]\Sources.
+You can drag these files from the source file and drop them on the project in KDS Project Explorer.
+Select Copy files from the File Operation window which appears after the drop.
+Alternativelly, you can copy these files in any file manager into the workspace/project/sources folder
+on the disk. In this case then right-click the project in KDS and select Refresh to display the 
+changes in file system in KDS. 
+
+
+8) If needed, edit the option(s) in the msf_config.h file (see "Configuration files"
+below for more information).
+
+
+9) Your project should now build without errors.
+
+
+10) To Start debugging: 
+- Right click the project and select Debug > Debug configurations...
+- In the Debug configurations window expand the GDB PEMicro Interface Debugging category. 
+- There should be debug configuration named [your-project]_Debug_PNE. Select it.
+- Swith to the Debugger tab on the right.
+- In the Interface box select: Open SDA Embedded Debug - USB port
+- Click the Debug button in bottom right of the window (make sure your FRDM-KL25Z is connected )
+
+
+
+Clock setup
+-----------
+MSF by default expects that the CPU runs at 20.97 MHz, which is also default value in a project created by KDS.
+If this is OK for your application, you do not need to change anything.
+
+If you want to change the CPU clock:
+- In KDS expand your project/Includes and open the system_MKL25Z4.h file.
+- Look at the predefined clock setups in a comment near the top of this file. Choose the setup which suits you, 
+ for example 1, which is 48 MHz.
+- Open Properties of your project > C/C++ Build > Settings > Cross ARM C Compiler > Preprocesor.
+- In the Defined symbols list enter the following: CLOCK_SETUP=1
+This will select the clock setup 1.
+- Open project/Sources the msf_config.h file. Uncomment the block for the CLOCK_SETUP you have selected,
+for example, for CLOCK_SETUP=1 uncomment this block:
+#define F_CPU	(48000000)
+#define	F_BUS	(24000000) 
+And comment out the block you no longer use, for example the one for CLOCK_SETUP = 1.
+
+
+
+
+Configuration files
+---------------------
+*) Your application includes msf_config.h. You should create this file locally in
+each project by "clonning" the file provided in [MSF lite]\template\kds.
+
+*) msf_config.h defines some options which are application-specific (CPU frequency)
+and includes the main header file for the BOARD used in the application, e.g.
+#include "frdm_kl25z.h"  (<board>.h file) 
+
+*) The <board>.h file includes main configuration file for the MCU used in the board, e.g.
+#include "msf_config_mkl25z.h" (msf_config_<device>.h 
+This is internal file which you do not need to edit in most cases!
+You can do so with care, however; it is no magic.
+The <board>.h file also defines the constants for the board, e.g. pin names.
+
+General advice: edit options msf_config.h as needed; do not edit the other files
+included from this file unless you understand what you are doing.
+
+
+
