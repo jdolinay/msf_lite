@@ -4,7 +4,7 @@
  *
  * The driver can be used with any or all of the TPM0, TPM1 or TPM2 low-level timer drivers.
  *
- * This project contains several example use-ceses in separate functions.
+ * This project contains several example use-cases in separate functions.
  * Un-comment one of the functions at a time to test it.
  *
  * Testing the program:

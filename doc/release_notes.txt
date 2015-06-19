@@ -6,8 +6,11 @@ Release Notes
 What is new
 ------------
 Version 6/2015
- - Updated documentation for Kinetis Design Studio 3.0.0 (CLOCK_SETUP now needs to be defined in compiler options,
-	new, simplified tutorial for creating project in KDS 3.0.0, see kds_howto3.0.0.txt.
+ - Updated documentation for Kinetis Design Studio 3.0.0 
+ (new, simplified tutorial for creating project in KDS 3.0.0, see kds_howto3.0.0.txt, 
+  CLOCK_SETUP now needs to be defined in compiler options)
+ - Updated example projects to build in KDS 3.0.0 (-nanolibc option in Cross ARM C++ Linker > Miscellaneous Other linker flags options replaced with "-specs=nano.specs -specs=nosys.specs").
+ - Debug configurations added to example projects (saved into project) so that they do not need to be created manually after import.
 
 Version 2/2015
  - Added waveio driver for generating/measuring periodic signal nad pulses.
