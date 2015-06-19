@@ -1,0 +1,335 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+
+
+
+  
+  <meta content="text/html; charset=ISO-8859-2" http-equiv="content-type"><title>MSF Lite import project tutorial</title></head><body>
+<h1>
+Import MSF Lite example projects into your workspace in Kinetis Design Studio <br>
+</h1>
+
+Version of KDS used: 3.0.0<br>
+
+This document shows how to create programs for the Freescale
+ultra-low-cost development board FRDM-KL25Z using Kinetis Design Studio
+(KDS).<br>
+It assumes you have the MSF Lite source code on your computer, for example, in
+c:\msf_lite - which is probably true if you are reading this document from the msf_lite/doc subfolder. <br>
+It is recommended that you start with some example program from msf_lite/examples. The following text will explain how.<br>
+<br>
+If you are ready to create your own project with msf_lite, please see the kds_howto3.0.0.txt document.<br>
+<h2>Preparation</h2>
+You will need:<br>
+
+
+<ul>
+<li>Kinetis Design Studio IDE. You can <a href="http://www.freescale.com/webapp/sps/site/prod_summary.jsp?code=KDS_IDE">download
+it from Freescale's website</a>. <br>
+  </li><li>The FRDM-KL25Z board with compatible OpenSDA application - see
+below.</li>
+</ul>
+<span style="font-weight: bold;">Note about the board and OpenSDA
+application</span><br>
+
+
+I assume you have the FRDM-KL25Z board and USB cable to connect it to
+your computer. I am not sure which version of the OpenSDA application
+(the 'bootloader') your board will have. It may be a good idea to
+update the firmware to the latest version. You can download it from <span style="font-weight: bold;"></span><a href="https://www.pemicro.com/opensda/">P &amp; E Micro</a>. There is <span style="font-weight: bold;">Open SDA Firmware</span>
+link at the top of the page as well as instructions for updating the
+firmware in your board. The zip package you download from the P &amp; E
+Micro website contains many
+applications for different boards. You should use the
+<span style="font-weight: bold;">MSD-DEBUG-FRDM-KL25Z_Pemicro_v114.SDA</span>
+which is the debugger, virtual
+serial port and mass storage all in one. <br>
+<br>
+<h3>Opening example programs</h3>
+
+
+The example programs can be found in msf_lite\examples\kds\frdm_kl25z
+folder. The names of the examples which use Arduino API start with
+"arduino_", the other examples are "plain" C with the MSF library
+functions.<br>
+
+
+<br>
+
+
+Here is how to try the example programs:<br>
+
+
+<br>
+
+
+Start Kinetis Design Studio and from the <span style="font-style: italic;">File</span> menu select <span style="font-style: italic;">Import</span>...
+<br>
+
+
+<br>
+
+
+In the Import window expand the <span style="font-style: italic;">General</span>
+folder and select <span style="font-style: italic;">Existing
+Projects into Workspace</span>:<br>
+
+
+<br>
+
+
+<img style="width: 521px; height: 306px;" alt="Import window" src="img/import_wnd.png"><br>
+
+
+<br>
+
+
+In the next window select the 'Select root directory' option and <span style="font-style: italic;">Browse</span>
+to&nbsp; [your msf_lite location]\examples\kds. Select the folder for
+the example program you wish to import, for example, the <span style="font-weight: bold;">arduino_blink</span>&nbsp;
+folder, and click OK.<br>
+
+
+<br>
+
+
+<img style="width: 530px; height: 512px;" alt="Browse" src="img/browse_wnd.png"> <br>
+
+
+<br>
+
+
+The project contained in the selected folder should appear in the
+'Projects' area in the Import window.<br>
+
+
+<br>
+
+
+<img style="width: 520px; height: 553px;" alt="Project selected" src="img/projects_wnd.png"><br>
+
+
+<br>
+
+
+<span style="font-weight: bold;">Make sure the 'Copy projects into
+workspace' box is NOT checked!</span><br>
+
+
+<br>
+
+
+Click the 'Finish' button and the project should be imported.<br>
+
+
+<br>
+
+
+<img style="width: 524px; height: 363px;" alt="Projects" src="img/project_view.png"><br>
+
+
+<br>
+
+
+<br>
+
+
+You can now open the main.c file in the Sources folder to view the code.<br>
+
+
+<br>
+
+
+To build the program, click the icon with the hammer in toolbar:<br>
+
+
+<br>
+
+
+<img style="width: 561px; height: 143px;" alt="build" src="img/toolbar_build.png"><br>
+
+
+<br>
+
+
+<br>
+
+
+You could also right-click the project and select 'Build project' from
+the context menu.<br>
+
+
+<br>
+
+
+The project should build without errors.<br>
+
+
+<br>
+
+
+<span style="font-weight: bold;">Starting the program</span><br>
+There are debug configurations included in the example projects, but
+they will probably need modification to work on your computer. <br><br>
+Please connect the FRDM-KL25Z board to your computer.<br><br>
+In Project Explorer in KDS right-click the project <span style="font-style: italic;"></span>and select Debug
+As... &gt; Debug Configurations... from the context menu.<br>
+Expand the 'GDB PEMicro Interface
+Debugging' category and select the debug configuration which contains name of your project.<br>
+<br>
+If you do not see any configurations, please go to the next section - Creating&nbsp; Debug Configuration. <br>
+If you see the configuration, select it and switch to Debugger tab on the right.<br>
+<br>
+Make sure the proper values are selected (see picture below): <br>
+Interface: OpenSDA Embedded Debug - UAB Port<br>
+Port: this will be port on your ocmputer where the FRDM board is connected.<br>
+Target: KL25Z128M4.<br>
+<br>
+<img style="width: 937px; height: 376px;" alt="debug configuration" src="img/debug_cfg.png"><br>
+<br>
+
+
+
+Now Click the 'Debug' button in the bottom right to start debugging. <br>
+
+
+
+<br>
+
+
+
+If everything goes well, the KDS should switch to debug perspective and
+you should see the program stopped at the beginning of main function.
+You can now click the Resume button to start the program.<br>
+
+
+
+<br>
+
+
+
+<img style="width: 454px; height: 237px;" alt="debug - resume" src="img/resume.png"><br>
+
+
+
+<br>
+
+
+
+For the arduino_blink example project you should see the blue LED on
+the board blinking.<br>
+
+
+
+<br>
+<br>
+<h3>Creating Debug Configuration</h3>
+We need to have a <span style="font-style: italic;">Debug
+configuration</span>
+to be able to download (and debug) the program. If for some reasons the
+configurations included in the example projects are not available, you
+can create a new configuration. To create new debug configuration:<br>
+<br>
+Right-click the project in the <span style="font-style: italic;">Project
+Explorer</span> and select Debug
+As... &gt; Debug Configurations... from the context menu.<br>
+
+
+In the D<span style="font-style: italic;">ebug Configurations</span>
+window select the 'GDB PEMicro Interface
+Debugging' and then click the 'New Launch Configuration' button in the
+upper left corner of the window.<br>
+
+
+<br>
+
+
+<img style="width: 551px; height: 330px;" alt="debug configuration" src="img/debug_cfg1.png"><br>
+
+
+&nbsp;<br>
+
+
+In the right-hand side of the window some tabs appear. First select the
+<span style="font-style: italic;">Main</span> tab. Click the Search
+Project... button below the In the C/C++
+Application box and select the .elf file which you will see - for
+example, arduino_blink.elf.<br>
+
+
+<br>
+
+
+<img style="width: 599px; height: 227px;" alt="debug configuration - main" src="img/debug_main.png"><br>
+
+
+<br>
+
+
+You should see the selected .elf file (executable) in the C/C++
+Application field.<br>
+
+
+<br>
+
+
+Next, select the <span style="font-style: italic;">Debugger</span> tab.<br>
+
+
+In the 'Interface' combo box select 'Open SDA Embedded Debug - USB
+Port'.<br>
+
+
+In 'Device name' select 'KL25Z128M4'.<br>
+
+
+<br>
+
+
+<img style="width: 599px; height: 280px;" alt="Debug configuration 2" src="img/debug_cfg2.png"><br>
+
+
+<br>
+
+
+<br>
+
+
+Make sure your FRDM-KL25Z is connected to your computer.<br>
+
+
+<br>
+
+
+Now Click the 'Debug' button in the bottom right to start debugging. <br>
+
+
+<br>
+
+
+If everything goes well, the KDS should switch to debug perspective and
+you should see the program stopped at the beginning of main function.
+You can now click the Resume button to start the program.<br>
+
+
+<br>
+
+
+<img style="width: 454px; height: 237px;" alt="debug - resume" src="img/resume.png"><br>
+
+
+<br>
+
+
+For the arduino_blink example project you should see the blue LED on
+the board blinking.<br>
+
+
+<br>
+
+
+<br>
+
+<br>
+
+</body></html>
