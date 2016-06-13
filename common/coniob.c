@@ -189,7 +189,9 @@ uint32_t coniob_gets(char* str, uint32_t max_chars, char terminator)
     { 
     	c = CBUF_Pop( coniob_rxQ );
     	if ( c != terminator )
-            str[i] = c;        
+            str[i] = c;
+    	else
+    		break;
     }
     str[i] = 0; 
     return i;
