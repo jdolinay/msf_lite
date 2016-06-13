@@ -48,7 +48,7 @@ void msf_printhex(uint32_t number)
 }
 
 /* print string with one formatted 16-bit number */
-void msf_printf_16(const char* str, const char* format, uint16_t data)  
+void msf_printf16(const char* str, const char* format, uint16_t data)
 {
     char buffer[9];
     sprintf(buffer, format, data);
