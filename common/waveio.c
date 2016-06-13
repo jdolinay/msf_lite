@@ -305,19 +305,17 @@ uint8_t waveio_out_change(WAVEIO_channel iochannel, uint16_t half1) {
 	period = gwaveio_data[channel].half_wave[0] + gwaveio_data[channel].half_wave[1];
 	half1 = ((uint32_t) half1 * WAVEIO_DIV_FACTOR) / WAVEIO_MULT_FACTOR;
 	half2 = period - half1;
-	if ( half2 > period || half1) {
+	if ( (half2 > period) || (half1 == 0)) {
 		return MSF_ERROR_ARGUMENT;	// invalid
 	}
 
-	// We calculated the values already in "native" timer units rather than microseconds!
-	// pre-compute the values to disable the channel for only as short time as possible
-	//half1 = (((uint32_t) half1 * WAVEIO_DIV_FACTOR) / WAVEIO_MULT_FACTOR);
-	//half2 = (((uint32_t) half2 * WAVEIO_DIV_FACTOR) / WAVEIO_MULT_FACTOR);
+
 
 	// stop generating the signal before updating values
 	gwaveio_active_channels &= ~(1 << channel);
 
-	// save the requested values to our buffer for updates in ISR
+	// Save the requested values to our buffer for updates in ISR
+	// Above, we calculated the values already in "native" timer units rather than in microseconds.
 	gwaveio_data[channel].half_wave[0] = half1;
 	gwaveio_data[channel].half_wave[1] = half2;
 
@@ -412,7 +410,18 @@ uint8_t waveio_out_servo_us(WAVEIO_channel iochannel, uint16_t us)
 		return MSF_ERROR_ARGUMENT;
 
 	space = 20000 - us;
-	return waveio_out_start(iochannel, us, space);
+
+	// If the signal is already generated on this channel, only change the
+	// duty but do not call waveio_out_start again!
+	// Check if waveio_out_start was called for this channel
+	if (!(gwaveio_active_channels & (1 << iochannel))) {
+		// if not started yet, start it
+		return waveio_out_start(iochannel, us, space);
+	}
+	else {
+		// if already started, just change it
+		return waveio_out_change(iochannel, us);
+	}
 }
 
 /*

@@ -5,7 +5,8 @@ Projekty examples staci .cproject a .project a slozka .settings jak mam ted - ov
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 ------------------------------------------------
 17.7.2015
-TODO: v coniob gets je chyba! nacita string i za terminator character! opravit pridanim else break!:
+_TODO: v coniob gets je chyba! nacita string i za terminator character! opravit pridanim else break!:
+> fix 13.6.2016
 if ( c != terminator )
         str[i] = c; 
 else

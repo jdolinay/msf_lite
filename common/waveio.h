@@ -291,35 +291,44 @@ void waveio_uninit(void);
 uint8_t waveio_out_start(WAVEIO_channel iochannel, uint16_t half1, uint16_t half2);
 
 /**
- * @brief Change the width of the pulse generated on given channel.
+ * @brief Change the width of the pulse generated on given channel (change the half1 value).
  * @param iochannel the channel to change the pulse width.
  * @param half1 pulse length in microseconds.
- * @note The channel must be activated by calling waveio_out_start and then the
+ * @note The channel must be activated by calling waveio_out_start first,; then the
  * signal can be changed using this function.
+ * The period of the signal will not change; the function will calculate the value of half2 to
+ * keep the period the same.
  */
 uint8_t waveio_out_change(WAVEIO_channel iochannel, uint16_t half1);
 
 
 /**
  * @brief Start generating signal on given channel for RC servo.
- * TODO: fix option to change duty using waveio_out_change - disrupts other channels now!
  * @param iochannel the channel to generate the signal on.
  * @param angle the angle between 0 and 180
- * @note this is convenience function for controlling the commonly used servo motor
+ * @note This is convenience function for controlling the commonly used servo motor
  * used in Radio controlled models.
+ * It can be called repeatedly with different angle
+ * to update the servo position; it will automatically handle starting the signal first time
+ * and then just updating the pulse width. It is still advisable not to call this more often
+ * than needed. Calling this with the same value of angle repeatedly makes no sense!
+ * To stop generating the signal call waveio_out_stop.
  *
  */
 uint8_t waveio_out_servo(WAVEIO_channel iochannel, uint8_t angle);
 
 /**
  * @brief Start generating signal on given channel for RC servo. Pulse length given in microseconds.
- * TODO: fix option to change duty using waveio_out_change - disrupts other channels now!
  * @param iochannel The channel to generate the signal on.
  * @param us the pulse width which should be between 1000 and 2000.
  * The function does not check for validity except for us < 19 ms; the
  * period of the signal will always be 20 ms.
- * @note this is convenience function for controlling the commonly used servo motor
+ * @note This is convenience function for controlling the commonly used servo motor
  * used in Radio controlled models.
+ * It can be called repeatedly with different angle
+ * to update the servo position; it will automatically handle starting the signal first time
+ * and then just updating the pulse width. It is still advisable not to call this more often
+ * than needed. Calling this with the same value of angle repeatedly makes no sense!
  */
 uint8_t waveio_out_servo_us(WAVEIO_channel iochannel, uint16_t us);
 
