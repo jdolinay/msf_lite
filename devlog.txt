@@ -4,6 +4,13 @@ Poznamka z AVR:
 Projekty examples staci .cproject a .project a slozka .settings jak mam ted - overeno v eclipse ze
 po importu jako existing project into workspace ( bez kopirovani do workspace) jde prelozit.
 ------------------------------------------------
+17.7.2015
+TODO: v coniob gets je chyba! nacita string i za terminator character! opravit pridanim else break!:
+if ( c != terminator )
+        str[i] = c; 
+else
+	break;
+
 17.2.2015
 
 TIP: waveio: pro pin v režimu TPM input jde použít souèasnì i gpio interrupt viz doc o použití TPM 
