@@ -91,7 +91,7 @@ static volatile uint32_t gwaveio_active_channels;
 static volatile uint32_t gwaveio_input_channels;
 
 /* Counters incremented when timer counter overflows.
- * ¨There is one for each TPM timer we use
+ * ï¿½There is one for each TPM timer we use
  * It is used for timeout in waveio_in_pulse_wait() */
 static volatile uint32_t gwaveio_overflow_cnt[WAVEIO_MAX_DRIVERS];
 
@@ -272,6 +272,64 @@ uint8_t waveio_out_start(WAVEIO_channel iochannel, uint16_t half1, uint16_t half
 	return WAVEIO_NO_ERROR;
 
 }
+
+
+/* change the duty cycle of the signal */
+uint8_t waveio_out_change(WAVEIO_channel iochannel, uint16_t half1) {
+	uint8_t tpm_channel;
+	MSF_DRIVER_TPM* pdrv;
+	uint8_t channel = (uint8_t) iochannel;
+	uint16_t period, half2;
+
+	pdrv = waveio_get_tpm_driver(channel, &tpm_channel);
+	if (!pdrv)
+		return WAVEIO_ERROR_INVALID_CHANNEL;
+
+	// Check if the channel is initialized (the TPM driver it belongs to was initialized)
+	if (!(gwaveio_initialized_channels & (1 << channel)))
+		return WAVEIO_ERROR_UNINITIALIZED_CHANNEL;
+
+	// Check if waveio_out_start was called for this channel
+	if (!(gwaveio_active_channels & (1 << channel)))
+		return WAVEIO_ERROR_INACTIVE_CHANNEL;
+
+
+	// Wait for end of the pulse and then reset with a new period.
+	// waveout_1st_half means the ISR just used half_wave[0] and now is waiting for
+	// half_wave[1] time to elapse...
+	// If it takes too much time to calculate we miss one pulse but this seems acceptable.
+	while (gwaveio_data[channel].status != waveout_1st_half)
+			;
+
+	// calculate the 2nd half-wave
+	period = gwaveio_data[channel].half_wave[0] + gwaveio_data[channel].half_wave[1];
+	half1 = ((uint32_t) half1 * WAVEIO_DIV_FACTOR) / WAVEIO_MULT_FACTOR;
+	half2 = period - half1;
+	if ( half2 > period || half1) {
+		return MSF_ERROR_ARGUMENT;	// invalid
+	}
+
+	// We calculated the values already in "native" timer units rather than microseconds!
+	// pre-compute the values to disable the channel for only as short time as possible
+	//half1 = (((uint32_t) half1 * WAVEIO_DIV_FACTOR) / WAVEIO_MULT_FACTOR);
+	//half2 = (((uint32_t) half2 * WAVEIO_DIV_FACTOR) / WAVEIO_MULT_FACTOR);
+
+	// stop generating the signal before updating values
+	gwaveio_active_channels &= ~(1 << channel);
+
+	// save the requested values to our buffer for updates in ISR
+	gwaveio_data[channel].half_wave[0] = half1;
+	gwaveio_data[channel].half_wave[1] = half2;
+
+	pdrv->ChannelWrite(tpm_channel, gwaveio_data[channel].half_wave[0]);
+
+	// enable updating the signal in timer interrupt
+	gwaveio_active_channels |= (1 << channel);
+
+	return WAVEIO_NO_ERROR;
+}
+
+
 
 /*
  *

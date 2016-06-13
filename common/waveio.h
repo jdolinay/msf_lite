@@ -260,6 +260,10 @@ void waveio_uninit(void);
  *	We want to obtain 1 kHz signal: period = 1000/1 = 1000
  *	For square wave signal the half-wave values are 500 and 500.
  *
+ *  Important: when this function is called it will disrupt the signal of all channels using the
+ *  same timer module for at least one period. If you need to change the width of the pulse,
+ *  first and once call waveio_out_start; then call waveio_out_change.
+ *
  *	The shortest half-wave length is approximately:
  *	half_wave_MIN = 500/CPU_clock_MHz
  *	Examples:
@@ -287,7 +291,18 @@ void waveio_uninit(void);
 uint8_t waveio_out_start(WAVEIO_channel iochannel, uint16_t half1, uint16_t half2);
 
 /**
+ * @brief Change the width of the pulse generated on given channel.
+ * @param iochannel the channel to change the pulse width.
+ * @param half1 pulse length in microseconds.
+ * @note The channel must be activated by calling waveio_out_start and then the
+ * signal can be changed using this function.
+ */
+uint8_t waveio_out_change(WAVEIO_channel iochannel, uint16_t half1);
+
+
+/**
  * @brief Start generating signal on given channel for RC servo.
+ * TODO: fix option to change duty using waveio_out_change - disrupts other channels now!
  * @param iochannel the channel to generate the signal on.
  * @param angle the angle between 0 and 180
  * @note this is convenience function for controlling the commonly used servo motor
@@ -298,6 +313,7 @@ uint8_t waveio_out_servo(WAVEIO_channel iochannel, uint8_t angle);
 
 /**
  * @brief Start generating signal on given channel for RC servo. Pulse length given in microseconds.
+ * TODO: fix option to change duty using waveio_out_change - disrupts other channels now!
  * @param iochannel The channel to generate the signal on.
  * @param us the pulse width which should be between 1000 and 2000.
  * The function does not check for validity except for us < 19 ms; the
