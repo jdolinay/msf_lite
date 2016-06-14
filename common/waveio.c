@@ -297,8 +297,11 @@ uint8_t waveio_out_change(WAVEIO_channel iochannel, uint16_t half1) {
 	// Wait for end of the pulse and then reset with a new period.
 	// waveout_1st_half means the ISR just used half_wave[0] and now is waiting for
 	// half_wave[1] time to elapse...
+	// waveout_2nd_half means ISR just used half_wave 1 so the period ends. This seems better
+	// time for changing the values so that there is no "extended" half-period but whole new
+	// period.
 	// If it takes too much time to calculate we miss one pulse but this seems acceptable.
-	while (gwaveio_data[channel].status != waveout_1st_half)
+	while (gwaveio_data[channel].status != waveout_2nd_half )
 			;
 
 	// calculate the 2nd half-wave
@@ -319,7 +322,7 @@ uint8_t waveio_out_change(WAVEIO_channel iochannel, uint16_t half1) {
 	gwaveio_data[channel].half_wave[0] = half1;
 	gwaveio_data[channel].half_wave[1] = half2;
 
-	pdrv->ChannelWrite(tpm_channel, gwaveio_data[channel].half_wave[0]);
+	//pdrv->ChannelWrite(tpm_channel, gwaveio_data[channel].half_wave[0]);
 
 	// enable updating the signal in timer interrupt
 	gwaveio_active_channels |= (1 << channel);
