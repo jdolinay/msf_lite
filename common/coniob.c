@@ -148,6 +148,10 @@ void coniob_puts(const char* str)
 	//uint8_t* pStart = CBUF_GetLastEntryPtr(coniob_txQ);
 	volatile uint8_t* pData;
 	
+	// fix: if we get empty string, do not init printing below!
+	if ( *str == '\0' )
+		return;
+
 	while(*str) 
     {	    	
     	if( *str == '\n')
