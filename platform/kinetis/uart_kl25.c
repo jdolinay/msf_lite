@@ -157,6 +157,7 @@ static uint32_t  UART_Initialize( UART_speed_t baudrate, MSF_UART_Event_t event,
 	if ( uart->reg )
 	{
 		/* set clock for UART0 */
+		SIM->SOPT2 &= ~SIM_SOPT2_UART0SRC_MASK;	/* clear bits first, then set those needed */
 		SIM->SOPT2 |= SIM_SOPT2_UART0SRC(MSF_UART0_CLKSEL);
 		
 		SIM->SCGC4 |= SIM_SCGC4_UART0_MASK;		/* Enable clock for UART */	

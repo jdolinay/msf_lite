@@ -137,9 +137,11 @@ static uint32_t  TPM_Initialize( MSF_TPM_Event_t event,  TPM_RESOURCES* tpm)
 	tpm->info->status = 0;	
 	
 	/* Set the clock for timers TPMx (shared by all instances) */
+	SIM->SOPT2 &= ~SIM_SOPT2_TPMSRC_MASK;	/* clear bits first, then set those needed */
 	SIM->SOPT2 |= SIM_SOPT2_TPMSRC(MSF_TPM_CLKSEL);
 	/* note that the caller needs to enable the clock for the specific TPMn module before calling this!
-	 * if the clock for TPMn is disabled, attempt to write its register will cause an exception!
+	 * This is handled by the wrapper TPMx_Initialize here; no action needed from end user!
+	 * If the clock for TPMn is disabled, attempt to write its register will cause an exception!
 	 * in SIM->SCGC6 */	
 	
 	tpm->reg->SC = 0;	/* default values, counter disabled */
